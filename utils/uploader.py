@@ -24,7 +24,9 @@ async def progress_callback(current, total, id, client: Client, file_path):
             pass
 
 
-async def start_file_uploader(file_path, id, directory_path, filename, file_size):
+async def start_file_uploader(
+    file_path, id, directory_path, filename, file_size, delete=True
+):
     global PROGRESS_CACHE
     from utils.directoryHandler import DRIVE_DATA
 
@@ -58,8 +60,10 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     DRIVE_DATA.new_file(directory_path, filename, message.id, size)
     PROGRESS_CACHE[id] = ("completed", size, size)
 
-    try:
-        os.remove(file_path)
-    except:
-        pass
     logger.info(f"Uploaded file {file_path} {id}")
+
+    if delete:
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            pass

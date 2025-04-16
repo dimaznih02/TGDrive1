@@ -56,20 +56,17 @@ async def auto_ping_website():
                 await asyncio.sleep(60)  # Ping website every minute
 
 
+import shutil
+
+
 def reset_cache_dir():
     cache_dir = Path("./cache")
+    downloads_dir = Path("./downloads")
+    shutil.rmtree(cache_dir, ignore_errors=True)
+    shutil.rmtree(downloads_dir, ignore_errors=True)
     cache_dir.mkdir(parents=True, exist_ok=True)
-
-    for file_path in cache_dir.iterdir():
-        if file_path.is_file() and (
-            ".session-journal" in file_path.name
-            or ".session" in file_path.name
-            or ".data" in file_path.name
-        ):
-            try:
-                file_path.unlink()
-            except:
-                pass
+    downloads_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Cache and downloads directory reset")
 
 
 def parse_content_disposition(content_disposition):

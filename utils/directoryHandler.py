@@ -1,9 +1,12 @@
 from pathlib import Path
-import config
-from pyrogram.types import InputMediaDocument
-import pickle, os, random, string, asyncio
+import sys
+import config, dill
+from pyrogram.types import InputMediaDocument, Message
+import os, random, string, asyncio
 from utils.logger import Logger
 from datetime import datetime, timezone
+import os
+import signal
 
 logger = Logger(__name__)
 
@@ -16,7 +19,8 @@ def getRandomID():
     global DRIVE_DATA
     while True:
         id = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
-
+        if not DRIVE_DATA:
+            return id
         if id not in DRIVE_DATA.used_ids:
             DRIVE_DATA.used_ids.append(id)
             return id
@@ -27,7 +31,7 @@ def get_current_utc_time():
 
 
 class Folder:
-    def __init__(self, name: str, path) -> None:
+    def __init__(self, name: str, path: str) -> None:
         self.name = name
         self.contents = {}
         if name == "/":
@@ -36,7 +40,7 @@ class Folder:
             self.id = getRandomID()
         self.type = "folder"
         self.trash = False
-        self.path = path[:-1] if path[-1] == "/" else path
+        self.path = ("/" + path.strip("/") + "/").replace("//", "/")
         self.upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.auth_hashes = []
 
@@ -50,7 +54,6 @@ class File:
         path: str,
     ) -> None:
         self.name = name
-        self.type = type
         self.file_id = file_id
         self.id = getRandomID()
         self.size = size
@@ -68,12 +71,12 @@ class NewDriveData:
 
     def save(self) -> None:
         with open(drive_cache_path, "wb") as f:
-            pickle.dump(self, f)
-
+            dill.dump(self, f)
         self.isUpdated = True
+        logger.info("Drive data saved successfully.")
 
     def new_folder(self, path: str, name: str) -> None:
-        logger.info(f"Creating new folder {name} in {path}")
+        logger.info(f"Creating new folder '{name}' in path '{path}'.")
 
         folder = Folder(name, path)
         if path == "/":
@@ -87,9 +90,10 @@ class NewDriveData:
             directory_folder.contents[folder.id] = folder
 
         self.save()
+        return folder.path + folder.id
 
     def new_file(self, path: str, name: str, file_id: int, size: int) -> None:
-        logger.info(f"Creating new file {name} in {path}")
+        logger.info(f"Creating new file '{name}' in path '{path}'.")
 
         file = File(name, file_id, size, path)
         if path == "/":
@@ -129,9 +133,11 @@ class NewDriveData:
                     )
 
         if not is_admin and not auth_success:
+            logger.warning(f"Unauthorized access attempt to path '{path}'.")
             return None
 
         if auth_success:
+            logger.info(f"Authorization successful for path '{path}'.")
             return folder_data, auth_home_path
 
         return folder_data
@@ -153,6 +159,7 @@ class NewDriveData:
 
         folder_data.auth_hashes.append(auth)
         self.save()
+        logger.info(f"Authorization hash generated for path '{path}'.")
         return auth
 
     def get_file(self, path) -> File:
@@ -167,8 +174,6 @@ class NewDriveData:
         return folder_data.contents[file_id]
 
     def rename_file_folder(self, path: str, new_name: str) -> None:
-        logger.info(f"Renaming {path} to {new_name}")
-
         if len(path.strip("/").split("/")) > 0:
             folder_path = "/" + "/".join(path.strip("/").split("/")[:-1])
             file_id = path.strip("/").split("/")[-1]
@@ -178,9 +183,10 @@ class NewDriveData:
         folder_data = self.get_directory(folder_path)
         folder_data.contents[file_id].name = new_name
         self.save()
+        logger.info(f"Item at path '{path}' renamed to '{new_name}'.")
 
     def trash_file_folder(self, path: str, trash: bool) -> None:
-        logger.info(f"Trashing {path}")
+        action = "Trashing" if trash else "Restoring"
 
         if len(path.strip("/").split("/")) > 0:
             folder_path = "/" + "/".join(path.strip("/").split("/")[:-1])
@@ -191,6 +197,7 @@ class NewDriveData:
         folder_data = self.get_directory(folder_path)
         folder_data.contents[file_id].trash = trash
         self.save()
+        logger.info(f"Item at path '{path}' {action.lower()} successfully.")
 
     def get_trashed_files_folders(self):
         root_dir = self.get_directory("/")
@@ -212,7 +219,6 @@ class NewDriveData:
         return trash_data
 
     def delete_file_folder(self, path: str) -> None:
-        logger.info(f"Deleting {path}")
 
         if len(path.strip("/").split("/")) > 0:
             folder_path = "/" + "/".join(path.strip("/").split("/")[:-1])
@@ -224,8 +230,11 @@ class NewDriveData:
         folder_data = self.get_directory(folder_path)
         del folder_data.contents[file_id]
         self.save()
+        logger.info(f"Item at path '{path}' deleted successfully.")
 
     def search_file_folder(self, query: str):
+        logger.info(f"Searching for items matching query '{query}'.")
+
         root_dir = self.get_directory("/")
         search_results = {}
 
@@ -237,6 +246,7 @@ class NewDriveData:
                     traverse_directory(item)
 
         traverse_directory(root_dir)
+        logger.info(f"Search completed. Found {len(search_results)} matching items.")
         return search_results
 
 
@@ -252,6 +262,7 @@ class NewBotMode:
         self.current_folder = folder_path
         self.current_folder_name = name
         self.drive_data.save()
+        logger.info(f"Current folder set to '{name}' at path '{folder_path}'.")
 
 
 DRIVE_DATA: NewDriveData = None
@@ -259,47 +270,58 @@ BOT_MODE: NewBotMode = None
 
 
 # Function to backup the drive data to telegram
-async def backup_drive_data():
+async def backup_drive_data(loop=True):
     global DRIVE_DATA
-    logger.info("Starting backup drive data task")
+    logger.info("Starting backup drive data task.")
 
     while True:
         try:
-            await asyncio.sleep(
-                config.DATABASE_BACKUP_TIME
-            )  # Backup the data every 24 hours
-
-            if DRIVE_DATA.isUpdated == False:
+            if not DRIVE_DATA.isUpdated:
+                if not loop:
+                    break
+                await asyncio.sleep(config.DATABASE_BACKUP_TIME)
                 continue
 
-            logger.info("Backing up drive data to telegram")
+            logger.info("Backing up drive data to Telegram.")
             from utils.clients import get_client
 
             client = get_client()
             time_text = f"📅 **Last Updated :** {get_current_utc_time()} (UTC +00:00)"
+            caption = (
+                f"🔐 **TG Drive Data Backup File**\n\n"
+                "Do not edit or delete this message. This is a backup file for the tg drive data.\n\n"
+                f"{time_text}"
+            )
+
+            media_doc = InputMediaDocument(drive_cache_path, caption=caption)
             msg = await client.edit_message_media(
                 config.STORAGE_CHANNEL,
                 config.DATABASE_BACKUP_MSG_ID,
-                media=InputMediaDocument(
-                    drive_cache_path,
-                    caption=f"🔐 **TG Drive Data Backup File**\n\nDo not edit or delete this message. This is a backup file for the tg drive data.\n\n{time_text}",
-                ),
+                media=media_doc,
                 file_name="drive.data",
             )
+
             DRIVE_DATA.isUpdated = False
+            logger.info("Drive data backed up to Telegram successfully.")
+
             try:
                 await msg.pin()
-            except:
-                pass
+            except Exception as pin_e:
+                logger.error(f"Error pinning backup message: {pin_e}")
+
+            if not loop:
+                break
+
+            await asyncio.sleep(config.DATABASE_BACKUP_TIME)
         except Exception as e:
-            logger.error("Backup Error : " + str(e))
+            logger.error(f"Backup Error: {e}")
+            await asyncio.sleep(10)
 
 
 async def init_drive_data():
-    # auth_hashes attribute is added to all the folders in the drive data if it doesn't exist
-
     global DRIVE_DATA
 
+    logger.info("Initializing drive data.")
     root_dir = DRIVE_DATA.get_directory("/")
     if not hasattr(root_dir, "auth_hashes"):
         root_dir.auth_hashes = []
@@ -313,46 +335,53 @@ async def init_drive_data():
                     item.auth_hashes = []
 
     traverse_directory(root_dir)
-
     DRIVE_DATA.save()
+    logger.info("Drive data initialization completed.")
 
 
 async def loadDriveData():
     global DRIVE_DATA, BOT_MODE
 
-    # Checking if the backup file exists on telegram
+    logger.info("Loading drive data.")
     from utils.clients import get_client
 
     client = get_client()
     try:
         try:
-            msg = await client.get_messages(
+            msg: Message = await client.get_messages(
                 config.STORAGE_CHANNEL, config.DATABASE_BACKUP_MSG_ID
             )
         except Exception as e:
-            logger.error(e)
-            raise Exception("Failed to get DATABASE_BACKUP_MSG_ID on telegram")
+            logger.error(f"Error fetching backup message: {e}")
+
+            # Forcefully terminates the program immediately
+            os.kill(os.getpid(), signal.SIGKILL)
+
+        if not msg.document:
+            logger.error(f"Error fetching backup message: {e}")
+
+            # Forcefully terminates the program immediately
+            os.kill(os.getpid(), signal.SIGKILL)
 
         if msg.document.file_name == "drive.data":
             dl_path = await msg.download()
             with open(dl_path, "rb") as f:
-                DRIVE_DATA = pickle.load(f)
+                DRIVE_DATA = dill.load(f)
 
-            logger.info("Drive data loaded from backup file from telegram")
+            logger.info("Drive data loaded from Telegram backup.")
         else:
-            raise Exception("Backup drive.data file not found on telegram")
+            raise Exception("Backup drive.data file not found on Telegram.")
     except Exception as e:
-        logger.warning(e)
-        logger.info("Creating new drive.data file")
+        logger.warning(f"Backup load failed: {e}")
+        logger.info("Creating new drive.data file.")
         DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [])
         DRIVE_DATA.save()
 
-    # For updating the changes in already existing old backup drive.data file
     await init_drive_data()
 
-    # Start Bot Mode
     if config.MAIN_BOT_TOKEN:
         from utils.bot_mode import start_bot_mode
 
         BOT_MODE = NewBotMode(DRIVE_DATA)
         await start_bot_mode(DRIVE_DATA, BOT_MODE)
+        logger.info("Bot mode started.")
