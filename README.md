@@ -24,15 +24,6 @@ Welcome to TGDrive! This web application replicates Google Drive's functionaliti
 - **Database:** Local storage as a class object, saved to a file using the pickle module.
 - **Storage:** Telegram
 
-## Demo
-
-Explore the live demo of TGDrive:
-
-- **Website:** [TGDrive Demo](http://tgdrive.37.44.244.56.sslip.io)
-- **Password:** admin
-
-Feel free to test the features with the provided login credentials.
-
 ### Environment Variables
 
 #### Required Variables
