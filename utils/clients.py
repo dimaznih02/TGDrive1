@@ -3,6 +3,8 @@ from pathlib import Path
 from pyrogram import Client
 from utils.directoryHandler import backup_drive_data, loadDriveData
 from utils.logger import Logger
+import os
+import signal
 
 logger = Logger(__name__)
 
@@ -30,15 +32,15 @@ async def initialize_clients():
             logger.info(f"Starting - {type.title()} Client {client_id}")
 
             if type == "bot":
-                client = await Client(
+                client = Client(
                     name=str(client_id),
                     api_id=config.API_ID,
                     api_hash=config.API_HASH,
                     bot_token=token,
-                    sleep_threshold=config.SLEEP_THRESHOLD,
                     workdir=session_cache_path,
-                    no_updates=True,
-                ).start()
+                )
+                client.loop = asyncio.get_running_loop()
+                await client.start()
                 await client.send_message(
                     config.STORAGE_CHANNEL,
                     f"Started - {type.title()} Client {client_id}",
@@ -82,7 +84,10 @@ async def initialize_clients():
     )
     if len(multi_clients) == 0:
         logger.error("No Clients Were Initialized")
-        exit(1)
+
+        # Forcefully terminates the program immediately
+        os.kill(os.getpid(), signal.SIGKILL)
+
     if len(premium_clients) == 0:
         logger.info("No Premium Clients Were Initialized")
 

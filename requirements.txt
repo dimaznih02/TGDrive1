@@ -1,4 +1,4 @@
-pyroblack
+https://github.com/KurimuzonAkuma/pyrogram/archive/dev.zip
 tgcrypto
 uvicorn
 fastapi[all]
@@ -7,3 +7,5 @@ aiofiles
 aiohttp
 curl_cffi
 techzdl>=1.2.6
+tqdm
+dill
