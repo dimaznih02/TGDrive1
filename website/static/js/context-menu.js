@@ -640,14 +640,27 @@ class MoreMenuSelectionManager {
             this.enterSelectionMode();
         }
 
-        // Add this file to selection
-        this.addFileToSelection(fileItem);
+        // Ensure this specific file is selected
+        const filePath = fileItem.dataset.path;
+        if (!this.selectedFiles.has(filePath)) {
+            this.selectedFiles.add(filePath);
+            fileItem.classList.add('selected');
+        }
         
-        // Update all more menus to reflect new state
+        // Update checkboxes to reflect selection
+        setTimeout(() => {
+            const checkbox = fileItem.querySelector('.file-checkbox');
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        }, 50);
+        
+        // Update counts and UI
+        this.updateSelectionCount();
         this.updateAllMoreMenus();
         
         // Show toast notification
-        this.showToast(`"${fileItem.dataset.name}" selected`, 'success');
+        this.showToast(`"${fileItem.dataset.name}" selected. Select more files with checkboxes.`, 'success');
     }
 
     addFileToSelection(fileItem) {
@@ -675,7 +688,7 @@ class MoreMenuSelectionManager {
         this.isSelectionMode = true;
         document.body.classList.add('selection-mode');
         
-        // Show checkboxes
+        // Show checkboxes column header
         document.querySelectorAll('.checkbox-column').forEach(el => {
             el.classList.remove('hidden');
         });
@@ -689,11 +702,16 @@ class MoreMenuSelectionManager {
         if (cancelBtn) cancelBtn.classList.remove('hidden');
         if (moveBtn) {
             moveBtn.classList.remove('hidden');
-            moveBtn.disabled = this.selectedFiles.size === 0;
+            moveBtn.classList.remove('disabled');
         }
 
-        // Add checkboxes to all files
+        // Add checkboxes to all files FIRST
         this.addCheckboxesToFiles();
+        
+        // Then update selection count and move button state
+        this.updateSelectionCount();
+        
+        console.log('✅ Selection mode entered. Selected files:', this.selectedFiles.size);
     }
 
     exitSelectionMode() {
@@ -737,15 +755,29 @@ class MoreMenuSelectionManager {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'file-checkbox';
-                checkbox.checked = this.selectedFiles.has(row.dataset.path);
+                
+                // Check if this file is already selected
+                const filePath = row.dataset.path;
+                const isSelected = this.selectedFiles.has(filePath);
+                checkbox.checked = isSelected;
+                
+                // Ensure visual selection matches checkbox state
+                if (isSelected) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
                 
                 checkbox.addEventListener('change', (e) => {
+                    const filePath = row.dataset.path;
                     if (e.target.checked) {
-                        this.selectedFiles.add(row.dataset.path);
+                        this.selectedFiles.add(filePath);
                         row.classList.add('selected');
+                        this.showToast(`"${row.dataset.name}" added to selection`, 'success');
                     } else {
-                        this.selectedFiles.delete(row.dataset.path);
+                        this.selectedFiles.delete(filePath);
                         row.classList.remove('selected');
+                        this.showToast(`"${row.dataset.name}" removed from selection`, 'info');
                     }
                     this.updateSelectionCount();
                     this.updateAllMoreMenus();
@@ -754,6 +786,19 @@ class MoreMenuSelectionManager {
                 const checkboxCell = document.createElement('td');
                 checkboxCell.appendChild(checkbox);
                 row.insertBefore(checkboxCell, firstCell);
+            } else if (firstCell && firstCell.querySelector('.file-checkbox')) {
+                // Update existing checkbox state
+                const checkbox = firstCell.querySelector('.file-checkbox');
+                const filePath = row.dataset.path;
+                const isSelected = this.selectedFiles.has(filePath);
+                checkbox.checked = isSelected;
+                
+                // Ensure visual selection matches checkbox state
+                if (isSelected) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
             }
         });
     }
@@ -765,6 +810,7 @@ class MoreMenuSelectionManager {
             countElement.textContent = count;
         }
 
+        // Update move button state
         const moveBtn = document.getElementById('move-files-btn');
         if (moveBtn) {
             if (count > 0) {
@@ -775,6 +821,24 @@ class MoreMenuSelectionManager {
                 moveBtn.disabled = true;
             }
         }
+
+        // Update select all checkbox state
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        if (selectAllCheckbox) {
+            const totalFiles = document.querySelectorAll('#directory-data tr[data-path]').length;
+            if (count === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (count === totalFiles) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+
+        console.log(`📊 Selection count updated: ${count} files selected`);
     }
 
     async moveSelectedFiles() {
@@ -800,9 +864,25 @@ class MoreMenuSelectionManager {
     directMoveFile(fileItem) {
         console.log('🎯 Direct move for:', fileItem.dataset.name);
         
-        // Use existing move functionality for single file
+        // Automatically select this file for move
+        const filePath = fileItem.dataset.path;
+        this.selectedFiles.clear(); // Clear previous selections
+        this.selectedFiles.add(filePath);
+        
+        // Add visual selection
+        document.querySelectorAll('tr.selected').forEach(row => {
+            row.classList.remove('selected');
+        });
+        fileItem.classList.add('selected');
+        
+        // Sync with global selectedFiles for moveFiles.js compatibility
+        window.selectedFiles = this.selectedFiles;
+        
+        // Show toast notification
+        this.showToast(`Moving "${fileItem.dataset.name}"...`, 'info');
+        
+        // Open move dialog directly
         if (typeof openMoveDialog === 'function') {
-            selectedFiles = new Set([fileItem.dataset.path]);
             openMoveDialog();
         } else {
             this.showToast('Move functionality not available', 'error');
@@ -857,7 +937,10 @@ class MoreMenuSelectionManager {
             // Default state - show Select and Move to...
             const selectItem = this.createMenuItem('select', '☑️', 'Select', () => {
                 this.selectFileFromMore(fileItem);
-                this.closeMoreMenu(fileItem);
+                // Don't close menu immediately - let user see the checkboxes
+                setTimeout(() => {
+                    this.closeMoreMenu(fileItem);
+                }, 500);
             });
             
             const moveItem = this.createMenuItem('move-direct', '🔄', 'Move to...', () => {
@@ -913,11 +996,20 @@ class MoreMenuSelectionManager {
     }
 
     closeMoreMenu(fileItem) {
-        const btnId = fileItem.querySelector('.more-btn')?.dataset.id;
+        const moreBtn = fileItem.querySelector('.more-btn');
+        if (!moreBtn) {
+            console.warn('⚠️ No more button found in file item');
+            return;
+        }
+        
+        const btnId = moreBtn.dataset.id;
         const menu = document.getElementById(`more-option-${btnId}`);
         if (menu) {
             menu.style.opacity = '0';
             menu.style.zIndex = '-1';
+            console.log('✅ More menu closed for file:', fileItem.dataset.name);
+        } else {
+            console.warn('⚠️ More menu not found for ID:', btnId);
         }
     }
 
