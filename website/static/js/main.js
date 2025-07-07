@@ -71,6 +71,9 @@ function showDirectory(data) {
         if (window.driveEnhancements) {
             window.driveEnhancements.enhanceNewFiles();
         }
+        if (window.moreMenuManager) {
+            window.moreMenuManager.onDirectoryRefresh();
+        }
         if (typeof enhanceMoreMenu === 'function') {
             enhanceMoreMenu();
         }
