@@ -161,10 +161,25 @@ function updateSelectAllCheckbox() {
 }
 
 async function openMoveDialog() {
-    if (selectedFiles.size === 0) {
-        alert('Please select files to move');
+    // Get selected files from MoreMenuSelectionManager if available
+    let filesToMove = selectedFiles;
+    if (window.moreMenuManager && window.moreMenuManager.selectedFiles.size > 0) {
+        filesToMove = window.moreMenuManager.selectedFiles;
+    }
+    
+    if (filesToMove.size === 0) {
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast('Please select files to move', 'warning');
+        } else {
+            alert('Please select files to move');
+        }
         return;
     }
+    
+    console.log('🔄 Opening move dialog for files:', Array.from(filesToMove));
+    
+    // Update selected count in dialog
+    document.getElementById('selected-count').textContent = `${filesToMove.size} files selected`;
     
     // Load folders
     try {
@@ -178,10 +193,20 @@ async function openMoveDialog() {
             document.getElementById('move-files-dialog').style.zIndex = '3';
             document.getElementById('move-files-dialog').style.opacity = '1';
         } else {
-            alert('Error loading folders: ' + response.status);
+            const errorMsg = 'Error loading folders: ' + response.status;
+            if (window.googleDriveUI && window.googleDriveUI.showToast) {
+                window.googleDriveUI.showToast(errorMsg, 'error');
+            } else {
+                alert(errorMsg);
+            }
         }
     } catch (error) {
-        alert('Error loading folders: ' + error.message);
+        const errorMsg = 'Error loading folders: ' + error.message;
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast(errorMsg, 'error');
+        } else {
+            alert(errorMsg);
+        }
     }
 }
 
@@ -220,33 +245,78 @@ async function confirmMoveFiles() {
     const destinationPath = document.getElementById('destination-folder').value;
     
     if (!destinationPath) {
-        alert('Please select a destination folder');
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast('Please select a destination folder', 'warning');
+        } else {
+            alert('Please select a destination folder');
+        }
         return;
     }
     
-    const fileIds = Array.from(selectedFiles);
+    // Get selected files - prefer MoreMenuSelectionManager's selection
+    let filesToMove;
+    if (window.moreMenuManager && window.moreMenuManager.selectedFiles.size > 0) {
+        // MoreMenuSelectionManager uses file paths
+        filesToMove = Array.from(window.moreMenuManager.selectedFiles);
+        console.log('🔄 Moving files using MoreMenuManager paths:', filesToMove);
+    } else {
+        // Legacy mode uses file IDs
+        filesToMove = Array.from(selectedFiles);
+        console.log('🔄 Moving files using legacy file IDs:', filesToMove);
+    }
+    
+    if (filesToMove.length === 0) {
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast('No files selected to move', 'warning');
+        } else {
+            alert('No files selected to move');
+        }
+        return;
+    }
     
     try {
         // Show loading
         document.getElementById('move-confirm').textContent = 'Moving...';
         document.getElementById('move-confirm').disabled = true;
         
-        const response = await moveFiles(fileIds, destinationPath);
+        const response = await moveFiles(filesToMove, destinationPath);
         
         if (response.status === 'ok') {
-            alert(`Successfully moved ${response.moved_items.length} file(s)`);
+            const successMsg = `Successfully moved ${response.moved_items.length} file(s)`;
+            if (window.googleDriveUI && window.googleDriveUI.showToast) {
+                window.googleDriveUI.showToast(successMsg, 'success');
+            } else {
+                alert(successMsg);
+            }
+            
             closeMoveDialog();
-            exitSelectionMode();
+            
+            // Exit selection mode - use MoreMenuManager if available
+            if (window.moreMenuManager && window.moreMenuManager.isSelectionMode) {
+                window.moreMenuManager.exitSelectionMode();
+            } else {
+                exitSelectionMode();
+            }
             
             // Reload current directory
             setTimeout(() => {
                 window.location.reload();
             }, 500);
         } else {
-            alert('Error moving files: ' + response.status);
+            const errorMsg = 'Error moving files: ' + response.status;
+            if (window.googleDriveUI && window.googleDriveUI.showToast) {
+                window.googleDriveUI.showToast(errorMsg, 'error');
+            } else {
+                alert(errorMsg);
+            }
         }
     } catch (error) {
-        alert('Error moving files: ' + error.message);
+        const errorMsg = 'Error moving files: ' + error.message;
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast(errorMsg, 'error');
+        } else {
+            alert(errorMsg);
+        }
     } finally {
         // Reset button
         document.getElementById('move-confirm').textContent = 'Move Files';

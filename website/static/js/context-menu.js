@@ -625,6 +625,356 @@ document.addEventListener('DOMContentLoaded', () => {
     window.googleDriveUI = new GoogleDriveUI();
 });
 
+// Enhanced Selection Manager for More Menu
+class MoreMenuSelectionManager {
+    constructor() {
+        this.selectedFiles = new Set();
+        this.isSelectionMode = false;
+    }
+
+    selectFileFromMore(fileItem) {
+        console.log('🎯 Starting selection from more menu for:', fileItem.dataset.name);
+        
+        // Enter selection mode if not already active
+        if (!this.isSelectionMode) {
+            this.enterSelectionMode();
+        }
+
+        // Add this file to selection
+        this.addFileToSelection(fileItem);
+        
+        // Update all more menus to reflect new state
+        this.updateAllMoreMenus();
+        
+        // Show toast notification
+        this.showToast(`"${fileItem.dataset.name}" selected`, 'success');
+    }
+
+    addFileToSelection(fileItem) {
+        const filePath = fileItem.dataset.path;
+        const fileName = fileItem.dataset.name;
+
+        if (this.selectedFiles.has(filePath)) {
+            // Remove from selection
+            this.selectedFiles.delete(filePath);
+            fileItem.classList.remove('selected');
+            this.showToast(`"${fileName}" removed from selection`, 'info');
+        } else {
+            // Add to selection
+            this.selectedFiles.add(filePath);
+            fileItem.classList.add('selected');
+            this.showToast(`"${fileName}" added to selection`, 'success');
+        }
+
+        this.updateSelectionCount();
+        this.updateAllMoreMenus();
+    }
+
+    enterSelectionMode() {
+        console.log('🔘 Entering selection mode from more menu');
+        this.isSelectionMode = true;
+        document.body.classList.add('selection-mode');
+        
+        // Show checkboxes
+        document.querySelectorAll('.checkbox-column').forEach(el => {
+            el.classList.remove('hidden');
+        });
+
+        // Update header buttons
+        const selectBtn = document.getElementById('select-mode-btn');
+        const cancelBtn = document.getElementById('cancel-select-btn');
+        const moveBtn = document.getElementById('move-files-btn');
+
+        if (selectBtn) selectBtn.classList.add('hidden');
+        if (cancelBtn) cancelBtn.classList.remove('hidden');
+        if (moveBtn) {
+            moveBtn.classList.remove('hidden');
+            moveBtn.disabled = this.selectedFiles.size === 0;
+        }
+
+        // Add checkboxes to all files
+        this.addCheckboxesToFiles();
+    }
+
+    exitSelectionMode() {
+        console.log('❌ Exiting selection mode');
+        this.isSelectionMode = false;
+        this.selectedFiles.clear();
+        
+        document.body.classList.remove('selection-mode');
+        
+        // Hide checkboxes
+        document.querySelectorAll('.checkbox-column').forEach(el => {
+            el.classList.add('hidden');
+        });
+
+        // Clear visual selections
+        document.querySelectorAll('tr.selected').forEach(row => {
+            row.classList.remove('selected');
+        });
+
+        // Update header buttons
+        const selectBtn = document.getElementById('select-mode-btn');
+        const cancelBtn = document.getElementById('cancel-select-btn');
+        const moveBtn = document.getElementById('move-files-btn');
+
+        if (selectBtn) selectBtn.classList.remove('hidden');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+        if (moveBtn) {
+            moveBtn.classList.add('disabled');
+            moveBtn.disabled = true;
+        }
+
+        // Update all more menus
+        this.updateAllMoreMenus();
+        this.updateSelectionCount();
+    }
+
+    addCheckboxesToFiles() {
+        document.querySelectorAll('#directory-data tr[data-path]').forEach(row => {
+            const firstCell = row.querySelector('td');
+            if (firstCell && !firstCell.querySelector('.file-checkbox')) {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'file-checkbox';
+                checkbox.checked = this.selectedFiles.has(row.dataset.path);
+                
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        this.selectedFiles.add(row.dataset.path);
+                        row.classList.add('selected');
+                    } else {
+                        this.selectedFiles.delete(row.dataset.path);
+                        row.classList.remove('selected');
+                    }
+                    this.updateSelectionCount();
+                    this.updateAllMoreMenus();
+                });
+                
+                const checkboxCell = document.createElement('td');
+                checkboxCell.appendChild(checkbox);
+                row.insertBefore(checkboxCell, firstCell);
+            }
+        });
+    }
+
+    updateSelectionCount() {
+        const count = this.selectedFiles.size;
+        const countElement = document.getElementById('selected-count-header');
+        if (countElement) {
+            countElement.textContent = count;
+        }
+
+        const moveBtn = document.getElementById('move-files-btn');
+        if (moveBtn) {
+            if (count > 0) {
+                moveBtn.classList.remove('disabled');
+                moveBtn.disabled = false;
+            } else {
+                moveBtn.classList.add('disabled');
+                moveBtn.disabled = true;
+            }
+        }
+    }
+
+    async moveSelectedFiles() {
+        if (this.selectedFiles.size === 0) {
+            this.showToast('No files selected', 'warning');
+            return;
+        }
+
+        const selectedArray = Array.from(this.selectedFiles);
+        console.log('🔄 Moving selected files:', selectedArray);
+
+        // Sync with global selectedFiles for legacy compatibility
+        window.selectedFiles = this.selectedFiles;
+
+        // Open move dialog with selected files
+        if (typeof openMoveDialog === 'function') {
+            openMoveDialog();
+        } else {
+            this.showToast('Move functionality not available', 'error');
+        }
+    }
+
+    directMoveFile(fileItem) {
+        console.log('🎯 Direct move for:', fileItem.dataset.name);
+        
+        // Use existing move functionality for single file
+        if (typeof openMoveDialog === 'function') {
+            selectedFiles = new Set([fileItem.dataset.path]);
+            openMoveDialog();
+        } else {
+            this.showToast('Move functionality not available', 'error');
+        }
+    }
+
+    updateAllMoreMenus() {
+        document.querySelectorAll('.more-btn').forEach(btn => {
+            this.updateSingleMoreMenu(btn);
+        });
+    }
+
+    updateSingleMoreMenu(btn) {
+        const btnId = btn.dataset.id;
+        const menu = document.getElementById(`more-option-${btnId}`);
+        const fileItem = btn.closest('tr[data-path]');
+        
+        if (!menu || !fileItem) return;
+
+        const filePath = fileItem.dataset.path;
+        const isSelected = this.selectedFiles.has(filePath);
+        const selectedCount = this.selectedFiles.size;
+
+        // Remove existing dynamic items
+        menu.querySelectorAll('.dynamic-menu-item').forEach(item => item.remove());
+
+        // Create dynamic menu items based on current state
+        const dynamicItems = this.createDynamicMenuItems(isSelected, selectedCount, fileItem);
+        
+        // Insert dynamic items at the beginning
+        const firstStaticItem = menu.querySelector('div:not(.dynamic-menu-item)');
+        dynamicItems.forEach((item, index) => {
+            if (firstStaticItem) {
+                menu.insertBefore(item, firstStaticItem);
+            } else {
+                menu.appendChild(item);
+            }
+        });
+
+        // Add separator after dynamic items if they exist
+        if (dynamicItems.length > 0 && firstStaticItem) {
+            const separator = document.createElement('hr');
+            separator.className = 'dynamic-menu-item';
+            menu.insertBefore(separator, firstStaticItem);
+        }
+    }
+
+    createDynamicMenuItems(isSelected, selectedCount, fileItem) {
+        const items = [];
+
+        if (!this.isSelectionMode) {
+            // Default state - show Select and Move to...
+            const selectItem = this.createMenuItem('select', '☑️', 'Select', () => {
+                this.selectFileFromMore(fileItem);
+                this.closeMoreMenu(fileItem);
+            });
+            
+            const moveItem = this.createMenuItem('move-direct', '🔄', 'Move to...', () => {
+                this.directMoveFile(fileItem);
+                this.closeMoreMenu(fileItem);
+            });
+
+            items.push(selectItem, moveItem);
+        } else {
+            // Selection mode active
+            if (isSelected) {
+                const removeItem = this.createMenuItem('remove-selection', '➖', 'Remove from selection', () => {
+                    this.addFileToSelection(fileItem);
+                    this.closeMoreMenu(fileItem);
+                });
+                items.push(removeItem);
+            } else {
+                const addItem = this.createMenuItem('add-selection', '➕', 'Add to selection', () => {
+                    this.addFileToSelection(fileItem);
+                    this.closeMoreMenu(fileItem);
+                });
+                items.push(addItem);
+            }
+
+            if (selectedCount > 0) {
+                const moveSelectedItem = this.createMenuItem('move-selected', '🔄', `Move selected (${selectedCount})`, () => {
+                    this.moveSelectedFiles();
+                    this.closeMoreMenu(fileItem);
+                });
+                items.push(moveSelectedItem);
+            }
+
+            const cancelItem = this.createMenuItem('cancel-selection', '❌', 'Cancel selection', () => {
+                this.exitSelectionMode();
+                this.closeMoreMenu(fileItem);
+            });
+            items.push(cancelItem);
+        }
+
+        return items;
+    }
+
+    createMenuItem(action, icon, text, clickHandler) {
+        const item = document.createElement('div');
+        item.className = 'more-menu-item dynamic-menu-item';
+        item.dataset.action = action;
+        item.innerHTML = `
+            <span class="more-menu-icon">${icon}</span>
+            <span class="more-menu-text">${text}</span>
+        `;
+        item.addEventListener('click', clickHandler);
+        return item;
+    }
+
+    closeMoreMenu(fileItem) {
+        const btnId = fileItem.querySelector('.more-btn')?.dataset.id;
+        const menu = document.getElementById(`more-option-${btnId}`);
+        if (menu) {
+            menu.style.opacity = '0';
+            menu.style.zIndex = '-1';
+        }
+    }
+
+    showToast(message, type = 'info') {
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast(message, type);
+        } else {
+            console.log(`🍞 Toast: ${message}`);
+        }
+    }
+
+    // Refresh/cleanup state when directory changes
+    refreshState() {
+        console.log('🔄 Refreshing MoreMenuSelectionManager state');
+        
+        // Clear selection if files no longer exist
+        const existingFiles = new Set();
+        document.querySelectorAll('#directory-data tr[data-path]').forEach(row => {
+            existingFiles.add(row.dataset.path);
+        });
+
+        // Remove selections for files that no longer exist
+        for (const filePath of this.selectedFiles) {
+            if (!existingFiles.has(filePath)) {
+                this.selectedFiles.delete(filePath);
+            }
+        }
+
+        // Update UI
+        this.updateSelectionCount();
+        this.updateAllMoreMenus();
+
+        // If no files selected, exit selection mode
+        if (this.selectedFiles.size === 0 && this.isSelectionMode) {
+            // Don't exit automatically - let user decide
+            // this.exitSelectionMode();
+        }
+    }
+
+    // Method to handle directory refresh from external sources
+    onDirectoryRefresh() {
+        console.log('📁 Directory refreshed - updating more menu state');
+        
+        setTimeout(() => {
+            this.refreshState();
+            
+            // Re-add checkboxes if in selection mode
+            if (this.isSelectionMode) {
+                this.addCheckboxesToFiles();
+            }
+        }, 100);
+    }
+}
+
+// Global instance
+window.moreMenuManager = new MoreMenuSelectionManager();
+
 // Enhanced more menu functionality
 function enhanceMoreMenu() {
     document.querySelectorAll('.more-btn').forEach(btn => {
@@ -634,53 +984,8 @@ function enhanceMoreMenu() {
         if (menu && !menu.hasAttribute('data-enhanced')) {
             menu.setAttribute('data-enhanced', 'true');
             
-            // Add new menu items
-            const moveItem = document.createElement('div');
-            moveItem.className = 'more-menu-item';
-            moveItem.innerHTML = `
-                <svg class="more-menu-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16,3L21,8L16,13V10H8V13L3,8L8,3V6H16V3M16,14V17H8V14L3,19L8,24V21H16V24L21,19L16,14Z"/>
-                </svg>
-                Move to...
-            `;
-            moveItem.addEventListener('click', () => {
-                const fileItem = btn.closest('.file-item, tr');
-                if (fileItem && window.googleDriveUI) {
-                    window.googleDriveUI.startMoveFile([fileItem.dataset.path]);
-                }
-                // Close more menu
-                menu.style.opacity = '0';
-                menu.style.zIndex = '-1';
-            });
-
-            const selectItem = document.createElement('div');
-            selectItem.className = 'more-menu-item';
-            selectItem.innerHTML = `
-                <svg class="more-menu-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-                </svg>
-                Select
-            `;
-            selectItem.addEventListener('click', () => {
-                const fileItem = btn.closest('.file-item, tr');
-                if (fileItem && window.googleDriveUI) {
-                    window.googleDriveUI.selectFile(fileItem);
-                }
-                // Close more menu  
-                menu.style.opacity = '0';
-                menu.style.zIndex = '-1';
-            });
-
-            // Insert new items at the beginning
-            const firstChild = menu.querySelector('div');
-            if (firstChild) {
-                menu.insertBefore(selectItem, firstChild);
-                menu.insertBefore(moveItem, selectItem.nextSibling);
-                
-                // Add separator
-                const separator = document.createElement('hr');
-                menu.insertBefore(separator, moveItem.nextSibling);
-            }
+            // Update this specific more menu
+            window.moreMenuManager.updateSingleMoreMenu(btn);
         }
     });
 }

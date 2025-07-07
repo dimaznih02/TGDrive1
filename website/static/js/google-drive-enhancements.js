@@ -176,13 +176,32 @@ class DriveEnhancements {
 
         if (selectModeBtn) {
             selectModeBtn.addEventListener('click', () => {
-                this.enterSelectionMode();
+                // Use more menu manager for consistency
+                if (window.moreMenuManager) {
+                    window.moreMenuManager.enterSelectionMode();
+                } else {
+                    this.enterSelectionMode();
+                }
             });
         }
 
         if (cancelSelectBtn) {
             cancelSelectBtn.addEventListener('click', () => {
-                this.exitSelectionMode();
+                // Use more menu manager for consistency
+                if (window.moreMenuManager) {
+                    window.moreMenuManager.exitSelectionMode();
+                } else {
+                    this.exitSelectionMode();
+                }
+            });
+        }
+
+        if (moveFilesBtn) {
+            moveFilesBtn.addEventListener('click', () => {
+                // Use more menu manager for move functionality
+                if (window.moreMenuManager) {
+                    window.moreMenuManager.moveSelectedFiles();
+                }
             });
         }
 
@@ -260,13 +279,41 @@ class DriveEnhancements {
 
     toggleSelectAll(selectAll) {
         const checkboxes = document.querySelectorAll('.file-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAll;
-            const row = checkbox.closest('tr');
-            if (row) {
-                this.handleFileCheckboxChange(row, selectAll);
+        
+        if (window.moreMenuManager) {
+            // Use more menu manager for consistency
+            if (selectAll) {
+                // Select all files
+                document.querySelectorAll('#directory-data tr[data-path]').forEach(row => {
+                    window.moreMenuManager.selectedFiles.add(row.dataset.path);
+                    row.classList.add('selected');
+                });
+            } else {
+                // Deselect all files
+                window.moreMenuManager.selectedFiles.clear();
+                document.querySelectorAll('#directory-data tr.selected').forEach(row => {
+                    row.classList.remove('selected');
+                });
             }
-        });
+            
+            // Update checkboxes
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll;
+            });
+            
+            // Update counts and UI
+            window.moreMenuManager.updateSelectionCount();
+            window.moreMenuManager.updateAllMoreMenus();
+        } else {
+            // Fallback to original method
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll;
+                const row = checkbox.closest('tr');
+                if (row) {
+                    this.handleFileCheckboxChange(row, selectAll);
+                }
+            });
+        }
     }
 
     clearAllSelections() {
@@ -326,7 +373,16 @@ class DriveEnhancements {
         
         // If in selection mode, add checkboxes to new files
         if (document.body.classList.contains('selection-mode')) {
-            this.addFileCheckboxes();
+            if (window.moreMenuManager) {
+                window.moreMenuManager.addCheckboxesToFiles();
+            } else {
+                this.addFileCheckboxes();
+            }
+        }
+        
+        // Update more menus for new files
+        if (window.moreMenuManager) {
+            window.moreMenuManager.updateAllMoreMenus();
         }
         
         // Update view if in grid mode

@@ -479,7 +479,7 @@
 
 /* Enhanced more menu styling */
 .more-menu {
-    min-width: 160px;
+    min-width: 180px;
 }
 
 .more-menu-item {
@@ -497,10 +497,132 @@
     background-color: #f8f9fa;
 }
 
+.more-menu-item.dynamic-menu-item {
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.more-menu-item.dynamic-menu-item:hover {
+    background-color: #e8f5e8;
+    border-left-color: #4caf50;
+}
+
+.more-menu-item[data-action="select"],
+.more-menu-item[data-action="add-selection"] {
+    background-color: #e3f2fd;
+    border-left-color: #2196f3;
+}
+
+.more-menu-item[data-action="select"]:hover,
+.more-menu-item[data-action="add-selection"]:hover {
+    background-color: #bbdefb;
+}
+
+.more-menu-item[data-action="move-selected"] {
+    background-color: #fff3e0;
+    border-left-color: #ff9800;
+    font-weight: 500;
+}
+
+.more-menu-item[data-action="move-selected"]:hover {
+    background-color: #ffe0b2;
+}
+
+.more-menu-item[data-action="cancel-selection"] {
+    background-color: #ffebee;
+    border-left-color: #f44336;
+}
+
+.more-menu-item[data-action="cancel-selection"]:hover {
+    background-color: #ffcdd2;
+}
+
 .more-menu-icon {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     opacity: 0.87;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.more-menu-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+/* Dynamic menu item animations */
+.dynamic-menu-item {
+    animation: slideInFromTop 0.2s ease-out;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Selection state indicators */
+.file-item.selected {
+    background-color: #e3f2fd !important;
+    border-left: 4px solid #1976d2;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+}
+
+.file-item.selected:hover {
+    background-color: #bbdefb !important;
+}
+
+/* Selection count badge */
+.selection-count-badge {
+    background: #1976d2;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+/* More options styling improvements */
+.more-options {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    min-width: 180px;
+}
+
+.more-options hr {
+    margin: 4px 0;
+    border: none;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .more-menu {
+        min-width: 160px;
+    }
+    
+    .more-menu-item {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    .more-menu-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 14px;
+    }
 }
 
 /* Selection mode enhancements */
