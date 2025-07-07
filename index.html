@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drive</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-btn">
+                    <span class="material-icons">menu</span>
+                </button>
+                <div class="logo">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDEwTDMwIDI1SDE5TDEwIDI1TDIwIDEwWiIgZmlsbD0iIzM0QTg1MyIvPgo8cGF0aCBkPSJNMTAgMjVIMjBMMzAgMjVMMjAgMzVMMTAgMjVaIiBmaWxsPSIjRkJCQzA0Ii8+CjxwYXRoIGQ9Ik0yMCAzNUwzMCAyNUwyMCAyNUwyMCAzNVoiIGZpbGw9IiNFQTQzMzUiLz4KPC9zdmc+" alt="Drive" class="drive-icon">
+                    <span class="drive-text">Drive</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="search-container">
+                    <span class="material-icons search-icon">search</span>
+                    <input type="text" placeholder="Telusuri di Drive" class="search-input">
+                    <button class="filter-btn">
+                        <span class="material-icons">tune</span>
+                    </button>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn">
+                    <span class="material-icons">help_outline</span>
+                </button>
+                <button class="icon-btn">
+                    <span class="material-icons">settings</span>
+                </button>
+                <button class="icon-btn">
+                    <span class="material-icons">apps</span>
+                </button>
+                <div class="profile-menu">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNFNzRDM0MiLz4KPHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiI+CjxjaXJjbGUgY3g9IjE2IiBjeT0iMTIiIHI9IjQiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xNiAyMGMtNC40MiAwLTggMS43OS04IDR2NGgxNnYtNGMwLTIuMjEtMy41OC00LTgtNHoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=" alt="Profile" class="profile-img">
+                </div>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <button class="new-btn">
+                    <span class="material-icons">add</span>
+                    <span>Baru</span>
+                </button>
+                
+                <nav class="nav-menu">
+                    <div class="nav-item active">
+                        <span class="material-icons">home</span>
+                        <span>Beranda</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">folder</span>
+                        <span>Drive Saya</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">people</span>
+                        <span>Drive bersama</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">computer</span>
+                        <span>Komputer</span>
+                    </div>
+                </nav>
+
+                <div class="nav-section">
+                    <div class="nav-item">
+                        <span class="material-icons">schedule</span>
+                        <span>Terbaru</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">star</span>
+                        <span>Berbintang</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">report</span>
+                        <span>Spam</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">delete</span>
+                        <span>Sampah</span>
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">cloud</span>
+                        <span>Penyimpanan</span>
+                    </div>
+                </div>
+
+                <div class="storage-info">
+                    <div class="storage-text">46,29 GB dari 2 TB telah digunakan</div>
+                    <div class="storage-bar">
+                        <div class="storage-fill"></div>
+                    </div>
+                    <button class="storage-btn">Dapatkan penyimpanan ekstra</button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="content-header">
+                    <h1 class="page-title">Selamat datang di Drive</h1>
+                    <div class="view-controls">
+                        <button class="view-btn active" data-view="list">
+                            <span class="material-icons">view_list</span>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <span class="material-icons">view_module</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Suggested Section -->
+                <section class="suggested-section">
+                    <h2>Folder yang disarankan</h2>
+                    <div class="suggested-items">
+                        <div class="suggested-item">
+                            <span class="material-icons folder-icon">folder</span>
+                            <div class="item-info">
+                                <div class="item-name">All File</div>
+                                <div class="item-detail">Di Dibagikan kepada saya</div>
+                            </div>
+                            <button class="item-menu">
+                                <span class="material-icons">more_vert</span>
+                            </button>
+                        </div>
+                        <div class="suggested-item">
+                            <span class="material-icons folder-icon">folder</span>
+                            <div class="item-info">
+                                <div class="item-name">BackupDestination</div>
+                                <div class="item-detail">Di Drive Saya</div>
+                            </div>
+                            <button class="item-menu">
+                                <span class="material-icons">more_vert</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Files Section -->
+                <section class="recent-section">
+                    <div class="section-header">
+                        <h2>File yang disarankan</h2>
+                        <div class="view-controls">
+                            <button class="view-btn active" data-view="list">
+                                <span class="material-icons">view_list</span>
+                            </button>
+                            <button class="view-btn" data-view="grid">
+                                <span class="material-icons">view_module</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="files-table">
+                        <div class="table-header">
+                            <div class="col-name">Nama</div>
+                            <div class="col-reason">Alasan file disarankan</div>
+                            <div class="col-location">Lokasi</div>
+                        </div>
+                        
+                        <div class="file-list" id="fileList">
+                            <!-- Files will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+
+                <div class="show-more">
+                    <button class="show-more-btn">Tampilkan lainnya</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
