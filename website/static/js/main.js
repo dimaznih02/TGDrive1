@@ -56,6 +56,11 @@ function showDirectory(data) {
             openMoreButton(div)
         });
     });
+    
+    // Trigger update for move files functionality if it exists
+    if (typeof updateShowDirectoryForSelection === 'function') {
+        updateShowDirectoryForSelection();
+    }
 }
 
 document.getElementById('search-form').addEventListener('submit', async (event) => {

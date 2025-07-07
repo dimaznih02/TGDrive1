@@ -249,6 +249,110 @@ class NewDriveData:
         logger.info(f"Search completed. Found {len(search_results)} matching items.")
         return search_results
 
+    def move_files(self, file_ids: list, destination_path: str) -> None:
+        """Move multiple files/folders to destination path"""
+        logger.info(f"Moving {len(file_ids)} items to '{destination_path}'.")
+        
+        moved_items = []
+        
+        for file_id in file_ids:
+            # Find the item in the entire directory structure
+            item_found = False
+            source_folder = None
+            
+            def find_item(folder, current_path="/"):
+                nonlocal item_found, source_folder
+                if item_found:
+                    return
+                    
+                if file_id in folder.contents:
+                    source_folder = folder
+                    item_found = True
+                    return
+                
+                for subfolder_id, subfolder in folder.contents.items():
+                    if subfolder.type == "folder" and not item_found:
+                        find_item(subfolder, current_path + subfolder_id + "/")
+            
+            # Search for the item starting from root
+            root_folder = self.get_directory("/")
+            find_item(root_folder)
+            
+            if not item_found or not source_folder:
+                logger.warning(f"Item with ID '{file_id}' not found.")
+                continue
+            
+            # Get the item to move
+            item_to_move = source_folder.contents[file_id]
+            
+            # Get destination folder
+            if destination_path == "/":
+                destination_folder = self.get_directory("/")
+            else:
+                destination_folder = self.get_directory(destination_path)
+            
+            # Check if destination exists
+            if not destination_folder:
+                logger.error(f"Destination path '{destination_path}' not found.")
+                continue
+            
+            # Update item path
+            if destination_path == "/":
+                item_to_move.path = "/"
+            else:
+                item_to_move.path = destination_path.rstrip("/") + "/" + file_id
+            
+            # Move the item
+            destination_folder.contents[file_id] = item_to_move
+            del source_folder.contents[file_id]
+            
+            moved_items.append(item_to_move.name)
+            logger.info(f"Moved '{item_to_move.name}' to '{destination_path}'.")
+        
+        if moved_items:
+            self.save()
+            logger.info(f"Successfully moved {len(moved_items)} items: {', '.join(moved_items)}")
+        
+        return moved_items
+
+    def get_all_folders(self) -> dict:
+        """Get all folders in the drive for folder picker"""
+        logger.info("Getting all folders for folder picker.")
+        
+        all_folders = {}
+        
+        def traverse_directory(folder, current_path="/"):
+            # Add current folder to results (except root)
+            if current_path != "/":
+                folder_info = {
+                    "id": folder.id,
+                    "name": folder.name,
+                    "path": current_path.rstrip("/"),
+                    "type": "folder"
+                }
+                all_folders[folder.id] = folder_info
+            
+            # Traverse subfolders
+            for item_id, item in folder.contents.items():
+                if item.type == "folder" and not item.trash:
+                    new_path = current_path.rstrip("/") + "/" + item_id
+                    traverse_directory(item, new_path)
+        
+        # Start from root
+        root_folder = self.get_directory("/")
+        traverse_directory(root_folder)
+        
+        # Always include root folder
+        all_folders["root"] = {
+            "id": "root", 
+            "name": "Home (Root)",
+            "path": "/",
+            "type": "folder"
+        }
+        
+        logger.info(f"Found {len(all_folders)} folders.")
+        return all_folders
+
 
 class NewBotMode:
     def __init__(self, drive_data: NewDriveData) -> None:

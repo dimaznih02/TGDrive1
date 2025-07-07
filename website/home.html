@@ -106,6 +106,25 @@
         </div>
         <!-- Get Password End -->
 
+        <!-- Move Files Dialog Start -->
+        <div id="move-files-dialog" class="create-new-folder">
+            <span>Move Selected Files</span>
+            <div class="selected-files-info" id="selected-files-info">
+                <span id="selected-count">0 files selected</span>
+            </div>
+            <div class="folder-picker">
+                <label for="destination-folder">Choose destination folder:</label>
+                <select id="destination-folder" class="folder-select">
+                    <option value="">Loading folders...</option>
+                </select>
+            </div>
+            <div>
+                <button id="move-cancel">Cancel</button>
+                <button id="move-confirm">Move Files</button>
+            </div>
+        </div>
+        <!-- Move Files Dialog End -->
+
         <!-- File Uploader Start -->
         <div id="file-uploader" class="file-uploader">
             <span class="upload-head">🚀 Uploading File...</span>
@@ -130,7 +149,21 @@
                     <form id="search-form">
                         <input id="file-search" type="text" placeholder="Search in Drive" autocomplete="off" />
                     </form>
-
+                </div>
+                
+                <div class="header-actions">
+                    <button id="select-mode-btn" class="action-btn" title="Select multiple files">
+                        <img src="static/assets/check-icon.svg" alt="Select" />
+                        Select
+                    </button>
+                    <button id="move-files-btn" class="action-btn disabled" title="Move selected files" disabled>
+                        <img src="static/assets/move-icon.svg" alt="Move" />
+                        Move (<span id="selected-count-header">0</span>)
+                    </button>
+                    <button id="cancel-select-btn" class="action-btn hidden" title="Cancel selection">
+                        <img src="static/assets/cancel-icon.svg" alt="Cancel" />
+                        Cancel
+                    </button>
                 </div>
             </div>
 
@@ -138,6 +171,9 @@
                 <table>
                     <thead>
                         <tr>
+                            <th class="checkbox-column hidden">
+                                <input type="checkbox" id="select-all-checkbox" title="Select all files">
+                            </th>
                             <th>Name</th>
                             <th>File Size</th>
                             <th>More</th>
@@ -153,6 +189,7 @@
     <script src="static/js/sidebar.js"></script>
     <script src="static/js/fileClickHandler.js"></script>
     <script src="static/js/main.js"></script>
+    <script src="static/js/moveFiles.js"></script>
 </body>
 
 </html>
