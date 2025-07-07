@@ -11,6 +11,7 @@ class DriveEnhancements {
         this.setupBreadcrumb();
         this.setupKeyboardShortcuts();
         this.enhanceSelectionMode();
+        this.enhanceSearch();
     }
 
     // View Toggle (List/Grid)
@@ -291,6 +292,51 @@ class DriveEnhancements {
             moveBtn.disabled = true;
         }
     }
+    
+    // Enhance newly added files after directory refresh
+    enhanceNewFiles() {
+        // Re-add data attributes for new table rows
+        document.querySelectorAll('#directory-data tr[data-path]').forEach(row => {
+            // Add file-name class to name cell for double-click rename
+            const nameCell = row.querySelector('td .td-align');
+            if (nameCell && !nameCell.classList.contains('file-name')) {
+                nameCell.classList.add('file-name');
+            }
+            
+            // Ensure row has proper classes for context detection
+            if (!row.classList.contains('file-item')) {
+                row.classList.add('file-item');
+            }
+            
+            // Add data-type attribute if missing
+            if (!row.dataset.type) {
+                if (row.classList.contains('folder-tr')) {
+                    row.dataset.type = 'folder';
+                } else if (row.classList.contains('file-tr')) {
+                    row.dataset.type = 'file';
+                }
+            }
+            
+            // Add data-name attribute if missing
+            if (!row.dataset.name && nameCell) {
+                const fileName = nameCell.textContent.trim();
+                row.dataset.name = fileName;
+            }
+        });
+        
+        // If in selection mode, add checkboxes to new files
+        if (document.body.classList.contains('selection-mode')) {
+            this.addFileCheckboxes();
+        }
+        
+        // Update view if in grid mode
+        if (this.currentView === 'grid') {
+            this.convertToGridCards();
+        }
+        
+        // Re-enable enhanced search
+        this.enhanceSearch();
+    }
 
     // File preview functionality
     showFilePreview(filePath, fileName) {
@@ -383,14 +429,19 @@ class DriveEnhancements {
     // Enhanced search functionality
     enhanceSearch() {
         const searchInput = document.getElementById('file-search');
-        let searchTimeout;
+        
+        // Only add event listener if not already added
+        if (!searchInput.hasAttribute('data-search-enhanced')) {
+            searchInput.setAttribute('data-search-enhanced', 'true');
+            let searchTimeout;
 
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                this.performSearch(e.target.value);
-            }, 300);
-        });
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.performSearch(e.target.value);
+                }, 300);
+            });
+        }
     }
 
     performSearch(query) {

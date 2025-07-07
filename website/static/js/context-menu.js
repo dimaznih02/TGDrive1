@@ -95,13 +95,18 @@ class GoogleDriveUI {
     // Setup all event listeners
     setupEventListeners() {
         // Right-click context menu
-        document.addEventListener('contextmenu', (e) => {
+        this.contextMenuHandler = (e) => {
             const fileItem = e.target.closest('.file-item, tr');
             if (fileItem && fileItem.dataset.path) {
+                console.log('🖱️ Context menu triggered for:', fileItem.dataset.name || fileItem.dataset.path);
                 e.preventDefault();
                 this.showContextMenu(e, fileItem);
+            } else if (fileItem) {
+                console.log('⚠️ File item found but missing data-path:', fileItem);
             }
-        });
+        };
+        
+        document.addEventListener('contextmenu', this.contextMenuHandler);
 
         // Click outside to hide context menu
         document.addEventListener('click', (e) => {
@@ -516,9 +521,56 @@ class GoogleDriveUI {
 
     enhanceFileItems() {
         // Add draggable attribute and enhance existing file items
-        document.querySelectorAll('.file-item[data-path]').forEach(item => {
+        document.querySelectorAll('tr[data-path], .file-item[data-path]').forEach(item => {
             item.draggable = true;
             item.style.cursor = 'pointer';
+            
+            // Add necessary data attributes for context menu
+            if (!item.dataset.type) {
+                if (item.classList.contains('folder-tr')) {
+                    item.dataset.type = 'folder';
+                } else if (item.classList.contains('file-tr')) {
+                    item.dataset.type = 'file';
+                }
+            }
+            
+            // Add file name from the first td content if not exists
+            if (!item.dataset.name && item.querySelector('td .td-align')) {
+                const nameElement = item.querySelector('td .td-align');
+                if (nameElement) {
+                    const textContent = nameElement.textContent.trim();
+                    item.dataset.name = textContent;
+                }
+            }
+        });
+    }
+    
+    // Re-attach event listeners to new files
+    reAttachEventListeners() {
+        console.log('🔧 Re-attaching context menu event listeners...');
+        
+        // Context menu is already globally attached, but we need to ensure
+        // new items have proper data attributes and styling
+        this.enhanceFileItems();
+        
+        // Re-setup drag and drop for new items
+        this.setupDragAndDropForNewItems();
+        
+        // Debug: Count how many files now have proper attributes
+        const filesWithPath = document.querySelectorAll('tr[data-path]').length;
+        const filesWithType = document.querySelectorAll('tr[data-type]').length;
+        const filesWithName = document.querySelectorAll('tr[data-name]').length;
+        
+        console.log(`📊 Files enhanced: ${filesWithPath} with path, ${filesWithType} with type, ${filesWithName} with name`);
+    }
+    
+    // Setup drag and drop for newly added items
+    setupDragAndDropForNewItems() {
+        document.querySelectorAll('tr[data-path]').forEach(item => {
+            if (!item.hasAttribute('data-drag-setup')) {
+                item.setAttribute('data-drag-setup', 'true');
+                item.draggable = true;
+            }
         });
     }
 
@@ -576,8 +628,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // Enhanced more menu functionality
 function enhanceMoreMenu() {
     document.querySelectorAll('.more-btn').forEach(btn => {
-        const menu = btn.nextElementSibling;
-        if (menu && menu.classList.contains('more-menu')) {
+        const btnId = btn.dataset.id;
+        const menu = document.getElementById(`more-option-${btnId}`);
+        
+        if (menu && !menu.hasAttribute('data-enhanced')) {
+            menu.setAttribute('data-enhanced', 'true');
+            
             // Add new menu items
             const moveItem = document.createElement('div');
             moveItem.className = 'more-menu-item';
@@ -589,9 +645,12 @@ function enhanceMoreMenu() {
             `;
             moveItem.addEventListener('click', () => {
                 const fileItem = btn.closest('.file-item, tr');
-                if (fileItem) {
+                if (fileItem && window.googleDriveUI) {
                     window.googleDriveUI.startMoveFile([fileItem.dataset.path]);
                 }
+                // Close more menu
+                menu.style.opacity = '0';
+                menu.style.zIndex = '-1';
             });
 
             const selectItem = document.createElement('div');
@@ -604,14 +663,24 @@ function enhanceMoreMenu() {
             `;
             selectItem.addEventListener('click', () => {
                 const fileItem = btn.closest('.file-item, tr');
-                if (fileItem) {
+                if (fileItem && window.googleDriveUI) {
                     window.googleDriveUI.selectFile(fileItem);
                 }
+                // Close more menu  
+                menu.style.opacity = '0';
+                menu.style.zIndex = '-1';
             });
 
             // Insert new items at the beginning
-            menu.insertBefore(selectItem, menu.firstChild);
-            menu.insertBefore(moveItem, selectItem.nextSibling);
+            const firstChild = menu.querySelector('div');
+            if (firstChild) {
+                menu.insertBefore(selectItem, firstChild);
+                menu.insertBefore(moveItem, selectItem.nextSibling);
+                
+                // Add separator
+                const separator = document.createElement('hr');
+                menu.insertBefore(separator, moveItem.nextSibling);
+            }
         }
     });
 }

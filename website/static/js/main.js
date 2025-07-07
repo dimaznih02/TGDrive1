@@ -61,6 +61,20 @@ function showDirectory(data) {
     if (typeof updateShowDirectoryForSelection === 'function') {
         updateShowDirectoryForSelection();
     }
+    
+    // Re-attach context menu and enhancements to new files
+    setTimeout(() => {
+        if (window.googleDriveUI) {
+            window.googleDriveUI.enhanceFileItems();
+            window.googleDriveUI.reAttachEventListeners();
+        }
+        if (window.driveEnhancements) {
+            window.driveEnhancements.enhanceNewFiles();
+        }
+        if (typeof enhanceMoreMenu === 'function') {
+            enhanceMoreMenu();
+        }
+    }, 100);
 }
 
 document.getElementById('search-form').addEventListener('submit', async (event) => {
