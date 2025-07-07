@@ -643,8 +643,10 @@ class MoreMenuSelectionManager {
         console.log('📁 File item:', fileItem);
         
         // Ensure file has proper data attributes
-        if (!fileItem.dataset.path) {
-            console.error('❌ File item missing data-path!');
+        if (!fileItem.dataset.path || !fileItem.dataset.id) {
+            console.error('❌ File item missing data-path or data-id!');
+            console.log('File path:', fileItem.dataset.path);
+            console.log('File ID:', fileItem.dataset.id);
             return;
         }
         
@@ -654,11 +656,16 @@ class MoreMenuSelectionManager {
             this.enterSelectionMode();
         }
 
-        // Add this specific file to selection
+        // Add this specific file to selection using file ID (for API compatibility)
+        const fileId = fileItem.dataset.id;
         const filePath = fileItem.dataset.path;
-        console.log('➕ Adding file to selection:', filePath);
+        console.log('➕ Adding file to selection - ID:', fileId, 'Path:', filePath);
         
-        this.selectedFiles.add(filePath);
+        // Store both ID and path for maximum compatibility
+        this.selectedFiles.add(fileId);
+        this.selectedFilePaths = this.selectedFilePaths || new Set();
+        this.selectedFilePaths.add(filePath);
+        
         fileItem.classList.add('selected');
         
         // Force update checkboxes after a small delay to ensure they're created
@@ -696,17 +703,22 @@ class MoreMenuSelectionManager {
     }
 
     addFileToSelection(fileItem) {
+        const fileId = fileItem.dataset.id;
         const filePath = fileItem.dataset.path;
         const fileName = fileItem.dataset.name;
 
-        if (this.selectedFiles.has(filePath)) {
+        if (this.selectedFiles.has(fileId)) {
             // Remove from selection
-            this.selectedFiles.delete(filePath);
+            this.selectedFiles.delete(fileId);
+            this.selectedFilePaths = this.selectedFilePaths || new Set();
+            this.selectedFilePaths.delete(filePath);
             fileItem.classList.remove('selected');
             this.showToast(`"${fileName}" removed from selection`, 'info');
         } else {
             // Add to selection
-            this.selectedFiles.add(filePath);
+            this.selectedFiles.add(fileId);
+            this.selectedFilePaths = this.selectedFilePaths || new Set();
+            this.selectedFilePaths.add(filePath);
             fileItem.classList.add('selected');
             this.showToast(`"${fileName}" added to selection`, 'success');
         }
@@ -807,11 +819,12 @@ class MoreMenuSelectionManager {
         
         allRows.forEach((row, index) => {
             const firstCell = row.querySelector('td');
+            const fileId = row.dataset.id;
             const filePath = row.dataset.path;
             const fileName = row.dataset.name;
-            const isSelected = this.selectedFiles.has(filePath);
+            const isSelected = this.selectedFiles.has(fileId);
             
-            console.log(`📄 Processing row ${index + 1}: ${fileName} (selected: ${isSelected})`);
+            console.log(`📄 Processing row ${index + 1}: ${fileName} (ID: ${fileId}, selected: ${isSelected})`);
             
             if (firstCell && !firstCell.querySelector('.file-checkbox')) {
                 console.log(`➕ Creating new checkbox for: ${fileName}`);
@@ -830,18 +843,23 @@ class MoreMenuSelectionManager {
                 }
                 
                 checkbox.addEventListener('change', (e) => {
+                    const fileId = row.dataset.id;
                     const filePath = row.dataset.path;
                     const fileName = row.dataset.name;
                     if (e.target.checked) {
-                        this.selectedFiles.add(filePath);
+                        this.selectedFiles.add(fileId);
+                        this.selectedFilePaths = this.selectedFilePaths || new Set();
+                        this.selectedFilePaths.add(filePath);
                         row.classList.add('selected');
                         this.showToast(`"${fileName}" added to selection`, 'success');
-                        console.log(`✅ Added to selection: ${fileName}`);
+                        console.log(`✅ Added to selection: ${fileName} (ID: ${fileId})`);
                     } else {
-                        this.selectedFiles.delete(filePath);
+                        this.selectedFiles.delete(fileId);
+                        this.selectedFilePaths = this.selectedFilePaths || new Set();
+                        this.selectedFilePaths.delete(filePath);
                         row.classList.remove('selected');
                         this.showToast(`"${fileName}" removed from selection`, 'info');
-                        console.log(`❌ Removed from selection: ${fileName}`);
+                        console.log(`❌ Removed from selection: ${fileName} (ID: ${fileId})`);
                     }
                     this.updateSelectionCount();
                     this.updateAllMoreMenus();
@@ -924,14 +942,14 @@ class MoreMenuSelectionManager {
         }
 
         const selectedArray = Array.from(this.selectedFiles);
-        console.log('🔄 Moving selected files:', selectedArray);
+        console.log('🔄 Moving selected files (IDs):', selectedArray);
+        console.log('📊 MoreMenuManager selection size:', this.selectedFiles.size);
 
-        // Sync with global selectedFiles for legacy compatibility
-        window.selectedFiles = this.selectedFiles;
-
-        // Open move dialog with selected files
+        // Call openMoveDialog directly - it will detect this.selectedFiles
         if (typeof openMoveDialog === 'function') {
-            openMoveDialog();
+            console.log('📂 Calling openMoveDialog...');
+            // The openMoveDialog function already checks for window.moreMenuManager.selectedFiles
+            await openMoveDialog();
         } else {
             this.showToast('Move functionality not available', 'error');
         }
@@ -940,19 +958,23 @@ class MoreMenuSelectionManager {
     directMoveFile(fileItem) {
         console.log('🎯 Direct move for:', fileItem.dataset.name);
         
-        // Automatically select this file for move
+        // Automatically select this file for move using file ID
+        const fileId = fileItem.dataset.id;
         const filePath = fileItem.dataset.path;
+        console.log('📁 Direct move file ID:', fileId, 'Path:', filePath);
+        
         this.selectedFiles.clear(); // Clear previous selections
-        this.selectedFiles.add(filePath);
+        this.selectedFilePaths = this.selectedFilePaths || new Set();
+        this.selectedFilePaths.clear();
+        
+        this.selectedFiles.add(fileId);
+        this.selectedFilePaths.add(filePath);
         
         // Add visual selection
         document.querySelectorAll('tr.selected').forEach(row => {
             row.classList.remove('selected');
         });
         fileItem.classList.add('selected');
-        
-        // Sync with global selectedFiles for moveFiles.js compatibility
-        window.selectedFiles = this.selectedFiles;
         
         // Show toast notification
         this.showToast(`Moving "${fileItem.dataset.name}"...`, 'info');
@@ -978,8 +1000,9 @@ class MoreMenuSelectionManager {
         
         if (!menu || !fileItem) return;
 
+        const fileId = fileItem.dataset.id;
         const filePath = fileItem.dataset.path;
-        const isSelected = this.selectedFiles.has(filePath);
+        const isSelected = this.selectedFiles.has(fileId);
         const selectedCount = this.selectedFiles.size;
 
         // Remove existing dynamic items
@@ -1102,15 +1125,26 @@ class MoreMenuSelectionManager {
         console.log('🔄 Refreshing MoreMenuSelectionManager state');
         
         // Clear selection if files no longer exist
-        const existingFiles = new Set();
+        const existingFileIds = new Set();
+        const existingFilePaths = new Set();
         document.querySelectorAll('#directory-data tr[data-path]').forEach(row => {
-            existingFiles.add(row.dataset.path);
+            if (row.dataset.id) existingFileIds.add(row.dataset.id);
+            if (row.dataset.path) existingFilePaths.add(row.dataset.path);
         });
 
         // Remove selections for files that no longer exist
-        for (const filePath of this.selectedFiles) {
-            if (!existingFiles.has(filePath)) {
-                this.selectedFiles.delete(filePath);
+        for (const fileId of this.selectedFiles) {
+            if (!existingFileIds.has(fileId)) {
+                this.selectedFiles.delete(fileId);
+            }
+        }
+
+        // Clean up paths too
+        if (this.selectedFilePaths) {
+            for (const filePath of this.selectedFilePaths) {
+                if (!existingFilePaths.has(filePath)) {
+                    this.selectedFilePaths.delete(filePath);
+                }
             }
         }
 

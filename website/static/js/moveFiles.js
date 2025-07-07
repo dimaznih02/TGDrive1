@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeMoveFiles() {
     // Add event listeners for buttons
     document.getElementById('select-mode-btn').addEventListener('click', toggleSelectionMode);
-    document.getElementById('move-files-btn').addEventListener('click', openMoveDialog);
+    
+    // DON'T add move button listener here - let google-drive-enhancements.js handle it
+    // to avoid conflicts with MoreMenuManager
+    
     document.getElementById('cancel-select-btn').addEventListener('click', exitSelectionMode);
     
     // Move dialog buttons
@@ -161,13 +164,24 @@ function updateSelectAllCheckbox() {
 }
 
 async function openMoveDialog() {
+    console.log('📂 openMoveDialog called');
+    console.log('📊 Legacy selectedFiles size:', selectedFiles.size);
+    console.log('📊 MoreMenuManager available:', !!window.moreMenuManager);
+    console.log('📊 MoreMenuManager selectedFiles size:', window.moreMenuManager?.selectedFiles?.size || 0);
+    
     // Get selected files from MoreMenuSelectionManager if available
     let filesToMove = selectedFiles;
     if (window.moreMenuManager && window.moreMenuManager.selectedFiles.size > 0) {
         filesToMove = window.moreMenuManager.selectedFiles;
+        console.log('✅ Using MoreMenuManager selection');
+    } else {
+        console.log('⚠️ Using legacy selectedFiles');
     }
     
+    console.log('📁 Files to move:', Array.from(filesToMove));
+    
     if (filesToMove.size === 0) {
+        console.log('❌ No files selected - showing error');
         if (window.googleDriveUI && window.googleDriveUI.showToast) {
             window.googleDriveUI.showToast('Please select files to move', 'warning');
         } else {
