@@ -149,8 +149,22 @@ const mainContent = document.querySelector('.main-content');
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
+    // Pastikan "Drive Saya" aktif saat load
+    setActiveNavigation('Drive Saya');
     renderContent();
 });
+
+function setActiveNavigation(sectionName) {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        const text = item.querySelector('span:last-child').textContent;
+        if (text === sectionName) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
 
 function initializeEventListeners() {
     // Navigation items
@@ -288,11 +302,13 @@ function toggleView(view, btn) {
 }
 
 function renderContent() {
+    console.log('Rendering content for view:', currentView);
     switch(currentView) {
         case 'home':
             renderHomePage();
             break;
         case 'my-drive':
+            console.log('Calling renderMyDrive()');
             renderMyDrive();
             break;
         case 'shared-drives':
@@ -405,13 +421,106 @@ function renderHomePage() {
 }
 
 function renderMyDrive() {
-    // Since my-drive is now the default view and the HTML is already set up,
-    // we just need to populate the data
-    renderMyDriveFolders();
+    console.log('renderMyDrive() called');
+    // Pastikan content HTML sudah tepat untuk Drive Saya
+    const mainContent = document.querySelector('.main-content');
     
-    // Re-attach event listeners for view toggle buttons if they exist
-    const newViewBtns = document.querySelectorAll('.view-btn');
-    newViewBtns.forEach(btn => {
+    // Update page title
+    const pageTitle = document.querySelector('.page-title');
+    if (pageTitle) pageTitle.textContent = 'Drive Saya';
+    
+    // Pastikan main content memiliki struktur yang benar
+    if (!document.getElementById('folderList')) {
+        mainContent.innerHTML = `
+            <div class="content-header">
+                <div class="page-title-container">
+                    <h1 class="page-title">Drive Saya</h1>
+                    <button class="dropdown-btn">
+                        <span class="material-icons">arrow_drop_down</span>
+                    </button>
+                </div>
+                <div class="header-actions">
+                    <button class="info-btn">
+                        <span class="material-icons">info_outline</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="filter-controls">
+                    <button class="filter-btn-toolbar">
+                        <span>Jenis</span>
+                        <span class="material-icons">arrow_drop_down</span>
+                    </button>
+                    <button class="filter-btn-toolbar">
+                        <span>Orang</span>
+                        <span class="material-icons">arrow_drop_down</span>
+                    </button>
+                    <button class="filter-btn-toolbar">
+                        <span>Dimodifikasi</span>
+                        <span class="material-icons">arrow_drop_down</span>
+                    </button>
+                    <button class="filter-btn-toolbar">
+                        <span>Sumber</span>
+                        <span class="material-icons">arrow_drop_down</span>
+                    </button>
+                </div>
+                <div class="view-controls">
+                    <button class="view-btn active" data-view="list">
+                        <span class="material-icons">view_list</span>
+                    </button>
+                    <button class="view-btn" data-view="grid">
+                        <span class="material-icons">view_module</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="my-drive-table">
+                <div class="table-header">
+                    <div class="col-name">
+                        <span>Nama</span>
+                        <span class="material-icons sort-icon">arrow_drop_up</span>
+                    </div>
+                    <div class="col-owner">Pemilik</div>
+                    <div class="col-modified">Tanggal diubah</div>
+                    <div class="col-size">Ukuran file</div>
+                    <div class="col-actions"></div>
+                </div>
+                <div class="folder-list" id="folderList">
+                    <!-- Files and folders will be populated by JavaScript -->
+                </div>
+            </div>
+        `;
+        
+        // Re-attach event listeners untuk tombol baru
+        attachMyDriveEventListeners();
+    }
+    
+    // Populate data
+    renderMyDriveFolders();
+}
+
+function attachMyDriveEventListeners() {
+    // Dropdown button
+    const dropdownBtn = document.querySelector('.dropdown-btn');
+    if (dropdownBtn) {
+        dropdownBtn.addEventListener('click', () => {
+            alert('Dropdown menu untuk Drive Saya');
+        });
+    }
+
+    // Filter buttons
+    const filterBtns = document.querySelectorAll('.filter-btn-toolbar');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filterType = btn.querySelector('span:first-child').textContent;
+            alert(`Filter: ${filterType}`);
+        });
+    });
+
+    // View toggle buttons
+    const viewBtns = document.querySelectorAll('.view-btn');
+    viewBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.dataset.view;
             if (view) {
@@ -419,6 +528,14 @@ function renderMyDrive() {
             }
         });
     });
+
+    // Info button
+    const infoBtn = document.querySelector('.info-btn');
+    if (infoBtn) {
+        infoBtn.addEventListener('click', () => {
+            alert('Informasi tentang Google Drive');
+        });
+    }
 }
 
 function renderSharedDrives() {
@@ -457,14 +574,17 @@ function renderSharedDrives() {
 
 function renderMyDriveFolders() {
     const folderList = document.getElementById('folderList');
-    if (!folderList) return;
+    if (!folderList) {
+        console.log('folderList element not found');
+        return;
+    }
     
     const filteredFolders = mockFolders.filter(folder => 
         folder.name.toLowerCase().includes(searchQuery)
     );
     
     folderList.innerHTML = filteredFolders.map(item => `
-        <div class="folder-item">
+        <div class="folder-item" data-item-name="${item.name}" data-item-type="${item.type}">
             <div class="folder-info">
                 <span class="material-icons ${item.type === 'folder' ? 'folder-icon' : 'file-icon'}">${item.icon}</span>
                 <span class="folder-name">${item.name}</span>
@@ -480,6 +600,32 @@ function renderMyDriveFolders() {
             </button>
         </div>
     `).join('');
+    
+    // Add click handlers untuk file/folder items
+    const folderItems = document.querySelectorAll('.folder-item');
+    folderItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.item-menu')) {
+                const itemName = item.dataset.itemName;
+                const itemType = item.dataset.itemType;
+                if (itemType === 'folder') {
+                    alert(`Membuka folder: ${itemName}`);
+                } else {
+                    alert(`Membuka file: ${itemName}`);
+                }
+            }
+        });
+        
+        // Menu button click handler
+        const menuBtn = item.querySelector('.item-menu');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const itemName = item.dataset.itemName;
+                alert(`Menu untuk: ${itemName}`);
+            });
+        }
+    });
 }
 
 function renderSharedDrivesList() {
