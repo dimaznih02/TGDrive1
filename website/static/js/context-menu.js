@@ -209,7 +209,12 @@ class GoogleDriveUI {
                 break;
 
             case 'select':
-                this.selectFile(this.activeFileItem);
+                // Use MoreMenuSelectionManager for more menu selection
+                if (window.moreMenuManager) {
+                    window.moreMenuManager.selectFileFromMore(this.activeFileItem);
+                } else {
+                    this.selectFile(this.activeFileItem);
+                }
                 break;
 
             case 'move':
@@ -634,26 +639,51 @@ class MoreMenuSelectionManager {
 
     selectFileFromMore(fileItem) {
         console.log('🎯 Starting selection from more menu for:', fileItem.dataset.name);
+        console.log('📍 Current selection mode:', this.isSelectionMode);
+        console.log('📁 File item:', fileItem);
         
-        // Enter selection mode if not already active
+        // Ensure file has proper data attributes
+        if (!fileItem.dataset.path) {
+            console.error('❌ File item missing data-path!');
+            return;
+        }
+        
+        // Enter selection mode FIRST
         if (!this.isSelectionMode) {
+            console.log('🔘 Entering selection mode...');
             this.enterSelectionMode();
         }
 
-        // Ensure this specific file is selected
+        // Add this specific file to selection
         const filePath = fileItem.dataset.path;
-        if (!this.selectedFiles.has(filePath)) {
-            this.selectedFiles.add(filePath);
-            fileItem.classList.add('selected');
-        }
+        console.log('➕ Adding file to selection:', filePath);
         
-        // Update checkboxes to reflect selection
+        this.selectedFiles.add(filePath);
+        fileItem.classList.add('selected');
+        
+        // Force update checkboxes after a small delay to ensure they're created
         setTimeout(() => {
+            console.log('☑️ Updating checkboxes...');
+            
+            // Find the checkbox for this file
             const checkbox = fileItem.querySelector('.file-checkbox');
             if (checkbox) {
                 checkbox.checked = true;
+                console.log('✅ Checkbox found and checked for:', fileItem.dataset.name);
+            } else {
+                console.log('⚠️ Checkbox not found, re-adding checkboxes...');
+                this.addCheckboxesToFiles();
+                
+                // Try again after re-adding
+                setTimeout(() => {
+                    const newCheckbox = fileItem.querySelector('.file-checkbox');
+                    if (newCheckbox) {
+                        newCheckbox.checked = true;
+                        console.log('✅ Checkbox created and checked for:', fileItem.dataset.name);
+                    }
+                }, 100);
             }
-        }, 50);
+        }, 100);
         
         // Update counts and UI
         this.updateSelectionCount();
@@ -661,6 +691,8 @@ class MoreMenuSelectionManager {
         
         // Show toast notification
         this.showToast(`"${fileItem.dataset.name}" selected. Select more files with checkboxes.`, 'success');
+        
+        console.log('🎯 Selection completed. Total selected:', this.selectedFiles.size);
     }
 
     addFileToSelection(fileItem) {
@@ -685,12 +717,17 @@ class MoreMenuSelectionManager {
 
     enterSelectionMode() {
         console.log('🔘 Entering selection mode from more menu');
+        
+        // Set selection mode flag FIRST
         this.isSelectionMode = true;
         document.body.classList.add('selection-mode');
+        
+        console.log('📋 Added selection-mode class to body');
         
         // Show checkboxes column header
         document.querySelectorAll('.checkbox-column').forEach(el => {
             el.classList.remove('hidden');
+            console.log('👁️ Showed checkbox column');
         });
 
         // Update header buttons
@@ -698,20 +735,34 @@ class MoreMenuSelectionManager {
         const cancelBtn = document.getElementById('cancel-select-btn');
         const moveBtn = document.getElementById('move-files-btn');
 
-        if (selectBtn) selectBtn.classList.add('hidden');
-        if (cancelBtn) cancelBtn.classList.remove('hidden');
+        if (selectBtn) {
+            selectBtn.classList.add('hidden');
+            console.log('🙈 Hid select button');
+        }
+        if (cancelBtn) {
+            cancelBtn.classList.remove('hidden');
+            console.log('👁️ Showed cancel button');
+        }
         if (moveBtn) {
             moveBtn.classList.remove('hidden');
             moveBtn.classList.remove('disabled');
+            moveBtn.disabled = false;
+            console.log('👁️ Showed move button');
         }
 
-        // Add checkboxes to all files FIRST
+        // Add checkboxes to all files
+        console.log('☑️ Adding checkboxes to all files...');
         this.addCheckboxesToFiles();
         
-        // Then update selection count and move button state
+        // Update selection count and move button state
         this.updateSelectionCount();
         
-        console.log('✅ Selection mode entered. Selected files:', this.selectedFiles.size);
+        console.log('✅ Selection mode entered successfully. Selected files:', this.selectedFiles.size);
+        console.log('📊 Current state:', {
+            isSelectionMode: this.isSelectionMode,
+            selectedFilesCount: this.selectedFiles.size,
+            bodyHasClass: document.body.classList.contains('selection-mode')
+        });
     }
 
     exitSelectionMode() {
@@ -749,35 +800,48 @@ class MoreMenuSelectionManager {
     }
 
     addCheckboxesToFiles() {
-        document.querySelectorAll('#directory-data tr[data-path]').forEach(row => {
+        console.log('☑️ Adding checkboxes to files...');
+        
+        const allRows = document.querySelectorAll('#directory-data tr[data-path]');
+        console.log(`📁 Found ${allRows.length} file rows`);
+        
+        allRows.forEach((row, index) => {
             const firstCell = row.querySelector('td');
+            const filePath = row.dataset.path;
+            const fileName = row.dataset.name;
+            const isSelected = this.selectedFiles.has(filePath);
+            
+            console.log(`📄 Processing row ${index + 1}: ${fileName} (selected: ${isSelected})`);
+            
             if (firstCell && !firstCell.querySelector('.file-checkbox')) {
+                console.log(`➕ Creating new checkbox for: ${fileName}`);
+                
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'file-checkbox';
-                
-                // Check if this file is already selected
-                const filePath = row.dataset.path;
-                const isSelected = this.selectedFiles.has(filePath);
                 checkbox.checked = isSelected;
                 
                 // Ensure visual selection matches checkbox state
                 if (isSelected) {
                     row.classList.add('selected');
+                    console.log(`🔵 Added selected class to: ${fileName}`);
                 } else {
                     row.classList.remove('selected');
                 }
                 
                 checkbox.addEventListener('change', (e) => {
                     const filePath = row.dataset.path;
+                    const fileName = row.dataset.name;
                     if (e.target.checked) {
                         this.selectedFiles.add(filePath);
                         row.classList.add('selected');
-                        this.showToast(`"${row.dataset.name}" added to selection`, 'success');
+                        this.showToast(`"${fileName}" added to selection`, 'success');
+                        console.log(`✅ Added to selection: ${fileName}`);
                     } else {
                         this.selectedFiles.delete(filePath);
                         row.classList.remove('selected');
-                        this.showToast(`"${row.dataset.name}" removed from selection`, 'info');
+                        this.showToast(`"${fileName}" removed from selection`, 'info');
+                        console.log(`❌ Removed from selection: ${fileName}`);
                     }
                     this.updateSelectionCount();
                     this.updateAllMoreMenus();
@@ -786,21 +850,33 @@ class MoreMenuSelectionManager {
                 const checkboxCell = document.createElement('td');
                 checkboxCell.appendChild(checkbox);
                 row.insertBefore(checkboxCell, firstCell);
-            } else if (firstCell && firstCell.querySelector('.file-checkbox')) {
-                // Update existing checkbox state
-                const checkbox = firstCell.querySelector('.file-checkbox');
-                const filePath = row.dataset.path;
-                const isSelected = this.selectedFiles.has(filePath);
-                checkbox.checked = isSelected;
                 
-                // Ensure visual selection matches checkbox state
-                if (isSelected) {
-                    row.classList.add('selected');
+                console.log(`✅ Checkbox created for: ${fileName} (checked: ${checkbox.checked})`);
+            } else if (firstCell) {
+                const existingCheckbox = firstCell.querySelector('.file-checkbox');
+                if (existingCheckbox) {
+                    console.log(`🔄 Updating existing checkbox for: ${fileName}`);
+                    existingCheckbox.checked = isSelected;
+                    
+                    // Ensure visual selection matches checkbox state
+                    if (isSelected) {
+                        row.classList.add('selected');
+                        console.log(`🔵 Added selected class to: ${fileName}`);
+                    } else {
+                        row.classList.remove('selected');
+                    }
+                    
+                    console.log(`🔄 Updated checkbox for: ${fileName} (checked: ${existingCheckbox.checked})`);
                 } else {
-                    row.classList.remove('selected');
+                    console.log(`⚠️ First cell exists but no checkbox found for: ${fileName}`);
                 }
+            } else {
+                console.log(`⚠️ No first cell found for: ${fileName}`);
             }
         });
+        
+        console.log('✅ Checkbox processing completed');
+        console.log(`📊 Total selected files: ${this.selectedFiles.size}`);
     }
 
     updateSelectionCount() {
