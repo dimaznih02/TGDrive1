@@ -197,10 +197,22 @@ class DriveEnhancements {
         }
 
         if (moveFilesBtn) {
-            moveFilesBtn.addEventListener('click', () => {
+            // Remove existing event listeners to prevent conflicts
+            const newMoveBtn = moveFilesBtn.cloneNode(true);
+            moveFilesBtn.parentNode.replaceChild(newMoveBtn, moveFilesBtn);
+            
+            newMoveBtn.addEventListener('click', () => {
+                console.log('🔄 Move button clicked from google-drive-enhancements');
+                
                 // Use more menu manager for move functionality
-                if (window.moreMenuManager) {
+                if (window.moreMenuManager && window.moreMenuManager.selectedFiles.size > 0) {
+                    console.log('✅ Using MoreMenuManager for move');
                     window.moreMenuManager.moveSelectedFiles();
+                } else {
+                    console.log('⚠️ No files selected in MoreMenuManager');
+                    if (window.googleDriveUI && window.googleDriveUI.showToast) {
+                        window.googleDriveUI.showToast('Please select files to move', 'warning');
+                    }
                 }
             });
         }
