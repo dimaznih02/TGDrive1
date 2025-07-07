@@ -22,9 +22,59 @@ function showDirectory(data) {
     folders.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
     files.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
 
+    // Helper function to format date
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInHours = (now - date) / (1000 * 60 * 60);
+        
+        if (diffInHours < 24) {
+            return diffInHours < 1 ? 'baru saja' : `${Math.floor(diffInHours)} jam`;
+        } else {
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 7) {
+                return `${diffInDays} hari`;
+            } else {
+                return date.toLocaleDateString('id-ID', { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    year: 'numeric' 
+                });
+            }
+        }
+    }
+
     for (const [key, item] of folders) {
         if (item.type === 'folder') {
-            html += `<tr data-path="${item.path}" data-id="${item.id}" class="body-tr folder-tr"><td><div class="td-align"><img src="static/assets/folder-solid-icon.svg">${item.name}</div></td><td><div class="td-align"></div></td><td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td></tr>`
+            const formattedDate = formatDate(item.upload_date);
+            
+            html += `
+                <tr data-path="${item.path}" data-id="${item.id}" class="folder-tr">
+                    <td>
+                        <div class="file-item-name">
+                            <svg class="file-icon folder" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                            </svg>
+                            <span class="file-name">${item.name}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="owner-info">
+                            <img class="owner-avatar" src="https://lh3.googleusercontent.com/ogw/AOLn63FGDk4Z_C9L2z9z1oGVd3L_6vXhF8PtgTHgZ8Tk6Q=s32-c-mo" alt="saya">
+                            <span class="owner-name">saya</span>
+                        </div>
+                    </td>
+                    <td><span class="modified-date">${formattedDate}</span></td>
+                    <td><span class="file-size">—</span></td>
+                    <td class="file-actions">
+                        <button data-id="${item.id}" class="more-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `;
 
             if (isTrash) {
                 html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
@@ -37,8 +87,49 @@ function showDirectory(data) {
 
     for (const [key, item] of files) {
         if (item.type === 'file') {
-            const size = convertBytes(item.size)
-            html += `<tr data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="body-tr file-tr"><td><div class="td-align"><img src="static/assets/file-icon.svg">${item.name}</div></td><td><div class="td-align">${size}</div></td><td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td></tr>`
+            const size = convertBytes(item.size);
+            const formattedDate = formatDate(item.upload_date);
+            
+            // Determine file icon based on extension
+            const extension = item.name.split('.').pop().toLowerCase();
+            let fileIconClass = 'document';
+            let fileIconPath = 'M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z';
+            
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension)) {
+                fileIconClass = 'image';
+                fileIconPath = 'M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19C20.1,21 21,20.1 21,19Z';
+            } else if (['mp4', 'avi', 'mkv', 'mov', 'wmv'].includes(extension)) {
+                fileIconClass = 'video';
+                fileIconPath = 'M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z';
+            }
+
+            html += `
+                <tr data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="file-tr">
+                    <td>
+                        <div class="file-item-name">
+                            <svg class="file-icon ${fileIconClass}" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="${fileIconPath}"/>
+                            </svg>
+                            <span class="file-name">${item.name}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="owner-info">
+                            <img class="owner-avatar" src="https://lh3.googleusercontent.com/ogw/AOLn63FGDk4Z_C9L2z9z1oGVd3L_6vXhF8PtgTHgZ8Tk6Q=s32-c-mo" alt="saya">
+                            <span class="owner-name">saya</span>
+                        </div>
+                    </td>
+                    <td><span class="modified-date">${formattedDate}</span></td>
+                    <td><span class="file-size">${size}</span></td>
+                    <td class="file-actions">
+                        <button data-id="${item.id}" class="more-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `;
 
             if (isTrash) {
                 html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
@@ -59,10 +150,11 @@ function showDirectory(data) {
         });
     }
 
-    document.querySelectorAll('.more-btn').forEach(div => {
-        div.addEventListener('click', function (event) {
+    document.querySelectorAll('.more-btn').forEach(btn => {
+        btn.addEventListener('click', function (event) {
             event.preventDefault();
-            openMoreButton(div)
+            event.stopPropagation();
+            openMoreButton(btn)
         });
     });
     

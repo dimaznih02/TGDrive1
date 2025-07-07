@@ -167,65 +167,108 @@
 
         <!-- Main Content Start -->
         <div class="main-content">
-            <div class="header">
+            <!-- Top Header with Search -->
+            <div class="top-header">
                 <div class="search-bar">
-                    <img src="static/assets/search-icon.svg" />
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
                     <form id="search-form">
-                        <input id="file-search" type="text" placeholder="Search in Drive" autocomplete="off" />
+                        <input id="file-search" type="text" placeholder="Telusuri di Drive" autocomplete="off" />
                     </form>
                 </div>
                 
                 <div class="header-actions">
-                    <div class="view-toggle">
-                        <button class="view-toggle-btn active" id="list-view-btn" title="List view">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M3,5H21V7H3V5M3,13V11H21V13H3M3,19V17H21V19H3Z"/>
-                            </svg>
-                            List
-                        </button>
-                        <button class="view-toggle-btn" id="grid-view-btn" title="Grid view">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M3,11H11V3H3M5,5H9V9H5M13,21H21V13H13M15,15H19V19H15M3,21H11V13H3M5,15H9V19H5M13,3V11H21V3M15,5H19V9H15"/>
-                            </svg>
-                            Grid
-                        </button>
-                    </div>
-                    
-                    <button id="select-mode-btn" class="action-btn" title="Select multiple files">
-                        <img src="static/assets/check-icon.svg" alt="Select" />
-                        Select
+                    <button class="action-btn" title="Grid view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3,11H11V3H3M5,5H9V9H5M13,21H21V13H13M15,15H19V19H15M3,21H11V13H3M5,15H9V19H5M13,3V11H21V3M15,5H19V9H15"/>
+                        </svg>
                     </button>
-                    <button id="move-files-btn" class="action-btn disabled" title="Move selected files" disabled>
-                        <img src="static/assets/move-icon.svg" alt="Move" />
-                        Move (<span id="selected-count-header">0</span>)
+                    <button class="action-btn" title="Info panel">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
+                        </svg>
                     </button>
-                    <button id="cancel-select-btn" class="action-btn hidden" title="Cancel selection">
-                        <img src="static/assets/cancel-icon.svg" alt="Cancel" />
-                        Cancel
+                    <button class="action-btn" title="Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                        </svg>
                     </button>
                 </div>
             </div>
-            
-            <!-- Breadcrumb Navigation -->
-            <div class="breadcrumb-nav" id="breadcrumb-nav">
-                <a href="/?path=/" class="breadcrumb-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
-                    </svg>
-                    My Drive
-                </a>
+
+            <!-- Drive Header with Dropdown and Filters -->
+            <div class="drive-header">
+                <div class="drive-title-section">
+                    <h1 class="drive-title">
+                        Drive Saya
+                        <svg class="dropdown-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                    </h1>
+                </div>
+
+                <div class="filter-section">
+                    <button class="filter-btn">
+                        Jenis
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                    </button>
+                    <button class="filter-btn">
+                        Orang
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                    </button>
+                    <button class="filter-btn">
+                        Dimodifikasi
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                    </button>
+                    <button class="filter-btn">
+                        Sumber
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="view-controls">
+                    <button class="view-btn active" title="List view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3,5H21V7H3V5M3,13V11H21V13H3M3,19V17H21V19H3Z"/>
+                        </svg>
+                    </button>
+                    <button class="view-btn" title="Grid view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3,11H11V3H3M5,5H9V9H5M13,21H21V13H13M15,15H19V19H15M3,21H11V13H3M5,15H9V19H5M13,3V11H21V3M15,5H19V9H15"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn" title="Info">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
-            <div class="directory" id="directory-container">
-                <table>
+            <!-- Files Table -->
+            <div class="files-container" id="directory-container">
+                <table class="files-table">
                     <thead>
                         <tr>
-                            <th class="checkbox-column hidden">
-                                <input type="checkbox" id="select-all-checkbox" title="Select all files">
+                            <th class="col-name">
+                                Nama
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3,13H15L9,7L3,13M3,17H15L9,11L3,17Z"/>
+                                </svg>
                             </th>
-                            <th>Name</th>
-                            <th>File Size</th>
-                            <th>More</th>
+                            <th class="col-owner">Pemilik</th>
+                            <th class="col-modified">Tanggal diubah</th>
+                            <th class="col-size">Ukuran file</th>
+                            <th class="col-actions"></th>
                         </tr>
                     </thead>
                     <tbody id="directory-data"></tbody>
