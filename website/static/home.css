@@ -415,6 +415,8 @@
     padding: 8px 20px;
     border-bottom: 1px solid #e8eaed;
     background-color: #fff;
+    height: 64px;
+    box-sizing: border-box;
 }
 
 .search-bar {
@@ -485,8 +487,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 8px 20px 12px 20px;
     background-color: #fff;
+    border-bottom: 1px solid #f1f3f4;
+    min-height: 56px;
+    box-sizing: border-box;
 }
 
 .drive-title-section {
@@ -512,21 +517,23 @@
 .filter-section {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .filter-btn {
     background: none;
     border: 1px solid #dadce0;
-    border-radius: 18px;
-    padding: 6px 12px;
-    font-size: 14px;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 13px;
     color: #3c4043;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 4px;
-    transition: all 0.2s;
+    transition: all 0.15s;
+    height: 32px;
+    min-width: fit-content;
 }
 
 .filter-btn:hover {
@@ -535,25 +542,29 @@
 
 .filter-btn svg {
     color: #5f6368;
+    width: 16px;
+    height: 16px;
 }
 
 .view-controls {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
 }
 
 .view-btn {
     background: none;
     border: none;
-    padding: 8px;
+    padding: 6px;
     border-radius: 4px;
     cursor: pointer;
     color: #5f6368;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s;
+    transition: all 0.15s;
+    width: 32px;
+    height: 32px;
 }
 
 .view-btn:hover {
@@ -565,53 +576,65 @@
     color: #1a73e8;
 }
 
+.view-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
 /* Files Container */
 .files-container {
     flex: 1;
     background-color: #fff;
     overflow-y: auto;
+    padding: 0;
+    margin: 0;
 }
 
 .files-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
 }
 
 .files-table thead tr {
     border-bottom: 1px solid #e8eaed;
+    height: 56px;
 }
 
 .files-table th {
     text-align: left;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: #5f6368;
-    padding: 10px 16px;
+    padding: 0 16px;
     background-color: #fff;
     position: sticky;
     top: 0;
     z-index: 1;
+    height: 56px;
+    vertical-align: middle;
+    line-height: 1;
 }
 
 .col-name {
-    width: 40%;
-    min-width: 240px;
+    width: 45%;
+    min-width: 200px;
 }
 
 .col-owner {
     width: 20%;
-    min-width: 120px;
+    min-width: 140px;
 }
 
 .col-modified {
     width: 20%;
-    min-width: 120px;
+    min-width: 140px;
 }
 
 .col-size {
-    width: 15%;
-    min-width: 100px;
+    width: 10%;
+    min-width: 80px;
 }
 
 .col-actions {
@@ -627,7 +650,9 @@
 
 .files-table tbody tr {
     border-bottom: 1px solid #f1f3f4;
-    transition: background-color 0.2s;
+    transition: background-color 0.15s;
+    height: 40px;
+    line-height: 1;
 }
 
 .files-table tbody tr:hover {
@@ -635,23 +660,29 @@
 }
 
 .files-table td {
-    padding: 8px 16px;
+    padding: 0 16px;
     font-size: 14px;
     color: #202124;
     vertical-align: middle;
-    height: 48px;
+    height: 40px;
+    line-height: 1;
+    box-sizing: border-box;
+    position: relative;
 }
 
 .file-item-name {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    height: 100%;
+    min-height: 40px;
 }
 
 .file-icon {
     width: 20px;
     height: 20px;
     flex-shrink: 0;
+    margin: 0;
 }
 
 .file-icon.folder {
@@ -673,20 +704,24 @@
 .file-name {
     font-weight: 400;
     color: #202124;
+    font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 20px;
 }
 
 .owner-info {
     display: flex;
     align-items: center;
     gap: 8px;
+    height: 100%;
+    min-height: 40px;
 }
 
 .owner-avatar {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     flex-shrink: 0;
 }
@@ -694,35 +729,52 @@
 .owner-name {
     color: #5f6368;
     font-size: 14px;
+    line-height: 20px;
 }
 
 .modified-date {
     color: #5f6368;
     font-size: 14px;
+    line-height: 20px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-height: 40px;
 }
 
 .file-size {
     color: #5f6368;
     font-size: 14px;
+    line-height: 20px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-height: 40px;
 }
 
 .file-actions {
     text-align: center;
+    height: 100%;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .more-btn {
     background: none;
     border: none;
-    padding: 8px;
+    padding: 6px;
     border-radius: 50%;
     cursor: pointer;
     color: #5f6368;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s;
+    transition: all 0.15s;
     opacity: 0;
-    transition: all 0.2s;
+    width: 32px;
+    height: 32px;
 }
 
 .files-table tbody tr:hover .more-btn {
@@ -734,8 +786,8 @@
 }
 
 .more-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 /* Header Actions & Move Files Styling */
@@ -1146,147 +1198,9 @@
 
 /* Home Page Styles End */
 
-/* Responsive Design */
+/* Responsive Design - Disabled for now */
+/* 
 @media (max-width: 1024px) {
-    .filter-section {
-        display: none;
-    }
-    
-    .col-size {
-        display: none;
-    }
-    
-    .files-table th:nth-child(4),
-    .files-table td:nth-child(4) {
-        display: none;
-    }
+    // Temporarily disabled
 }
-
-@media (max-width: 768px) {
-    .main-content {
-        margin-left: 0;
-    }
-    
-    .top-header {
-        padding: 8px 16px;
-    }
-    
-    .search-bar {
-        min-width: 200px;
-        margin-right: 12px;
-    }
-    
-    .drive-header {
-        padding: 12px 16px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    
-    .filter-section {
-        display: none;
-    }
-    
-    /* Hide owner and size columns on mobile */
-    .col-owner,
-    .col-size {
-        display: none;
-    }
-    
-    .files-table th:nth-child(2),
-    .files-table td:nth-child(2),
-    .files-table th:nth-child(4),
-    .files-table td:nth-child(4) {
-        display: none;
-    }
-    
-    .col-name {
-        width: 70%;
-    }
-    
-    .col-modified {
-        width: 25%;
-    }
-    
-    .col-actions {
-        width: 5%;
-    }
-    
-    .files-table th,
-    .files-table td {
-        padding: 8px 12px;
-    }
-    
-    .file-name {
-        font-size: 14px;
-    }
-    
-    .modified-date {
-        font-size: 12px;
-    }
-    
-    /* Home page responsive */
-    .home-page-container {
-        padding: 16px;
-    }
-    
-    .home-welcome h1 {
-        font-size: 24px;
-    }
-    
-    .suggested-folders-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .folder-card {
-        padding: 12px;
-    }
-    
-    .table-header,
-    .file-item {
-        grid-template-columns: 1fr;
-        gap: 4px;
-        padding: 8px 12px;
-    }
-    
-    .file-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .file-reason,
-    .file-location {
-        font-size: 12px;
-        margin-left: 28px;
-    }
-    
-    .file-info {
-        min-width: 0;
-        overflow: hidden;
-    }
-}
-
-@media (max-width: 480px) {
-    .search-bar {
-        min-width: 160px;
-    }
-    
-    .drive-title {
-        font-size: 18px;
-    }
-    
-    .files-table td {
-        height: 44px;
-    }
-    
-    .file-icon {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .owner-avatar {
-        width: 20px;
-        height: 20px;
-    }
-}
+*/
