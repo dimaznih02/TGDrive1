@@ -1,170 +1,147 @@
-# TGDrive - A Google Drive Clone with Telegram Storage
+# Google Drive Clone
 
-Welcome to TGDrive! This web application replicates Google Drive's functionalities using Telegram as its storage backend. Manage folders and files, perform actions like uploading, renaming, and deleting, utilize trash/bin support, enable permanent deletion, and share public links. The application offers admin login and automatically backs up the database to Telegram.
+Sebuah aplikasi web yang meniru tampilan dan fungsi Google Drive asli, dibuat dengan HTML, CSS, dan JavaScript murni.
 
-**Check out the [TGDrive Personal](https://github.com/TechShreyash/TGDrivePersonal) project for local desktop backup support.**
+## Fitur Utama
 
-## Features
+### 🎨 Design yang Autentik
+- Interface yang identik dengan Google Drive asli
+- Font Google Sans dan Material Icons
+- Warna dan spacing yang akurat
+- Animasi dan hover effects yang smooth
 
-- **File Management:** Upload, rename, and delete files with integrated trash/bin functionality and permanent deletion support.
-- **Folder Management:** Easily create, rename, and delete folders.
-- **Sharing:** Seamlessly share public links for files and folders.
-- **Admin Support:** Secure admin login for efficient management.
-- **Automatic Backups:** Automated database backups sent directly to Telegram.
-- **Multiple Bots/Clients:** Support for multiple bots/clients for file operations and streaming from Telegram.
-- **Large File Support:** Upload files up to 4GB using Telegram Premium accounts.
-- **Auto Pinger:** Built-in feature to keep the website active by preventing idle timeouts.
-- **URL Upload Support:** Upload files directly to TG Drive from any direct download link of a file.
-- **Bot Mode:** Upload files directly to any folder in TG Drive by sending the file to the bot on Telegram ([Know More](#tg-drives-bot-mode))
+### 🧭 Navigasi Lengkap
+- **Beranda** - Halaman utama dengan file dan folder yang disarankan
+- **Drive Saya** - Tampilan folder dan file pribadi
+- **Drive Bersama** - Daftar drive yang dibagikan dengan tim
+- **Terbaru** - File yang baru diakses
+- **Berbintang** - File yang ditandai
+- **Sampah** - File yang dihapus
+- **Penyimpanan** - Informasi penggunaan storage
 
-## Tech Stack
+### 🔍 Pencarian dan Filter
+- Search box di header yang berfungsi real-time
+- Filter berdasarkan jenis file, pemilik, tanggal modifikasi
+- Hasil pencarian yang diupdate secara dinamis
 
-- **Backend:** Python, FastAPI
-- **Frontend:** HTML, CSS, JavaScript
-- **Database:** Local storage as a class object, saved to a file using the pickle module.
-- **Storage:** Telegram
+### 👀 Multiple View Modes
+- **List View** - Tampilan tabel dengan kolom detail
+- **Grid View** - Tampilan grid card untuk file dan folder
+- Toggle view dengan tombol di header
 
-### Environment Variables
+### 📱 Responsive Design
+- Layout yang adaptif untuk desktop, tablet, dan mobile
+- Sidebar yang dapat disembunyikan di mobile
+- Touch-friendly interface untuk perangkat mobile
 
-#### Required Variables
+### ⚡ Interaktivitas
+- Klik file untuk membuka (simulasi)
+- Menu "Baru" dengan opsi upload dan create dokumen
+- Hover effects dan visual feedback
+- Smooth transitions dan animations
 
-| Variable Name            | Type    | Example                   | Description                                                          |
-| ------------------------ | ------- | ------------------------- | -------------------------------------------------------------------- |
-| `API_ID`                 | integer | 123456                    | Your Telegram API ID                                                 |
-| `API_HASH`               | string  | dagsjdhgjfsahgjfh         | Your Telegram API Hash                                               |
-| `BOT_TOKENS`             | string  | 21413535:gkdshajfhjfakhjf | List of Telegram bot tokens for file operations, separated by commas |
-| `STORAGE_CHANNEL`        | integer | -100123456789             | Chat ID of the Telegram storage channel                              |
-| `DATABASE_BACKUP_MSG_ID` | integer | 123                       | Message ID of a file in the storage channel for database backups     |
+## Struktur File
 
-> Note: All bots mentioned in the `BOT_TOKENS` variable must be added as admins in your `STORAGE_CHANNEL`.
-
-> Note: `DATABASE_BACKUP_MSG_ID` should be the message ID of a file (document) in the `STORAGE_CHANNEL`.
-
-#### Optional Variables
-
-| Variable Name          | Type                 | Default                                    | Description                                                                                                 |
-| ---------------------- | -------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `ADMIN_PASSWORD`       | string               | admin                                      | Password for accessing the admin panel                                                                      |
-| `STRING_SESSIONS`      | string               | None                                       | List of Premium Telegram Account Pyrogram String Sessions for file operations                               |
-| `SLEEP_THRESHOLD`      | integer (in seconds) | 60                                         | Delay in seconds before retrying after a Telegram API floodwait error                                       |
-| `DATABASE_BACKUP_TIME` | integer (in seconds) | 60                                         | Interval in seconds for database backups to the storage channel                                             |
-| `MAX_FILE_SIZE`        | float (in GBs)       | 1.98 (3.98 if `STRING_SESSIONS` are added) | Maximum file size (in GBs) allowed for uploading to Telegram                                                |
-| `WEBSITE_URL`          | string               | None                                       | Website URL (with https/http) to auto-ping to keep the website active                                       |
-| `MAIN_BOT_TOKEN`       | string               | None                                       | Your Main Bot Token to use [TG Drive's Bot Mode](#tg-drives-bot-mode)                                       |
-| `TELEGRAM_ADMIN_IDS`   | string               | None                                       | List of Telegram User IDs of admins who can access the [bot mode](#tg-drives-bot-mode), separated by commas |
-
-> Note: Premium Client (`STRING_SESSIONS`) will be used only to upload files when file size is greater than 2GB.
-
-> Note: File streaming/downloads will be handled by bots (`BOT_TOKENS`).
-
-> Note: Read more about TG Drive's Bot Mode [here](#tg-drives-bot-mode).
-
-## Deploying Your Own TG Drive Application
-
-### 1. Clone the Repository
-
-First, clone the repository and navigate into the project directory:
-
-```bash
-git clone https://github.com/TechShreyash/TGDrive
-cd TGDrive
+```
+├── index.html          # Struktur utama HTML
+├── styles.css          # Semua styling CSS
+├── script.js           # Logika JavaScript dan interaktivitas
+└── README.md          # Dokumentasi ini
 ```
 
-### 2. Set Up Your Environment Variables
+## Cara Menjalankan
 
-Create a `.env` file in the root directory and add the necessary [environment variables](#environment-variables).
+1. **Download semua file** ke dalam satu folder
+2. **Buka index.html** di web browser
+3. **Nikmati pengalaman** Google Drive yang identik!
 
-> **Note:** Some hosting services allow you to set environment variables directly through their interface, which may eliminate the need for a `.env` file.
+### Alternatif dengan Live Server
+Jika menggunakan VS Code:
+1. Install extension "Live Server"
+2. Right-click pada `index.html`
+3. Pilih "Open with Live Server"
 
-### 3. Running TG Drive
+## Data Mock
 
-#### Deploying Locally
+Aplikasi menggunakan data mock untuk simulasi:
+- **10 file contoh** dengan berbagai jenis (notebook, gambar)
+- **13 folder** dengan informasi pemilik dan tanggal
+- **10 shared drives** dengan detail anggota
 
-1. Install the required Python packages:
+## Teknologi yang Digunakan
 
-   ```bash
-   pip install -U -r requirements.txt
-   ```
+- **HTML5** - Struktur semantik modern
+- **CSS3** - Flexbox, Grid, Custom Properties, Animations
+- **Vanilla JavaScript** - ES6+, DOM manipulation, Event handling
+- **Google Fonts** - Google Sans typography
+- **Material Icons** - Icon set resmi Google
 
-2. Start the TG Drive application using Uvicorn:
+## Fitur Detail
 
-   ```bash
-   uvicorn main:app --host 0.0.0.0 --port 8000
-   ```
+### Header
+- Logo Google Drive dengan ikon SVG
+- Search bar yang responsif dengan focus states
+- Profile menu dan navigation icons
+- Hamburger menu untuk mobile
 
-#### Deploying Using Docker
+### Sidebar
+- Tombol "Baru" dengan shadow dan hover effects
+- Navigasi dengan active states
+- Storage indicator dengan progress bar
+- Rounded navigation items sesuai Material Design
 
-1. Build the Docker image:
+### Main Content
+- Dynamic content switching berdasarkan navigasi
+- File dan folder cards dengan hover effects
+- Sortable table headers (UI only)
+- Load more functionality
 
-   ```bash
-   docker build -t tgdrive .
-   ```
+### Mobile Experience
+- Collapsible sidebar dengan smooth animations
+- Touch-optimized button sizes
+- Responsive grid layouts
+- Optimized typography scaling
 
-2. Run the Docker container:
+## Browser Support
 
-   ```bash
-   docker run -d -p 8000:8000 tgdrive
-   ```
+- ✅ Chrome 60+
+- ✅ Firefox 60+
+- ✅ Safari 12+
+- ✅ Edge 79+
 
-Access the application at `http://127.0.0.1:8000` or `http://your_ip:8000`.
+## Kustomisasi
 
-> **Note:** For more detailed information on deploying FastAPI applications, refer to online guides and resources.
+Aplikasi dapat dikustomisasi dengan mudah:
 
-## Deploy Tutorials
+### Mengubah Warna
+Edit CSS custom properties di `:root`:
+```css
+:root {
+  --primary-color: #1a73e8;
+  --background-color: #fff;
+  --text-color: #202124;
+}
+```
 
-**Deploy To Render.com For Free :** https://youtu.be/S5OIi5Ur3c0
+### Menambah Data
+Edit array `mockFiles`, `mockFolders`, atau `sharedDrives` di `script.js`
 
-<div align="center">
+### Mengubah Layout
+Modifikasi grid templates di CSS untuk mengubah proporsi kolom
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/TechShreyash/TGDrive)
+## Kontribusi
 
-</div>
+Aplikasi ini dibuat sebagai demonstrasi kemampuan frontend dan dapat dikembangkan lebih lanjut dengan:
+- Backend integration
+- Real file upload/download
+- User authentication
+- File sharing functionality
+- Collaborative editing
 
-> **Note:** After updating the TG Drive code, clear your browser's cache to ensure the latest JavaScript files are loaded and run correctly.
+## Lisensi
 
-## TG Drive's Bot Mode
+MIT License - Feel free to use and modify as needed.
 
-TG Drive's Bot Mode is a new feature that allows you to upload files directly to your TG Drive website from a Telegram bot. Simply send or forward any file to the bot, and it will be uploaded to your TG Drive. You can also specify the folder where you want the files to be uploaded.
+---
 
-To use this feature, you need to set the configuration variables `MAIN_BOT_TOKEN` and `TELEGRAM_ADMIN_IDS`. More information about these variables can be found in the [optional variables section](#optional-variables).
-
-Once these variables are set, users whose IDs are listed in `TELEGRAM_ADMIN_IDS` will have access to the bot.
-
-### Bot Commands
-
-- `/set_folder` - Set the folder for file uploads
-- `/current_folder` - Check the current folder
-
-### Quick Demo
-
-Bot Mode - Youtube Video Tutorial : https://youtu.be/XSeY2XcHdGI
-
-#### Uploading Files
-
-1. Open your main bot in Telegram.
-2. Send or forward a file to this bot, and it will be uploaded. By default, the file will be uploaded to the root folder (home page).
-
-#### Changing Folder for Uploading
-
-1. Send the `/set_folder` command and follow the instructions provided by the bot.
-
-## Important Posts Regarding TG Drive
-
-Stay informed by joining our updates channel on Telegram: [@TechZBots](https://telegram.me/TechZBots). We post updates, guides, and tips about TG Drive there.
-
-- https://telegram.me/TechZBots/891
-- https://telegram.me/TechZBots/876
-- https://telegram.me/TechZBots/874
-- https://telegram.me/TechZBots/870
-
-## Contributing
-
-Contributions are welcome! Fork the repository, make your changes, and create a pull request.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For inquiries or support, join our [Telegram Support Group](https://telegram.me/TechZBots_Support) or email [techshreyash123@gmail.com](mailto:techshreyash123@gmail.com).
+*Dibuat dengan ❤️ untuk mendemonstrasikan kemampuan frontend development*
