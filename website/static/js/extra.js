@@ -24,7 +24,7 @@ Array.from(sections).forEach(section => {
 });
 
 // Set active based on current path
-if (currentPath === '/') {
+if (currentPath === '/home') {
     // Beranda active
     sections[0].setAttribute('class', 'selected-item');
 } else if (currentPath.includes('/trash')) {
@@ -35,7 +35,7 @@ if (currentPath === '/') {
         }
     });
 } else {
-    // Drive Saya active (for any other folder path)
+    // Drive Saya active (for any other folder path including root "/")
     sections[1].setAttribute('class', 'selected-item');
 }
 

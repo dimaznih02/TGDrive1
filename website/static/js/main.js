@@ -2,9 +2,9 @@ function showDirectory(data) {
     data = data['contents']
     const currentPath = getCurrentPath()
     const isTrash = currentPath.startsWith('/trash')
-    const isHome = currentPath === '/'
+    const isHome = currentPath === '/home'
     
-    // Only show home page layout for exact '/' path (Beranda)
+    // Only show home page layout for '/home' path (Beranda)
     if (isHome && !isTrash) {
         showHomePage(data)
         return
