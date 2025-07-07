@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TG Drive</title>
     <link rel="stylesheet" href="static/home.css" />
+    <link rel="stylesheet" href="static/css/context-menu.css" />
 
     <!-- Fonts Start -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -152,6 +153,21 @@
                 </div>
                 
                 <div class="header-actions">
+                    <div class="view-toggle">
+                        <button class="view-toggle-btn active" id="list-view-btn" title="List view">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3,5H21V7H3V5M3,13V11H21V13H3M3,19V17H21V19H3Z"/>
+                            </svg>
+                            List
+                        </button>
+                        <button class="view-toggle-btn" id="grid-view-btn" title="Grid view">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3,11H11V3H3M5,5H9V9H5M13,21H21V13H13M15,15H19V19H15M3,21H11V13H3M5,15H9V19H5M13,3V11H21V3M15,5H19V9H15"/>
+                            </svg>
+                            Grid
+                        </button>
+                    </div>
+                    
                     <button id="select-mode-btn" class="action-btn" title="Select multiple files">
                         <img src="static/assets/check-icon.svg" alt="Select" />
                         Select
@@ -166,8 +182,18 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="breadcrumb-nav" id="breadcrumb-nav">
+                <a href="/?path=/" class="breadcrumb-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+                    </svg>
+                    My Drive
+                </a>
+            </div>
 
-            <div class="directory">
+            <div class="directory" id="directory-container">
                 <table>
                     <thead>
                         <tr>
@@ -190,6 +216,8 @@
     <script src="static/js/fileClickHandler.js"></script>
     <script src="static/js/main.js"></script>
     <script src="static/js/moveFiles.js"></script>
+    <script src="static/js/context-menu.js"></script>
+    <script src="static/js/google-drive-enhancements.js"></script>
 </body>
 
 </html>
