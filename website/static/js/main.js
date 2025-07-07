@@ -105,116 +105,124 @@ function showHomePage(data) {
     // Get suggested files (latest 10 files)
     const suggestedFiles = files.slice(0, 10);
 
-    // Create home page HTML
+    // Create home page HTML with proper structure
     const homePageHTML = `
-        <div class="home-welcome">
-            <h1>Selamat datang di Drive</h1>
-            <button class="info-btn" style="background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; color: #5f6368;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
-                </svg>
-            </button>
-        </div>
-
-        <!-- Suggested Folders Section -->
-        <div class="suggested-section">
-            <div class="section-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px; color: #5f6368;">
-                    <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                </svg>
-                <h2>Folder yang disarankan</h2>
+        <div class="home-page-container">
+            <div class="home-welcome">
+                <h1>Selamat datang di Drive</h1>
+                <button class="info-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
+                    </svg>
+                </button>
             </div>
-            <div class="suggested-folders-grid">
-                ${suggestedFolders.map(([key, folder]) => `
-                    <div class="folder-card" data-path="${folder.path}">
-                        <div class="folder-card-content">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="color: #5f6368; margin-right: 12px;">
-                                <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
-                            </svg>
-                            <div class="folder-info">
-                                <div class="folder-name">${folder.name}</div>
-                                <div class="folder-location">Di Drive Saya</div>
+
+            ${suggestedFolders.length > 0 ? `
+            <!-- Suggested Folders Section -->
+            <div class="suggested-section">
+                <div class="section-header">
+                    <svg class="expand-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                    </svg>
+                    <h2>Folder yang disarankan</h2>
+                </div>
+                <div class="suggested-folders-grid">
+                    ${suggestedFolders.map(([key, folder]) => `
+                        <div class="folder-card" data-path="${folder.path}">
+                            <div class="folder-card-content">
+                                <div class="folder-icon-wrapper">
+                                    <svg class="folder-icon-large" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                                    </svg>
+                                </div>
+                                <div class="folder-info">
+                                    <div class="folder-name">${folder.name}</div>
+                                    <div class="folder-location">Di Drive Saya</div>
+                                </div>
                             </div>
+                            <button class="folder-menu-btn" data-id="${folder.id}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                                </svg>
+                            </button>
                         </div>
-                        <button class="folder-menu-btn" data-id="${folder.id}">
+                    `).join('')}
+                </div>
+            </div>
+            ` : ''}
+
+            ${suggestedFiles.length > 0 ? `
+            <!-- Suggested Files Section -->
+            <div class="suggested-section">
+                <div class="section-header-with-controls">
+                    <div class="section-title">
+                        <svg class="expand-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                        <h2>File yang disarankan</h2>
+                    </div>
+                    <div class="view-controls">
+                        <button class="view-btn active" data-view="list">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                                <path d="M3,5H21V7H3V5M3,13V11H21V13H3M3,19V17H21V19H3Z"/>
+                            </svg>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3,11H11V3H3M5,5H9V9H5M13,21H21V13H13M15,15H19V19H15M3,21H11V13H3M5,15H9V19H5M13,3V11H21V3M15,5H19V9H15"/>
                             </svg>
                         </button>
                     </div>
-                `).join('')}
-            </div>
-        </div>
-
-        <!-- Suggested Files Section -->
-        <div class="suggested-section">
-            <div class="section-header-with-controls">
-                <div class="section-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px; color: #5f6368;">
-                        <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                    </svg>
-                    <h2>File yang disarankan</h2>
-                </div>
-                <div class="view-controls">
-                    <button class="view-btn active" data-view="list">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M3,5H21V7H3V5M3,13V11H21V13H3M3,19V17H21V19H3Z"/>
-                        </svg>
-                    </button>
-                    <button class="view-btn" data-view="grid">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M3,11H11V3H3M5,5H9V9H5M13,21H21V13H13M15,15H19V19H15M3,21H11V13H3M5,15H9V19H5M13,3V11H21V3M15,5H19V9H15"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="suggested-files-table">
-                <div class="table-header">
-                    <div class="col-name">Nama</div>
-                    <div class="col-reason">Alasan file disarankan</div>
-                    <div class="col-location">Lokasi</div>
                 </div>
                 
-                <div class="file-list">
-                    ${suggestedFiles.map(([key, file]) => {
-                        const uploadDate = new Date(file.upload_date);
-                        const now = new Date();
-                        const timeDiff = now - uploadDate;
-                        const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
-                        const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                        
-                        let timeText = "";
-                        if (hoursDiff < 24) {
-                            timeText = hoursDiff < 1 ? "baru saja" : `${hoursDiff} jam`;
-                        } else {
-                            timeText = `${daysDiff} hari`;
-                        }
-                        
-                        return `
-                            <div class="file-item" data-path="${file.path}" data-id="${file.id}">
-                                <div class="file-info">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color: #ea4335; margin-right: 12px;">
-                                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                                    </svg>
-                                    <span class="file-name">${file.name}</span>
+                <div class="suggested-files-table">
+                    <div class="table-header">
+                        <div class="col-name">Nama</div>
+                        <div class="col-reason">Alasan file disarankan</div>
+                        <div class="col-location">Lokasi</div>
+                    </div>
+                    
+                    <div class="file-list">
+                        ${suggestedFiles.map(([key, file]) => {
+                            const uploadDate = new Date(file.upload_date);
+                            const now = new Date();
+                            const timeDiff = now - uploadDate;
+                            const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
+                            const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                            
+                            let timeText = "";
+                            if (hoursDiff < 24) {
+                                timeText = hoursDiff < 1 ? "baru saja" : `${hoursDiff} jam`;
+                            } else {
+                                timeText = `${daysDiff} hari`;
+                            }
+                            
+                            return `
+                                <div class="file-item" data-path="${file.path}" data-id="${file.id}">
+                                    <div class="file-info">
+                                        <svg class="file-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                        </svg>
+                                        <span class="file-name">${file.name}</span>
+                                    </div>
+                                    <div class="file-reason">Anda menguploadnya • ${timeText}</div>
+                                    <div class="file-location">
+                                        <svg class="location-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                                        </svg>
+                                        <span>Drive Saya</span>
+                                    </div>
                                 </div>
-                                <div class="file-reason">Anda menguploadnya • ${timeText}</div>
-                                <div class="file-location">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: #5f6368; margin-right: 4px;">
-                                        <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
-                                    </svg>
-                                    <span>Drive Saya</span>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <div class="show-more">
+                    <button class="show-more-btn">Tampilkan lainnya</button>
                 </div>
             </div>
-        </div>
-
-        <div class="show-more">
-            <button class="show-more-btn">Tampilkan lainnya</button>
+            ` : ''}
         </div>
     `;
 

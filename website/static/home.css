@@ -458,6 +458,7 @@
     height: 100%;
     border-radius: 20px;
     margin-top: 20px;
+    overflow: hidden;
 }
 
 .directory table {
@@ -646,6 +647,13 @@
 
 /* Home Page Styles Start */
 
+.home-page-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 0;
+}
+
 .home-welcome {
     display: flex;
     align-items: center;
@@ -659,6 +667,19 @@
     font-weight: 400;
     color: #202124;
     margin: 0;
+}
+
+.info-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #5f6368;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
 
 .info-btn:hover {
@@ -682,6 +703,16 @@
     font-weight: 500;
     color: #202124;
     margin: 0;
+}
+
+.expand-icon {
+    color: #5f6368;
+    margin-right: 8px;
+    transition: transform 0.2s;
+}
+
+.expand-icon:hover {
+    color: #202124;
 }
 
 .section-header-with-controls {
@@ -758,6 +789,17 @@
     display: flex;
     align-items: center;
     flex: 1;
+}
+
+.folder-icon-wrapper {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.folder-icon-large {
+    color: #5f6368;
 }
 
 .folder-info {
@@ -843,6 +885,12 @@
     align-items: center;
 }
 
+.file-icon {
+    color: #ea4335;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
 .file-name {
     font-size: 14px;
     color: #202124;
@@ -859,6 +907,12 @@
     align-items: center;
     font-size: 14px;
     color: #5f6368;
+}
+
+.location-icon {
+    color: #5f6368;
+    margin-right: 4px;
+    flex-shrink: 0;
 }
 
 .show-more {
@@ -896,17 +950,43 @@
         font-size: 0.8rem;
     }
     
+    .home-page-container {
+        padding: 16px;
+    }
+    
+    .home-welcome h1 {
+        font-size: 24px;
+    }
+    
     .suggested-folders-grid {
         grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .folder-card {
+        padding: 12px;
     }
     
     .table-header,
     .file-item {
         grid-template-columns: 2fr 1fr;
+        gap: 8px;
+        padding: 8px 12px;
     }
     
     .col-reason,
     .file-reason {
         display: none;
+    }
+    
+    .file-info {
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .file-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
