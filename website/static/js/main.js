@@ -2,9 +2,9 @@ function showDirectory(data) {
     data = data['contents']
     const currentPath = getCurrentPath()
     const isTrash = currentPath.startsWith('/trash')
-    const isHome = currentPath === '/' || currentPath === ''
+    const isHome = currentPath === '/'
     
-    // If it's home page, show suggested folders and files layout
+    // Only show home page layout for exact '/' path (Beranda)
     if (isHome && !isTrash) {
         showHomePage(data)
         return
@@ -135,10 +135,9 @@ function showHomePage(data) {
                                         <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
                                     </svg>
                                 </div>
-                                <div class="folder-info">
-                                    <div class="folder-name">${folder.name}</div>
-                                    <div class="folder-location">Di Drive Saya</div>
-                                </div>
+                                                                 <div class="folder-info">
+                                     <div class="folder-name">${folder.name}</div>
+                                 </div>
                             </div>
                             <button class="folder-menu-btn" data-id="${folder.id}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -175,12 +174,11 @@ function showHomePage(data) {
                     </div>
                 </div>
                 
-                <div class="suggested-files-table">
-                    <div class="table-header">
-                        <div class="col-name">Nama</div>
-                        <div class="col-reason">Alasan file disarankan</div>
-                        <div class="col-location">Lokasi</div>
-                    </div>
+                                 <div class="suggested-files-table">
+                     <div class="table-header">
+                         <div class="col-name">Nama</div>
+                         <div class="col-time">Waktu</div>
+                     </div>
                     
                     <div class="file-list">
                         ${suggestedFiles.map(([key, file]) => {
@@ -197,23 +195,17 @@ function showHomePage(data) {
                                 timeText = `${daysDiff} hari`;
                             }
                             
-                            return `
-                                <div class="file-item" data-path="${file.path}" data-id="${file.id}">
-                                    <div class="file-info">
-                                        <svg class="file-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                                        </svg>
-                                        <span class="file-name">${file.name}</span>
-                                    </div>
-                                    <div class="file-reason">Anda menguploadnya • ${timeText}</div>
-                                    <div class="file-location">
-                                        <svg class="location-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
-                                        </svg>
-                                        <span>Drive Saya</span>
-                                    </div>
-                                </div>
-                            `;
+                                                         return `
+                                 <div class="file-item" data-path="${file.path}" data-id="${file.id}">
+                                     <div class="file-info">
+                                         <svg class="file-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                         </svg>
+                                         <span class="file-name">${file.name}</span>
+                                     </div>
+                                     <div class="file-time">${timeText}</div>
+                                 </div>
+                             `;
                         }).join('')}
                     </div>
                 </div>

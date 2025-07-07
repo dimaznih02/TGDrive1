@@ -809,13 +809,7 @@
 .folder-name {
     font-weight: 500;
     color: #202124;
-    margin-bottom: 4px;
     font-size: 14px;
-}
-
-.folder-location {
-    font-size: 12px;
-    color: #5f6368;
 }
 
 .folder-menu-btn {
@@ -844,7 +838,7 @@
 
 .table-header {
     display: grid;
-    grid-template-columns: 2fr 2fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 16px;
     padding: 12px 16px;
     background: #f8f9fa;
@@ -863,7 +857,7 @@
 
 .file-item {
     display: grid;
-    grid-template-columns: 2fr 2fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 16px;
     padding: 12px 16px;
     border-bottom: 1px solid #f1f3f4;
@@ -897,22 +891,10 @@
     font-weight: 400;
 }
 
-.file-reason {
+.file-time {
     font-size: 14px;
     color: #5f6368;
-}
-
-.file-location {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #5f6368;
-}
-
-.location-icon {
-    color: #5f6368;
-    margin-right: 4px;
-    flex-shrink: 0;
+    text-align: left;
 }
 
 .show-more {
@@ -972,11 +954,6 @@
         grid-template-columns: 2fr 1fr;
         gap: 8px;
         padding: 8px 12px;
-    }
-    
-    .col-reason,
-    .file-reason {
-        display: none;
     }
     
     .file-info {
