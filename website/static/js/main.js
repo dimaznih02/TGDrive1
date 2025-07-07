@@ -252,7 +252,12 @@ function addHomePageEventListeners() {
         card.addEventListener('click', (e) => {
             if (!e.target.closest('.folder-menu-btn')) {
                 const path = card.dataset.path;
-                window.location.href = `/?path=${path}`;
+                // Directly navigate to the folder without going to Drive Saya
+                getCurrentDirectory(path);
+                // Update URL but stay in the context
+                const currentUrl = new URL(window.location);
+                currentUrl.searchParams.set('path', path);
+                window.history.pushState({path: path}, '', currentUrl.toString());
             }
         });
     });
