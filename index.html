@@ -109,47 +109,52 @@
             <main class="main-content">
                 <div class="content-header">
                     <h1 class="page-title">Selamat datang di Drive</h1>
-                    <div class="view-controls">
-                        <button class="view-btn active" data-view="list">
-                            <span class="material-icons">view_list</span>
-                        </button>
-                        <button class="view-btn" data-view="grid">
-                            <span class="material-icons">view_module</span>
-                        </button>
-                    </div>
+                    <button class="info-btn">
+                        <span class="material-icons">info_outline</span>
+                    </button>
                 </div>
 
-                <!-- Suggested Section -->
-                <section class="suggested-section">
-                    <h2>Folder yang disarankan</h2>
-                    <div class="suggested-items">
-                        <div class="suggested-item">
-                            <span class="material-icons folder-icon">folder</span>
-                            <div class="item-info">
-                                <div class="item-name">All File</div>
-                                <div class="item-detail">Di Dibagikan kepada saya</div>
+                <!-- Suggested Folders Section -->
+                <section class="suggested-folders-section">
+                    <div class="section-header-with-arrow">
+                        <span class="material-icons expand-icon">expand_more</span>
+                        <h2>Folder yang disarankan</h2>
+                    </div>
+                    <div class="suggested-folders-grid">
+                        <div class="folder-card">
+                            <div class="folder-card-content">
+                                <span class="material-icons folder-icon-large">folder</span>
+                                <div class="folder-info">
+                                    <div class="folder-name">All File</div>
+                                    <div class="folder-location">Di Dibagikan kepada saya</div>
+                                </div>
                             </div>
-                            <button class="item-menu">
+                            <button class="folder-menu-btn">
                                 <span class="material-icons">more_vert</span>
                             </button>
                         </div>
-                        <div class="suggested-item">
-                            <span class="material-icons folder-icon">folder</span>
-                            <div class="item-info">
-                                <div class="item-name">BackupDestination</div>
-                                <div class="item-detail">Di Drive Saya</div>
+                        <div class="folder-card">
+                            <div class="folder-card-content">
+                                <span class="material-icons folder-icon-large">folder</span>
+                                <div class="folder-info">
+                                    <div class="folder-name">BackupDestination</div>
+                                    <div class="folder-location">Di Drive Saya</div>
+                                </div>
                             </div>
-                            <button class="item-menu">
+                            <button class="folder-menu-btn">
                                 <span class="material-icons">more_vert</span>
                             </button>
                         </div>
                     </div>
                 </section>
 
-                <!-- Recent Files Section -->
-                <section class="recent-section">
-                    <div class="section-header">
-                        <h2>File yang disarankan</h2>
+                <!-- Suggested Files Section -->
+                <section class="suggested-files-section">
+                    <div class="section-header-with-controls">
+                        <div class="section-title-with-arrow">
+                            <span class="material-icons expand-icon">expand_more</span>
+                            <h2>File yang disarankan</h2>
+                        </div>
                         <div class="view-controls">
                             <button class="view-btn active" data-view="list">
                                 <span class="material-icons">view_list</span>
@@ -160,7 +165,7 @@
                         </div>
                     </div>
                     
-                    <div class="files-table">
+                    <div class="suggested-files-table">
                         <div class="table-header">
                             <div class="col-name">Nama</div>
                             <div class="col-reason">Alasan file disarankan</div>

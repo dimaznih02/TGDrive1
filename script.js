@@ -186,6 +186,25 @@ function initializeEventListeners() {
     menuBtn.addEventListener('click', () => {
         toggleSidebar();
     });
+
+    // Info button
+    const infoBtn = document.querySelector('.info-btn');
+    if (infoBtn) {
+        infoBtn.addEventListener('click', () => {
+            alert('Informasi tentang Google Drive');
+        });
+    }
+
+    // Folder cards
+    const folderCards = document.querySelectorAll('.folder-card');
+    folderCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (!e.target.closest('.folder-menu-btn')) {
+                const folderName = card.querySelector('.folder-name').textContent;
+                alert(`Membuka folder: ${folderName}`);
+            }
+        });
+    });
 }
 
 function handleNavigation(section, navItem) {
@@ -237,11 +256,13 @@ function toggleView(view, btn) {
     currentLayout = view;
     
     // Apply grid view class
-    const filesTable = document.querySelector('.files-table');
-    if (view === 'grid') {
-        filesTable.classList.add('grid-view');
-    } else {
-        filesTable.classList.remove('grid-view');
+    const filesTable = document.querySelector('.suggested-files-table');
+    if (filesTable) {
+        if (view === 'grid') {
+            filesTable.classList.add('grid-view');
+        } else {
+            filesTable.classList.remove('grid-view');
+        }
     }
     
     renderContent();
@@ -273,11 +294,18 @@ function renderContent() {
 }
 
 function renderHomePage() {
-    pageTitle.textContent = 'Selamat datang di Drive';
+    // Reset main content to home layout if it was changed
+    if (!document.querySelector('.suggested-folders-section')) {
+        location.reload(); // Simple reload to reset layout
+        return;
+    }
     
     // Show default home content with suggested folders and files
     const filteredFiles = filterFiles(mockFiles);
     renderFileList(filteredFiles);
+    
+    // Add expand/collapse functionality
+    addExpandCollapseHandlers();
 }
 
 function renderMyDrive() {
@@ -545,6 +573,24 @@ function showNewMenu() {
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     sidebar.classList.toggle('mobile-hidden');
+}
+
+function addExpandCollapseHandlers() {
+    // Add click handlers for expand/collapse arrows
+    const expandIcons = document.querySelectorAll('.expand-icon');
+    expandIcons.forEach(icon => {
+        icon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            icon.style.transform = icon.style.transform === 'rotate(180deg)' ? 'rotate(0deg)' : 'rotate(180deg)';
+            
+            // Find the content section and toggle visibility
+            const section = icon.closest('section');
+            const content = section.querySelector('.suggested-folders-grid, .suggested-files-table');
+            if (content) {
+                content.style.display = content.style.display === 'none' ? '' : 'none';
+            }
+        });
+    });
 }
 
 // CSS for dynamic elements
