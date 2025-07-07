@@ -177,7 +177,8 @@ function showHomePage(data) {
                                  <div class="suggested-files-table">
                      <div class="table-header">
                          <div class="col-name">Nama</div>
-                         <div class="col-time">Waktu</div>
+                         <div class="col-reason">Alasan file disarankan</div>
+                         <div class="col-location">Lokasi</div>
                      </div>
                     
                     <div class="file-list">
@@ -188,14 +189,27 @@ function showHomePage(data) {
                             const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
                             const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
                             
-                            let timeText = "";
-                            if (hoursDiff < 24) {
-                                timeText = hoursDiff < 1 ? "baru saja" : `${hoursDiff} jam`;
+                            let reasonText = "";
+                            if (hoursDiff < 1) {
+                                reasonText = "Anda mengubahnya";
+                            } else if (hoursDiff < 24) {
+                                reasonText = "Anda mengubahnya";
+                            } else if (daysDiff === 1) {
+                                reasonText = "Anda membuatnya";
                             } else {
-                                timeText = `${daysDiff} hari`;
+                                reasonText = "Anda menguploadnya";
                             }
                             
-                                                         return `
+                            let timeText = "";
+                            if (hoursDiff < 1) {
+                                timeText = "• baru saja";
+                            } else if (hoursDiff < 24) {
+                                timeText = `• ${hoursDiff} jam`;
+                            } else {
+                                timeText = `• ${daysDiff} hari`;
+                            }
+                            
+                            return `
                                  <div class="file-item" data-path="${file.path}" data-id="${file.id}">
                                      <div class="file-info">
                                          <svg class="file-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -203,7 +217,13 @@ function showHomePage(data) {
                                          </svg>
                                          <span class="file-name">${file.name}</span>
                                      </div>
-                                     <div class="file-time">${timeText}</div>
+                                     <div class="file-reason">${reasonText} ${timeText}</div>
+                                     <div class="file-location">
+                                         <svg class="folder-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                             <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                                         </svg>
+                                         Drive Saya
+                                     </div>
                                  </div>
                              `;
                         }).join('')}
