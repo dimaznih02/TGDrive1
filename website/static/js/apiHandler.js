@@ -345,3 +345,23 @@ async function Start_URL_Upload() {
 }
 
 // URL Uploader End
+
+// Move Files Functions Start
+
+async function moveFiles(fileIds, destinationPath) {
+    const data = {
+        file_ids: fileIds,
+        destination_path: destinationPath
+    };
+    
+    const json = await postJson('/api/moveFiles', data);
+    return json;
+}
+
+async function getAllFolders() {
+    const data = {};
+    const json = await postJson('/api/getAllFolders', data);
+    return json;
+}
+
+// Move Files Functions End

@@ -354,3 +354,41 @@ async def getFolderShareAuth(request: Request):
         return JSONResponse({"status": "ok", "auth": auth})
     except:
         return JSONResponse({"status": "not found"})
+
+
+@app.post("/api/moveFiles")
+async def move_files(request: Request):
+    from utils.directoryHandler import DRIVE_DATA
+
+    data = await request.json()
+
+    if data["password"] != ADMIN_PASSWORD:
+        return JSONResponse({"status": "Invalid password"})
+
+    logger.info(f"moveFiles {data}")
+
+    try:
+        moved_items = DRIVE_DATA.move_files(data["file_ids"], data["destination_path"])
+        return JSONResponse({"status": "ok", "moved_items": moved_items})
+    except Exception as e:
+        logger.error(f"Error moving files: {e}")
+        return JSONResponse({"status": f"Error: {str(e)}"})
+
+
+@app.post("/api/getAllFolders")
+async def get_all_folders(request: Request):
+    from utils.directoryHandler import DRIVE_DATA
+
+    data = await request.json()
+
+    if data["password"] != ADMIN_PASSWORD:
+        return JSONResponse({"status": "Invalid password"})
+
+    logger.info(f"getAllFolders {data}")
+
+    try:
+        folders = DRIVE_DATA.get_all_folders()
+        return JSONResponse({"status": "ok", "folders": folders})
+    except Exception as e:
+        logger.error(f"Error getting folders: {e}")
+        return JSONResponse({"status": f"Error: {str(e)}"})
