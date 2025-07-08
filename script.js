@@ -1,20 +1,66 @@
-// Mock data for files and folders based on the screenshot
+// Fungsi untuk format tanggal sesuai aturan Google Drive
+function formatDate(date) {
+    const now = new Date();
+    const fileDate = new Date(date);
+    
+    // Hitung selisih waktu dalam milidetik
+    const diffMs = now.getTime() - fileDate.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    // Bulan dalam bahasa Indonesia
+    const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+    
+    // 1. Hari ini (beberapa jam lalu) → Jam:Menit (contoh: 15.10, 09.42)
+    if (diffDays === 0 && diffHours >= 0 && diffHours < 24) {
+        const hours = fileDate.getHours().toString().padStart(2, '0');
+        const minutes = fileDate.getMinutes().toString().padStart(2, '0');
+        return `${hours}.${minutes}`;
+    }
+    
+    // 2. Kemarin / dalam 1–2 hari → format relatif (1 hari, 20 jam, 17 jam)
+    if (diffDays === 1) {
+        return "1 hari";
+    } else if (diffHours >= 24 && diffHours < 48) {
+        return `${diffHours} jam`;
+    } else if (diffDays === 2) {
+        return "2 hari";
+    }
+    
+    // 3. Beberapa hari–bulan lalu (tahun ini) → Tanggal Bulan (29 Jun, 5 Jul)
+    if (fileDate.getFullYear() === now.getFullYear()) {
+        const day = fileDate.getDate();
+        const month = months[fileDate.getMonth()];
+        return `${day} ${month}`;
+    }
+    
+    // 4. Tahun berbeda → Tanggal Bulan Tahun (16 Mei 2024)
+    const day = fileDate.getDate();
+    const month = months[fileDate.getMonth()];
+    const year = fileDate.getFullYear();
+    return `${day} ${month} ${year}`;
+}
+
+// Mock data for files and folders dengan format tanggal yang benar
 const mockFolders = [
     { name: "All File", type: "folder", icon: "folder", owner: "saya", modified: "—", size: "—" },
-    { name: "App", type: "folder", icon: "folder", owner: "saya", modified: "2 Jun", size: "—" },
-    { name: "BACKUP JUNI 2025", type: "folder", icon: "folder", owner: "saya", modified: "29 Jun", size: "—" },
-    { name: "BackupCache", type: "folder", icon: "folder", owner: "saya", modified: "29 Jun", size: "—" },
-    { name: "BackupDestination", type: "folder", icon: "folder", owner: "saya", modified: "30 Jun", size: "—" },
-    { name: "Colab Notebooks", type: "folder", icon: "folder", owner: "saya", modified: "26 Jun", size: "—" },
-    { name: "Data baru", type: "folder", icon: "folder", owner: "saya", modified: "16 Mei 2024", size: "—" },
-    { name: "Data PT", type: "folder", icon: "folder", owner: "saya", modified: "16 Mei 2024", size: "—" },
-    { name: "Folder tanpa nama", type: "folder", icon: "folder", owner: "saya", modified: "11 Jan 2024", size: "—" },
-    { name: "KEY SSH", type: "folder", icon: "folder", owner: "saya", modified: "2 Mei", size: "—" },
-    { name: "LOG_TRANSFER", type: "folder", icon: "folder", owner: "saya", modified: "29 Jun", size: "—" },
-    { name: "Paspor", type: "folder", icon: "folder", owner: "saya", modified: "5 Jun", size: "—" },
-    { name: "Proof of transaction", type: "file", icon: "insert_drive_file", owner: "saya", modified: "18 Okt 2024", size: "—" },
-    { name: "tes", type: "file", icon: "insert_drive_file", owner: "saya", modified: "17 Nov 2024", size: "—" },
-    { name: "Toy", type: "folder", icon: "folder", owner: "saya", modified: "29 Jun", size: "—" }
+    { name: "App", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 2)), size: "—" },
+    { name: "BACKUP JUNI 2025", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 29)), size: "—" },
+    { name: "BackupCache", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 29)), size: "—" },
+    { name: "BackupDestination", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 30)), size: "—" },
+    { name: "Colab Notebooks", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 26)), size: "—" },
+    { name: "Data baru", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 4, 16)), size: "—" },
+    { name: "Data PT", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 4, 16)), size: "—" },
+    { name: "Folder tanpa nama", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 0, 11)), size: "—" },
+    { name: "KEY SSH", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 4, 2)), size: "—" },
+    { name: "LOG_TRANSFER", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 29)), size: "—" },
+    { name: "Paspor", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 5)), size: "—" },
+    { name: "Proof of transaction", type: "file", icon: "insert_drive_file", owner: "saya", modified: formatDate(new Date(2024, 9, 18)), size: "—" },
+    { name: "tes", type: "file", icon: "insert_drive_file", owner: "saya", modified: formatDate(new Date(2024, 10, 17)), size: "—" },
+    { name: "Toy", type: "folder", icon: "folder", owner: "saya", modified: formatDate(new Date(2024, 5, 29)), size: "—" }
 ];
 
 const mockFiles = [
@@ -24,7 +70,7 @@ const mockFiles = [
         type: "notebook",
         icon: "description",
         reason: "Anda mengubahnya",
-        time: "18.53",
+        time: formatDate(new Date(Date.now() - 18 * 60 * 60 * 1000 - 53 * 60 * 1000)), // 18.53 hari ini
         location: "Colab Notebooks",
         locationIcon: "folder"
     },
@@ -34,7 +80,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda menguploadnya",
-        time: "20.44",
+        time: formatDate(new Date(Date.now() - 20 * 60 * 60 * 1000 - 44 * 60 * 1000)), // 20.44 hari ini
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -44,7 +90,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda membuatnya",
-        time: "20.44",
+        time: formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000)), // 1 hari lalu
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -54,7 +100,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda membuatnya",
-        time: "20.44",
+        time: formatDate(new Date(Date.now() - 25 * 60 * 60 * 1000)), // 25 jam lalu
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -64,7 +110,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda membuatnya",
-        time: "20.44",
+        time: formatDate(new Date(2024, 6, 15)), // 15 Jul (tahun ini)
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -74,7 +120,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda membuatnya",
-        time: "20.44",
+        time: formatDate(new Date(2024, 5, 20)), // 20 Jun (tahun ini)
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -84,7 +130,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda membuatnya",
-        time: "20.44",
+        time: formatDate(new Date(2024, 4, 17)), // 17 Mei 2024
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -94,7 +140,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda menguploadnya",
-        time: "20.43",
+        time: formatDate(new Date(Date.now() - 15 * 60 * 60 * 1000 - 43 * 60 * 1000)), // 15.43 hari ini
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -104,7 +150,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda menguploadnya",
-        time: "20.44",
+        time: formatDate(new Date(Date.now() - 30 * 60 * 60 * 1000)), // 30 jam lalu
         location: "WhatsApp Images",
         locationIcon: "folder"
     },
@@ -114,7 +160,7 @@ const mockFiles = [
         type: "image",
         icon: "image",
         reason: "Anda menguploadnya",
-        time: "20.43",
+        time: formatDate(new Date(Date.now() - 9 * 60 * 60 * 1000 - 20 * 60 * 1000)), // 09.20 hari ini
         location: "WhatsApp Images",
         locationIcon: "folder"
     }
