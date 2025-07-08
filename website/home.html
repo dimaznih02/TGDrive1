@@ -245,31 +245,71 @@
                         </div>
                     </div>
                     
+                    <!-- Selection Mode Notification Bar (Hidden by default) -->
+                    <div id="selection-notification-bar" class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex items-center justify-between" style="display: none;">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="select-all-checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span id="selected-count-text" class="text-sm font-medium text-blue-800">
+                                <span id="selected-count-header">0</span> item dipilih
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="move-selected-btn" class="action-btn bg-blue-600 text-white border-blue-600 hover:bg-blue-700 disabled" disabled>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                                </svg>
+                                Pindahkan
+                            </button>
+                            <button id="delete-selected-btn" class="action-btn bg-red-600 text-white border-red-600 hover:bg-red-700 disabled" disabled>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3 6V4h4V2a1 1 0 011-1h8a1 1 0 011 1v2h4v2h-1v13a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3zm3 0v13h12V6H6zm2 2h2v9H8V8zm4 0h2v9h-2V8z"/>
+                                </svg>
+                                Hapus
+                            </button>
+                            <button id="cancel-select-btn" class="action-btn">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                                </svg>
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Filter Bar -->
-                    <div class="flex flex-wrap gap-3">
-                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
-                            <span>Jenis</span>
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    <div class="flex flex-wrap gap-3 justify-between items-center">
+                        <div class="flex flex-wrap gap-3">
+                            <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                                <span>Jenis</span>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                                <span>Orang</span>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                                <span>Dimodifikasi</span>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                                <span>Sumber</span>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Selection Mode Toggle Button -->
+                        <button id="select-mode-btn" class="flex items-center gap-2 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.11,3 19,3M10,17L5,12L6.41,10.59L10,14.17L17.59,6.58L19,8L10,17Z"/>
                             </svg>
-                        </button>
-                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
-                            <span>Orang</span>
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                        </button>
-                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
-                            <span>Dimodifikasi</span>
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                        </button>
-                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
-                            <span>Sumber</span>
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
+                            <span>Pilih</span>
                         </button>
                     </div>
                 </div>
@@ -278,7 +318,12 @@
                 <div class="bg-white">
                     <!-- Table Header -->
                     <div class="border-b border-gray-200 py-3">
-                        <div class="grid px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
+                        <div id="table-header" class="grid px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
+                            <!-- Checkbox column (hidden by default) -->
+                            <div class="checkbox-column flex justify-center" style="display: none;">
+                                <input type="checkbox" id="header-select-all" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                            
                             <div class="flex items-center gap-1">
                                 <span>Nama</span>
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

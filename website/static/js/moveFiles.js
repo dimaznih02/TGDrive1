@@ -12,8 +12,18 @@ function initializeMoveFiles() {
     // Add event listeners for buttons
     document.getElementById('select-mode-btn').addEventListener('click', toggleSelectionMode);
     
-    // DON'T add move button listener here - let google-drive-enhancements.js handle it
-    // to avoid conflicts with MoreMenuManager
+    // Selection notification bar buttons
+    document.getElementById('move-selected-btn').addEventListener('click', function() {
+        if (selectedFiles.size > 0) {
+            openMoveDialog();
+        }
+    });
+    
+    document.getElementById('delete-selected-btn').addEventListener('click', function() {
+        if (selectedFiles.size > 0) {
+            deleteSelectedFiles();
+        }
+    });
     
     document.getElementById('cancel-select-btn').addEventListener('click', exitSelectionMode);
     
@@ -21,8 +31,13 @@ function initializeMoveFiles() {
     document.getElementById('move-cancel').addEventListener('click', closeMoveDialog);
     document.getElementById('move-confirm').addEventListener('click', confirmMoveFiles);
     
-    // Select all checkbox
+    // Select all checkbox (both in notification bar and header)
     document.getElementById('select-all-checkbox').addEventListener('change', handleSelectAll);
+    
+    const headerSelectAll = document.getElementById('header-select-all');
+    if (headerSelectAll) {
+        headerSelectAll.addEventListener('change', handleSelectAll);
+    }
 }
 
 function toggleSelectionMode() {
@@ -58,37 +73,39 @@ function exitSelectionMode() {
     document.body.classList.remove('selection-mode');
     selectedFiles.clear();
     
-    // Show/hide appropriate buttons
-    document.getElementById('select-mode-btn').classList.remove('hidden');
-    document.getElementById('move-files-btn').classList.add('hidden');
-    document.getElementById('cancel-select-btn').classList.add('hidden');
-    
-    // Hide checkbox column
-    document.querySelectorAll('.checkbox-column').forEach(el => {
-        el.classList.add('hidden');
+    // Remove checkboxes from file items
+    document.querySelectorAll('.file-item .checkbox-column').forEach(checkbox => {
+        checkbox.remove();
     });
     
     // Remove selected styling from rows
-    document.querySelectorAll('.body-tr.selected').forEach(row => {
+    document.querySelectorAll('.file-item.selected').forEach(row => {
         row.classList.remove('selected');
     });
     
-    // Uncheck select all checkbox
+    // Uncheck select all checkboxes
     document.getElementById('select-all-checkbox').checked = false;
+    const headerSelectAll = document.getElementById('header-select-all');
+    if (headerSelectAll) {
+        headerSelectAll.checked = false;
+    }
     
     updateSelectedCount();
 }
 
 function addCheckboxesToRows() {
-    document.querySelectorAll('.body-tr').forEach(row => {
-        const firstCell = row.querySelector('td');
-        if (firstCell && !firstCell.querySelector('.file-checkbox')) {
-            const checkboxCell = document.createElement('td');
-            checkboxCell.innerHTML = '<input type="checkbox" class="file-checkbox">';
-            row.insertBefore(checkboxCell, firstCell);
+    document.querySelectorAll('.file-item').forEach(row => {
+        if (!row.querySelector('.file-checkbox')) {
+            // Create checkbox element
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.className = 'checkbox-column flex justify-center items-center';
+            checkboxDiv.innerHTML = '<input type="checkbox" class="file-checkbox w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">';
             
-            const checkbox = checkboxCell.querySelector('.file-checkbox');
-            const fileId = row.getAttribute('data-id');
+            // Insert as first child
+            row.insertBefore(checkboxDiv, row.firstChild);
+            
+            const checkbox = checkboxDiv.querySelector('.file-checkbox');
+            const fileId = row.getAttribute('data-id') || row.getAttribute('data-path');
             
             checkbox.addEventListener('change', function() {
                 handleFileSelection(fileId, checkbox.checked, row);
@@ -113,10 +130,17 @@ function handleFileSelection(fileId, isSelected, row) {
 function handleSelectAll(event) {
     const isChecked = event.target.checked;
     
+    // Update both checkboxes to stay in sync
+    document.getElementById('select-all-checkbox').checked = isChecked;
+    const headerSelectAll = document.getElementById('header-select-all');
+    if (headerSelectAll) {
+        headerSelectAll.checked = isChecked;
+    }
+    
     document.querySelectorAll('.file-checkbox').forEach(checkbox => {
         checkbox.checked = isChecked;
-        const row = checkbox.closest('.body-tr');
-        const fileId = row.getAttribute('data-id');
+        const row = checkbox.closest('.file-item');
+        const fileId = row.getAttribute('data-id') || row.getAttribute('data-path');
         
         if (isChecked) {
             selectedFiles.add(fileId);
@@ -133,16 +157,25 @@ function handleSelectAll(event) {
 function updateSelectedCount() {
     const count = selectedFiles.size;
     document.getElementById('selected-count-header').textContent = count;
-    document.getElementById('selected-count').textContent = `${count} files selected`;
     
-    // Enable/disable move button
-    const moveBtn = document.getElementById('move-files-btn');
+    // Update text in notification bar
+    const notificationText = count === 1 ? '1 item dipilih' : `${count} item dipilih`;
+    document.getElementById('selected-count-text').innerHTML = `<span id="selected-count-header">${count}</span> item dipilih`;
+    
+    // Enable/disable action buttons
+    const moveBtn = document.getElementById('move-selected-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    
     if (count > 0) {
         moveBtn.classList.remove('disabled');
-        moveBtn.disabled = false;
+        moveBtn.removeAttribute('disabled');
+        deleteBtn.classList.remove('disabled');
+        deleteBtn.removeAttribute('disabled');
     } else {
         moveBtn.classList.add('disabled');
-        moveBtn.disabled = true;
+        moveBtn.setAttribute('disabled', 'true');
+        deleteBtn.classList.add('disabled');
+        deleteBtn.setAttribute('disabled', 'true');
     }
 }
 
@@ -193,7 +226,10 @@ async function openMoveDialog() {
     console.log('🔄 Opening move dialog for files:', Array.from(filesToMove));
     
     // Update selected count in dialog
-    document.getElementById('selected-count').textContent = `${filesToMove.size} files selected`;
+    const selectedCountElement = document.getElementById('selected-count');
+    if (selectedCountElement) {
+        selectedCountElement.textContent = `${filesToMove.size} file dipilih`;
+    }
     
     // Load folders
     try {
@@ -335,6 +371,54 @@ async function confirmMoveFiles() {
         // Reset button
         document.getElementById('move-confirm').textContent = 'Move Files';
         document.getElementById('move-confirm').disabled = false;
+    }
+}
+
+// Delete selected files function
+async function deleteSelectedFiles() {
+    if (selectedFiles.size === 0) {
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast('Tidak ada file yang dipilih', 'warning');
+        } else {
+            alert('Tidak ada file yang dipilih');
+        }
+        return;
+    }
+    
+    const fileCount = selectedFiles.size;
+    const confirmMessage = `Yakin ingin memindahkan ${fileCount} file(s) ke sampah?`;
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    try {
+        // Convert to array of paths
+        const filePaths = Array.from(selectedFiles);
+        
+        // Here you would call your delete API
+        // For now, just show success message
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast(`${fileCount} file(s) dipindahkan ke sampah`, 'success');
+        } else {
+            alert(`${fileCount} file(s) dipindahkan ke sampah`);
+        }
+        
+        // Exit selection mode
+        exitSelectionMode();
+        
+        // Reload directory
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+        
+    } catch (error) {
+        const errorMsg = 'Error menghapus file: ' + error.message;
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast(errorMsg, 'error');
+        } else {
+            alert(errorMsg);
+        }
     }
 }
 

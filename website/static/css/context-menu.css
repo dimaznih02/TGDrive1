@@ -675,11 +675,40 @@
 
 /* Selection mode enhancements */
 .selection-mode .checkbox-column {
+    display: flex !important;
     width: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+.selection-mode #table-header {
+    grid-template-columns: 40px 1fr 200px 150px 120px 40px !important;
+}
+
+.selection-mode .file-item {
+    grid-template-columns: 40px 1fr 200px 150px 120px 40px !important;
+}
+
+.selection-mode .more-btn {
+    display: none !important;
+}
+
+.selection-mode #selection-notification-bar {
+    display: flex !important;
 }
 
 .selection-mode .file-checkbox {
     margin: 0;
+}
+
+/* Action button states */
+.action-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-btn:not(.disabled) {
+    opacity: 1;
 }
 
 /* Hidden utilities */
