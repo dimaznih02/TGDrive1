@@ -3,14 +3,22 @@
 let selectedFiles = new Set();
 let isSelectionMode = false;
 
+// Expose to global scope for context menu
+window.selectedFiles = selectedFiles;
+window.isSelectionMode = () => isSelectionMode;
+window.startSelectionWithFile = null; // Will be set after function definition
+window.handleFileSelection = null;
+window.openMoveDialog = null;
+window.deleteSelectedFiles = null;
+window.exitSelectionMode = null;
+
 // Initialize move files functionality when document loads
 document.addEventListener('DOMContentLoaded', function() {
     initializeMoveFiles();
 });
 
 function initializeMoveFiles() {
-    // Add event listeners for buttons
-    document.getElementById('select-mode-btn').addEventListener('click', toggleSelectionMode);
+    // Selection mode will be triggered from context menu, not button
     
     // Selection notification bar buttons
     document.getElementById('move-selected-btn').addEventListener('click', function() {
@@ -39,6 +47,35 @@ function initializeMoveFiles() {
         headerSelectAll.addEventListener('change', handleSelectAll);
     }
 }
+
+// Start selection mode with a specific file (triggered from context menu)
+function startSelectionWithFile(fileElement) {
+    if (!isSelectionMode) {
+        enterSelectionMode();
+    }
+    
+    // Get file ID/path
+    const fileId = fileElement.getAttribute('data-id') || fileElement.getAttribute('data-path');
+    const fileName = fileElement.getAttribute('data-name');
+    
+    // Add this file to selection
+    selectedFiles.add(fileId);
+    fileElement.classList.add('selected');
+    
+    // Update UI
+    updateSelectedCount();
+    updateSelectAllCheckbox();
+    
+    // Show toast notification
+    if (window.googleDriveUI && window.googleDriveUI.showToast) {
+        window.googleDriveUI.showToast(`"${fileName}" dipilih`, 'success');
+    }
+    
+    console.log('🎯 Started selection with file:', fileName, 'Total selected:', selectedFiles.size);
+}
+
+// Expose to global scope
+window.startSelectionWithFile = startSelectionWithFile;
 
 function toggleSelectionMode() {
     if (isSelectionMode) {
@@ -93,6 +130,9 @@ function exitSelectionMode() {
     updateSelectedCount();
 }
 
+// Expose to global scope
+window.exitSelectionMode = exitSelectionMode;
+
 function addCheckboxesToRows() {
     document.querySelectorAll('.file-item').forEach(row => {
         if (!row.querySelector('.file-checkbox')) {
@@ -126,6 +166,9 @@ function handleFileSelection(fileId, isSelected, row) {
     updateSelectedCount();
     updateSelectAllCheckbox();
 }
+
+// Expose to global scope
+window.handleFileSelection = handleFileSelection;
 
 function handleSelectAll(event) {
     const isChecked = event.target.checked;
@@ -259,6 +302,9 @@ async function openMoveDialog() {
         }
     }
 }
+
+// Expose to global scope
+window.openMoveDialog = openMoveDialog;
 
 function populateFolderSelect(folders) {
     const select = document.getElementById('destination-folder');
@@ -421,6 +467,9 @@ async function deleteSelectedFiles() {
         }
     }
 }
+
+// Expose to global scope
+window.deleteSelectedFiles = deleteSelectedFiles;
 
 // Update showDirectory function to work with selection mode
 function updateShowDirectoryForSelection() {

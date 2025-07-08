@@ -232,15 +232,34 @@ function showBasicContextMenu(event, fileName, fileType, filePath) {
         existingMenu.remove();
     }
     
-    const menuItems = [
-        { icon: '📂', text: fileType === 'folder' ? 'Buka folder' : 'Buka', action: 'open' },
-        { icon: '⬇️', text: 'Download', action: 'download', hide: fileType === 'folder' },
-        { icon: '✏️', text: 'Ganti nama', action: 'rename' },
-        { icon: '👥', text: 'Bagikan', action: 'share' },
-        { icon: '📁', text: 'Pindahkan', action: 'move' },
-        { icon: '🗑️', text: 'Pindahkan ke sampah', action: 'delete' },
-        { icon: 'ℹ️', text: 'Informasi', action: 'info' }
-    ];
+    // Check if we're in selection mode to show different options
+    const inSelectionMode = document.body.classList.contains('selection-mode');
+    const hasSelectedFiles = window.selectedFiles && window.selectedFiles.size > 0;
+    
+    let menuItems = [];
+    
+    if (inSelectionMode && hasSelectedFiles) {
+        // Selection mode menu items
+        menuItems = [
+            { icon: '📂', text: fileType === 'folder' ? 'Buka folder' : 'Buka', action: 'open' },
+            { icon: '☑️', text: 'Tambah ke pilihan', action: 'add-selection' },
+                         { icon: '📁', text: `Pindahkan ${window.selectedFiles.size} file terpilih`, action: 'move-selected' },
+             { icon: '🗑️', text: `Hapus ${window.selectedFiles.size} file terpilih`, action: 'delete-selected' },
+            { icon: '❌', text: 'Batalkan pilihan', action: 'cancel-selection' }
+        ];
+    } else {
+        // Normal menu items
+        menuItems = [
+            { icon: '📂', text: fileType === 'folder' ? 'Buka folder' : 'Buka', action: 'open' },
+            { icon: '⬇️', text: 'Download', action: 'download', hide: fileType === 'folder' },
+            { icon: '☑️', text: 'Pilih', action: 'select' },
+            { icon: '✏️', text: 'Ganti nama', action: 'rename' },
+            { icon: '👥', text: 'Bagikan', action: 'share' },
+            { icon: '📁', text: 'Pindahkan', action: 'move' },
+            { icon: '🗑️', text: 'Pindahkan ke sampah', action: 'delete' },
+            { icon: 'ℹ️', text: 'Informasi', action: 'info' }
+        ];
+    }
     
     const menuHTML = menuItems
         .filter(item => !item.hide)
@@ -329,6 +348,42 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
                 openFolder({ target: { closest: () => ({ dataset: { path: filePath } }) } });
             } else {
                 openFile({ target: { closest: () => ({ dataset: { path: filePath } }) } });
+            }
+            break;
+            
+        case 'select':
+            // Find the file element and start selection
+            const fileElement = document.querySelector(`[data-path="${filePath}"]`);
+            if (fileElement && typeof startSelectionWithFile === 'function') {
+                startSelectionWithFile(fileElement);
+            }
+            break;
+            
+        case 'add-selection':
+            // Add this file to existing selection
+            const targetElement = document.querySelector(`[data-path="${filePath}"]`);
+            if (targetElement && typeof handleFileSelection === 'function') {
+                const fileId = targetElement.getAttribute('data-id') || filePath;
+                const isSelected = targetElement.classList.contains('selected');
+                handleFileSelection(fileId, !isSelected, targetElement);
+            }
+            break;
+            
+        case 'move-selected':
+            if (typeof openMoveDialog === 'function') {
+                openMoveDialog();
+            }
+            break;
+            
+        case 'delete-selected':
+            if (typeof deleteSelectedFiles === 'function') {
+                deleteSelectedFiles();
+            }
+            break;
+            
+        case 'cancel-selection':
+            if (typeof exitSelectionMode === 'function') {
+                exitSelectionMode();
             }
             break;
             
