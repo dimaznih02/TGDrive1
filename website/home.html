@@ -12,6 +12,69 @@
         body { 
             font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
         }
+        
+        /* New Upload Dropdown Styles */
+        .new-upload {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.3s ease;
+            padding: 8px 0;
+            margin: 0 12px;
+        }
+        
+        .upload-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            color: #374151;
+        }
+        
+        .upload-option:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .upload-option svg {
+            color: #6b7280;
+        }
+        
+        .upload-option span {
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .new-upload hr {
+            margin: 8px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Sidebar navigation styles */
+        .selected-item {
+            background-color: #dbeafe;
+            color: #2563eb;
+            font-weight: 500;
+            border-radius: 0 9999px 9999px 0;
+        }
+        
+        .unselected-item {
+            color: #374151;
+            border-radius: 0 9999px 9999px 0;
+        }
+        
+        .unselected-item:hover {
+            background-color: #f3f4f6;
+        }
     </style>
 </head>
 
@@ -62,47 +125,55 @@
     <div class="flex">
         <!-- Sidebar -->
         <aside class="w-56 lg:w-64 xl:w-72 bg-white border-r border-gray-200 p-3 lg:p-4 flex-shrink-0">
-            <button id="new-button" class="w-full bg-white border border-gray-300 rounded-full px-4 lg:px-6 py-2 lg:py-3 flex items-center gap-2 lg:gap-3 shadow-md hover:shadow-lg transition-shadow mb-4 lg:mb-6">
-                <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
-                <span class="font-medium text-sm lg:text-base">Baru</span>
-            </button>
+            <div class="relative mb-4 lg:mb-6">
+                <button id="new-button" class="w-full bg-white border border-gray-300 rounded-full px-4 lg:px-6 py-2 lg:py-3 flex items-center gap-2 lg:gap-3 shadow-md hover:shadow-lg transition-shadow">
+                    <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    <span class="font-medium text-sm lg:text-base">Baru</span>
+                </button>
             
-            <!-- Hidden upload elements for JavaScript -->
-            <div id="new-upload" class="new-upload" style="display: none;">
-                <input id="new-upload-focus" type="text" style="height: 0px; width: 0px; border: none; position: absolute" readonly />
-                <div id="new-folder-btn">
-                    <img src="static/assets/folder-icon.svg" />
-                    New Folder
-                </div>
-                <hr />
-                <div id="file-upload-btn">
-                    <img src="static/assets/upload-icon.svg" />
-                    File Upload
-                </div>
-                <input type="file" id="fileInput" style="height: 0px; width: 0px; border: none; position: absolute" />
-                <hr />
-                <div id="url-upload-btn">
-                    <img src="static/assets/link-icon.svg" />
-                    URL Upload
+                <!-- Upload Dropdown Menu -->
+                <div id="new-upload" class="new-upload">
+                    <input id="new-upload-focus" type="text" style="height: 0px; width: 0px; border: none; position: absolute" readonly />
+                    <div id="new-folder-btn" class="upload-option">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                        </svg>
+                        <span>New Folder</span>
+                    </div>
+                    <hr />
+                    <div id="file-upload-btn" class="upload-option">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                        <span>File Upload</span>
+                    </div>
+                    <input type="file" id="fileInput" style="height: 0px; width: 0px; border: none; position: absolute" />
+                    <hr />
+                    <div id="url-upload-btn" class="upload-option">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z"/>
+                        </svg>
+                        <span>URL Upload</span>
+                    </div>
                 </div>
             </div>
             
-            <nav class="space-y-1">
-                <a href="/?path=/home" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-r-full">
+            <nav class="space-y-1 sidebar-menu">
+                <a href="/?path=/home" class="flex items-center gap-3 px-4 py-2 unselected-item">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                     </svg>
                     <span>Beranda</span>
                 </a>
-                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 bg-blue-50 text-blue-600 font-medium rounded-r-full">
+                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 selected-item">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
                     </svg>
                     <span>Drive Saya</span>
                 </a>
-                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-r-full">
+                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 unselected-item">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.37-2.01 1l-2.99 4H8l-1-1H4v2h2l3.8 3.2L8.5 19H7v2h9.5c1.1 0 2-.9 2-2z"/>
                     </svg>
@@ -113,19 +184,19 @@
             <hr class="my-4 border-gray-200">
             
             <nav class="space-y-1">
-                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-r-full">
+                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 unselected-item">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                     </svg>
                     <span>Berbintang</span>
                 </a>
-                <a href="/?path=/trash" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-r-full">
+                <a href="/?path=/trash" class="flex items-center gap-3 px-4 py-2 unselected-item">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M3 4V1h2v3h3v2H5v3H3V6H0V4h3zm3 6V7h3V4h7l1.83 2H21c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V10h3z"/>
                     </svg>
                     <span>Sampah</span>
                 </a>
-                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-r-full">
+                <a href="/?path=/" class="flex items-center gap-3 px-4 py-2 unselected-item">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
                     </svg>
