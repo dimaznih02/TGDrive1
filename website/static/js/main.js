@@ -213,7 +213,6 @@ function showContextMenu(event, fileName, fileType, filePath) {
 // Fallback basic context menu with smart positioning
 function showBasicContextMenu(event, fileName, fileType, filePath) {
     console.log('📋 showBasicContextMenu called for:', fileName);
-    alert(`🎯 Context menu untuk: ${fileName} (${fileType})`);
     
     // Remove existing context menu
     const existingMenu = document.getElementById('basic-context-menu');
@@ -328,7 +327,6 @@ function showBasicContextMenu(event, fileName, fileType, filePath) {
 // Handle basic context menu actions
 function handleBasicContextAction(action, fileName, fileType, filePath) {
     console.log('🎯 handleBasicContextAction called:', { action, fileName, fileType, filePath });
-    alert(`🎯 Action: ${action} untuk file: ${fileName}`);
     
     // Remove context menu
     const menu = document.getElementById('basic-context-menu');
@@ -347,56 +345,42 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             
         case 'select':
             console.log('🎯 Select action triggered for:', fileName, 'at path:', filePath);
-            alert(`🔥 SELECT ACTION TRIGGERED untuk ${fileName}!`);
-            
-            // Test basic functionality first
-            console.log('📋 Testing basic selection...');
-            
-            // Show notification bar immediately
-            const selectionBar = document.getElementById('selection-notification-bar');
-            if (selectionBar) {
-                selectionBar.style.display = 'flex';
-                console.log('📢 Notification bar shown');
-                alert('✅ Notification bar displayed!');
-            } else {
-                console.log('❌ Notification bar not found');
-                alert('❌ Notification bar NOT found!');
-            }
             
             // Find file element
             const fileElement = document.querySelector(`[data-path="${filePath}"]`);
             console.log('📁 Found file element:', fileElement);
-            alert(`File element found: ${!!fileElement}`);
             
             if (fileElement) {
-                // Add selected class
-                fileElement.classList.add('selected');
-                console.log('✅ Added selected class');
-                alert('✅ Added blue highlight to file!');
-                
                 // Initialize global selection
                 if (!window.selectedFiles) {
                     window.selectedFiles = new Set();
                 }
                 
+                // Add this file to selection
                 const fileId = fileElement.getAttribute('data-id') || filePath;
                 window.selectedFiles.add(fileId);
-                console.log('✅ Added to selection set:', fileId);
                 
-                // Force selection mode
+                // Add visual highlight
+                fileElement.classList.add('selected');
+                
+                // Activate selection mode
                 document.body.classList.add('selection-mode');
-                console.log('✅ Selection mode activated');
                 
-                alert(`🎉 SUCCESS! File "${fileName}" selected successfully!`);
+                // Show notification bar
+                const selectionBar = document.getElementById('selection-notification-bar');
+                if (selectionBar) {
+                    selectionBar.style.display = 'flex';
+                }
+                
+                // Add checkboxes to all files
+                addCheckboxesToAllFiles();
+                
+                // Update counter
+                updateSelectionCounter();
+                
+                console.log('✅ File selected successfully:', fileName);
             } else {
-                console.log('❌ File element not found with selector:', `[data-path="${filePath}"]`);
-                
-                // Try alternative selectors
-                const altElement1 = document.querySelector(`[data-name="${fileName}"]`);
-                const altElement2 = document.querySelector(`*[onclick*="${fileName}"]`);
-                
-                console.log('🔄 Alternative elements found:', { altElement1, altElement2 });
-                alert(`❌ File element not found. Alt1: ${!!altElement1}, Alt2: ${!!altElement2}`);
+                console.log('❌ File element not found:', filePath);
             }
             break;
             
@@ -414,31 +398,32 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
                     handleFileSelectionChange(fileId, !isSelected, targetElement);
                 }
                 
-                alert(`✅ ${isSelected ? 'Removed from' : 'Added to'} selection: ${fileName}`);
+                console.log(`${isSelected ? 'Removed from' : 'Added to'} selection:`, fileName);
             }
             break;
             
         case 'move-selected':
             const selectedCount = window.selectedFiles ? window.selectedFiles.size : 0;
             if (selectedCount > 0) {
-                alert(`📁 Move ${selectedCount} file(s): ${Array.from(window.selectedFiles).join(', ')}`);
-                // Here you would call your move API
+                console.log(`📁 Moving ${selectedCount} file(s):`, Array.from(window.selectedFiles));
+                // Here you would call your move API - for now just show a single alert
+                alert(`📁 Will move ${selectedCount} selected file(s)`);
             } else {
-                alert('❌ No files selected');
+                console.log('❌ No files selected for move');
             }
             break;
             
         case 'delete-selected':
             const deleteCount = window.selectedFiles ? window.selectedFiles.size : 0;
             if (deleteCount > 0) {
-                if (confirm(`🗑️ Delete ${deleteCount} file(s)?`)) {
-                    alert(`🗑️ Deleted ${deleteCount} file(s): ${Array.from(window.selectedFiles).join(', ')}`);
+                if (confirm(`🗑️ Delete ${deleteCount} selected file(s)?`)) {
+                    console.log(`🗑️ Deleting ${deleteCount} file(s):`, Array.from(window.selectedFiles));
                     // Clear selection after delete
                     window.selectedFiles.clear();
                     updateSelectionCounter();
                 }
             } else {
-                alert('❌ No files selected');
+                console.log('❌ No files selected for delete');
             }
             break;
             
@@ -465,7 +450,7 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
                 notificationBar.style.display = 'none';
             }
             
-            alert('❌ Selection cancelled');
+            console.log('❌ Selection cancelled');
             break;
             
         case 'download':
