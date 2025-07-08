@@ -205,27 +205,16 @@ function showContextMenu(event, fileName, fileType, filePath) {
     
     console.log('🖱️ Context menu triggered:', { fileName, fileType, filePath });
     
-    // Create a mock file item object for compatibility
-    const mockFileItem = {
-        dataset: {
-            path: filePath,
-            name: fileName,
-            type: fileType
-        }
-    };
-    
-    // Use GoogleDriveUI if available
-    if (window.googleDriveUI) {
-        window.googleDriveUI.showContextMenu(event, mockFileItem);
-    } else {
-        // Fallback to basic context menu
-        console.log('⚠️ GoogleDriveUI not available, showing basic menu');
-        showBasicContextMenu(event, fileName, fileType, filePath);
-    }
+    // ALWAYS use basic context menu for testing - skip GoogleDriveUI
+    console.log('🎯 Using basic context menu for debugging');
+    showBasicContextMenu(event, fileName, fileType, filePath);
 }
 
 // Fallback basic context menu with smart positioning
 function showBasicContextMenu(event, fileName, fileType, filePath) {
+    console.log('📋 showBasicContextMenu called for:', fileName);
+    alert(`🎯 Context menu untuk: ${fileName} (${fileType})`);
+    
     // Remove existing context menu
     const existingMenu = document.getElementById('basic-context-menu');
     if (existingMenu) {
@@ -235,6 +224,8 @@ function showBasicContextMenu(event, fileName, fileType, filePath) {
     // Check if we're in selection mode to show different options
     const inSelectionMode = document.body.classList.contains('selection-mode');
     const hasSelectedFiles = window.selectedFiles && window.selectedFiles.size > 0;
+    
+    console.log('🔍 Selection state:', { inSelectionMode, hasSelectedFiles, selectedCount: window.selectedFiles?.size });
     
     let menuItems = [];
     
@@ -336,6 +327,9 @@ function showBasicContextMenu(event, fileName, fileType, filePath) {
 
 // Handle basic context menu actions
 function handleBasicContextAction(action, fileName, fileType, filePath) {
+    console.log('🎯 handleBasicContextAction called:', { action, fileName, fileType, filePath });
+    alert(`🎯 Action: ${action} untuk file: ${fileName}`);
+    
     // Remove context menu
     const menu = document.getElementById('basic-context-menu');
     if (menu) menu.remove();
@@ -353,45 +347,56 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             
         case 'select':
             console.log('🎯 Select action triggered for:', fileName, 'at path:', filePath);
+            alert(`🔥 SELECT ACTION TRIGGERED untuk ${fileName}!`);
             
-            // Manual implementation of selection without relying on external function
+            // Test basic functionality first
+            console.log('📋 Testing basic selection...');
+            
+            // Show notification bar immediately
+            const selectionBar = document.getElementById('selection-notification-bar');
+            if (selectionBar) {
+                selectionBar.style.display = 'flex';
+                console.log('📢 Notification bar shown');
+                alert('✅ Notification bar displayed!');
+            } else {
+                console.log('❌ Notification bar not found');
+                alert('❌ Notification bar NOT found!');
+            }
+            
+            // Find file element
             const fileElement = document.querySelector(`[data-path="${filePath}"]`);
             console.log('📁 Found file element:', fileElement);
+            alert(`File element found: ${!!fileElement}`);
             
             if (fileElement) {
-                // Force show notification bar and selection mode
-                const body = document.body;
-                body.classList.add('selection-mode');
-                
-                // Create and show notification bar
-                let notificationBar = document.getElementById('selection-notification-bar');
-                if (notificationBar) {
-                    notificationBar.style.display = 'flex';
-                } else {
-                    console.log('❌ Notification bar not found');
-                }
-                
-                // Manually add checkbox to this file and all others
-                addCheckboxesToAllFiles();
-                
-                // Mark this file as selected
+                // Add selected class
                 fileElement.classList.add('selected');
+                console.log('✅ Added selected class');
+                alert('✅ Added blue highlight to file!');
                 
-                // Update global selection tracking
+                // Initialize global selection
                 if (!window.selectedFiles) {
                     window.selectedFiles = new Set();
                 }
+                
                 const fileId = fileElement.getAttribute('data-id') || filePath;
                 window.selectedFiles.add(fileId);
+                console.log('✅ Added to selection set:', fileId);
                 
-                // Update counter
-                updateSelectionCounter();
+                // Force selection mode
+                document.body.classList.add('selection-mode');
+                console.log('✅ Selection mode activated');
                 
-                console.log('✅ Manual selection completed for:', fileName);
-                alert(`✅ File "${fileName}" dipilih! (Manual mode)`);
+                alert(`🎉 SUCCESS! File "${fileName}" selected successfully!`);
             } else {
-                console.log('❌ File element not found');
-                alert(`❌ Error: Tidak dapat menemukan file element untuk ${fileName}`);
+                console.log('❌ File element not found with selector:', `[data-path="${filePath}"]`);
+                
+                // Try alternative selectors
+                const altElement1 = document.querySelector(`[data-name="${fileName}"]`);
+                const altElement2 = document.querySelector(`*[onclick*="${fileName}"]`);
+                
+                console.log('🔄 Alternative elements found:', { altElement1, altElement2 });
+                alert(`❌ File element not found. Alt1: ${!!altElement1}, Alt2: ${!!altElement2}`);
             }
             break;
             
