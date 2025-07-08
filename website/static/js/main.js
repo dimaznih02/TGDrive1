@@ -27,13 +27,24 @@ function showDirectory(data) {
         const date = new Date(dateString);
         const now = new Date();
         const diffInHours = (now - date) / (1000 * 60 * 60);
+        const diffInDays = Math.floor(diffInHours / 24);
         
-        if (diffInHours < 24) {
-            return diffInHours < 1 ? 'baru saja' : `${Math.floor(diffInHours)} jam`;
+        if (diffInHours < 1) {
+            return 'baru saja';
+        } else if (diffInHours < 24) {
+            return `${Math.floor(diffInHours)} jam`;
+        } else if (diffInDays < 7) {
+            return `${diffInDays} hari`;
         } else {
-            const diffInDays = Math.floor(diffInHours / 24);
-            if (diffInDays < 7) {
-                return `${diffInDays} hari`;
+            // Format: "8 Jun 2024" or just "8 Jun" for current year
+            const currentYear = now.getFullYear();
+            const fileYear = date.getFullYear();
+            
+            if (fileYear === currentYear) {
+                return date.toLocaleDateString('id-ID', { 
+                    day: 'numeric', 
+                    month: 'short'
+                });
             } else {
                 return date.toLocaleDateString('id-ID', { 
                     day: 'numeric', 
@@ -49,7 +60,7 @@ function showDirectory(data) {
             const formattedDate = formatDate(item.upload_date);
             
             html += `
-                <div class="grid grid-cols-4 gap-x-4 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer folder-tr" data-path="${item.path}" data-id="${item.id}">
+                <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer folder-tr" data-path="${item.path}" data-id="${item.id}">
                     <div class="flex items-center gap-2 truncate">
                         <span class="text-lg">📁</span>
                         <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>
@@ -107,7 +118,7 @@ function showDirectory(data) {
             }
 
             html += `
-                <div class="grid grid-cols-4 gap-x-4 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-tr" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}">
+                <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-tr" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}">
                     <div class="flex items-center gap-2 truncate">
                         <span class="text-lg">${fileIcon}</span>
                         <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>

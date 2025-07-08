@@ -20,37 +20,40 @@
 <div class="max-w-7xl mx-auto bg-white min-h-screen">
     
     <!-- Header -->
-    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-        <div class="flex items-center gap-4">
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center px-4 lg:px-6">
+        <!-- Left Section -->
+        <div class="flex items-center gap-2 lg:gap-4 flex-shrink-0">
             <button class="p-2 rounded-full hover:bg-gray-100">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
                 </svg>
             </button>
-            <div class="flex items-center gap-3">
-                <img src="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png" alt="Drive" class="w-10 h-10">
-                <span class="text-xl text-gray-600">TG Drive</span>
+            <div class="flex items-center gap-2 lg:gap-3">
+                <img src="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png" alt="Drive" class="w-8 h-8 lg:w-10 lg:h-10">
+                <span class="text-lg lg:text-xl text-gray-600 hidden sm:block">TG Drive</span>
             </div>
         </div>
         
-        <div class="flex-1 max-w-2xl mx-8">
-            <div class="relative bg-gray-100 rounded-lg px-4 py-3 flex items-center">
-                <svg class="w-5 h-5 text-gray-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
+        <!-- Center Section - Search Bar -->
+        <div class="flex-1 max-w-2xl mx-4 lg:mx-8">
+            <div class="relative bg-gray-100 rounded-lg px-3 lg:px-4 py-2 lg:py-3 flex items-center">
+                <svg class="w-4 h-4 lg:w-5 lg:h-5 text-gray-500 mr-2 lg:mr-3" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                 </svg>
                 <form id="search-form" class="flex-1">
-                    <input id="file-search" type="text" placeholder="Telusuri di Drive" class="flex-1 bg-transparent outline-none text-base" autocomplete="off">
+                    <input id="file-search" type="text" placeholder="Telusuri di Drive" class="flex-1 bg-transparent outline-none text-sm lg:text-base" autocomplete="off">
                 </form>
             </div>
         </div>
         
-        <div class="flex items-center gap-2">
-            <button class="p-2 rounded-full hover:bg-gray-100">
-                <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+        <!-- Right Section -->
+        <div class="flex items-center gap-1 lg:gap-2 flex-shrink-0">
+            <button class="p-1.5 lg:p-2 rounded-full hover:bg-gray-100">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
             </button>
-            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+            <div class="w-7 h-7 lg:w-8 lg:h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-xs lg:text-sm font-medium">
                 A
             </div>
         </div>
@@ -204,7 +207,7 @@
                 <div class="bg-white">
                     <!-- Table Header -->
                     <div class="border-b border-gray-200 py-3">
-                        <div class="grid grid-cols-4 gap-x-4 px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide">
+                        <div class="grid grid-cols-4 gap-x-6 px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide">
                             <div class="flex items-center gap-1">
                                 <span>Nama</span>
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -221,7 +224,7 @@
                     <div id="directory-container">
                         <div id="directory-data">
                             <!-- Default placeholder files - will be replaced by JavaScript -->
-                            <div class="grid grid-cols-4 gap-x-4 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
+                            <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">📁</span>
                                     <span class="text-sm text-gray-900 truncate">tes</span>
@@ -230,11 +233,11 @@
                                     <span class="text-sm">🧑</span>
                                     <span class="text-sm text-gray-700">saya</span>
                                 </div>
-                                <div class="text-center text-sm text-gray-700">19 jam</div>
+                                <div class="text-center text-sm text-gray-700">8 Des</div>
                                 <div class="text-center text-sm text-gray-700">—</div>
                             </div>
                             
-                            <div class="grid grid-cols-4 gap-x-4 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
+                            <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">📁</span>
                                     <span class="text-sm text-gray-900 truncate">Anime</span>
@@ -243,11 +246,11 @@
                                     <span class="text-sm">🧑</span>
                                     <span class="text-sm text-gray-700">saya</span>
                                 </div>
-                                <div class="text-center text-sm text-gray-700">1 hari</div>
+                                <div class="text-center text-sm text-gray-700">7 Des</div>
                                 <div class="text-center text-sm text-gray-700">—</div>
                             </div>
                             
-                            <div class="grid grid-cols-4 gap-x-4 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
+                            <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">🎞️</span>
                                     <span class="text-sm text-gray-900 truncate">[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4</span>
@@ -256,7 +259,7 @@
                                     <span class="text-sm">🧑</span>
                                     <span class="text-sm text-gray-700">saya</span>
                                 </div>
-                                <div class="text-center text-sm text-gray-700">17 jam</div>
+                                <div class="text-center text-sm text-gray-700">6 Des</div>
                                 <div class="text-center text-sm text-gray-700">109 KB</div>
                             </div>
                         </div>
