@@ -72,9 +72,25 @@ function startSelectionWithFile(fileElement) {
     console.log('🚀 startSelectionWithFile called with element:', fileElement);
     console.log('📂 Current selection mode:', isSelectionMode);
     
+    // CLEAR ANY EXISTING SELECTIONS first to prevent ghost selections
+    console.log('🧹 Clearing any existing selections to prevent ghosts...');
+    selectedFiles.clear();
+    
+    // Remove all existing selected classes
+    document.querySelectorAll('.file-item.selected').forEach(item => {
+        item.classList.remove('selected');
+        console.log('🗑️ Removed ghost selection from:', item.getAttribute('data-name'));
+    });
+    
+    // Remove all existing checkboxes to start fresh
+    document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
+    
     if (!isSelectionMode) {
         console.log('⚡ Entering selection mode...');
         enterSelectionMode();
+    } else {
+        // If already in selection mode, just re-add checkboxes
+        addCheckboxesToRows();
     }
     
     // Get file ID/path
@@ -82,10 +98,17 @@ function startSelectionWithFile(fileElement) {
     const fileName = fileElement.getAttribute('data-name');
     console.log('📋 File info - ID:', fileId, 'Name:', fileName);
     
-    // Add this file to selection
+    // Add this specific file to selection
     selectedFiles.add(fileId);
     fileElement.classList.add('selected');
-    console.log('✅ Added to selection, element classes:', fileElement.className);
+    console.log('✅ Added to fresh selection, element classes:', fileElement.className);
+    
+    // Set the checkbox for this file to checked
+    const checkbox = fileElement.querySelector('.file-checkbox');
+    if (checkbox) {
+        checkbox.checked = true;
+        console.log('☑️ Checked checkbox for selected file');
+    }
     
     // Update UI
     updateSelectedCount();
@@ -342,11 +365,19 @@ async function openMoveDialog() {
         if (response.status === 'ok') {
             populateFolderSelect(response.folders);
             
-            // Show move dialog
-            document.getElementById('bg-blur').style.zIndex = '2';
-            document.getElementById('bg-blur').style.opacity = '0.1';
-            document.getElementById('move-files-dialog').style.zIndex = '3';
-            document.getElementById('move-files-dialog').style.opacity = '1';
+            // Show move dialog with proper z-index and visibility
+            const bgBlur = document.getElementById('bg-blur');
+            const moveDialog = document.getElementById('move-files-dialog');
+            
+            bgBlur.style.display = 'block';
+            bgBlur.style.zIndex = '1000';
+            bgBlur.style.opacity = '0.3';
+            
+            moveDialog.style.display = 'block';
+            moveDialog.style.zIndex = '1001';
+            moveDialog.style.opacity = '1';
+            
+            console.log('✅ Move dialog displayed with proper z-index');
         } else {
             const errorMsg = 'Error loading folders: ' + response.status;
             if (window.googleDriveUI && window.googleDriveUI.showToast) {
@@ -390,13 +421,20 @@ function populateFolderSelect(folders) {
 }
 
 function closeMoveDialog() {
-    document.getElementById('bg-blur').style.opacity = '0';
-    document.getElementById('move-files-dialog').style.opacity = '0';
+    const bgBlur = document.getElementById('bg-blur');
+    const moveDialog = document.getElementById('move-files-dialog');
+    
+    bgBlur.style.opacity = '0';
+    moveDialog.style.opacity = '0';
     
     setTimeout(() => {
-        document.getElementById('bg-blur').style.zIndex = '-1';
-        document.getElementById('move-files-dialog').style.zIndex = '-1';
+        bgBlur.style.display = 'none';
+        bgBlur.style.zIndex = '-1';
+        moveDialog.style.display = 'none';
+        moveDialog.style.zIndex = '-1';
     }, 300);
+    
+    console.log('✅ Move dialog closed');
 }
 
 async function confirmMoveFiles() {
