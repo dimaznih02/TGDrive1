@@ -49,31 +49,18 @@ function showDirectory(data) {
             const formattedDate = formatDate(item.upload_date);
             
             html += `
-                <tr data-path="${item.path}" data-id="${item.id}" class="folder-tr">
-                    <td>
-                        <div class="file-item-name">
-                            <svg class="file-icon folder" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
-                            </svg>
-                            <span class="file-name">${item.name}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="owner-info">
-                            <img class="owner-avatar" src="https://lh3.googleusercontent.com/ogw/AOLn63FGDk4Z_C9L2z9z1oGVd3L_6vXhF8PtgTHgZ8Tk6Q=s32-c-mo" alt="saya">
-                            <span class="owner-name">saya</span>
-                        </div>
-                    </td>
-                    <td><span class="modified-date">${formattedDate}</span></td>
-                    <td><span class="file-size">—</span></td>
-                    <td class="file-actions">
-                        <button data-id="${item.id}" class="more-btn">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
+                <div class="grid grid-cols-4 gap-x-4 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer folder-tr" data-path="${item.path}" data-id="${item.id}">
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-lg">📁</span>
+                        <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="text-sm">🧑</span>
+                        <span class="text-sm text-gray-700 owner-name">saya</span>
+                    </div>
+                    <div class="text-center text-sm text-gray-700 modified-date">${formattedDate}</div>
+                    <div class="text-center text-sm text-gray-700 file-size">—</div>
+                </div>
             `;
 
             if (isTrash) {
@@ -103,32 +90,35 @@ function showDirectory(data) {
                 fileIconPath = 'M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z';
             }
 
+            // Determine file icon emoji based on extension
+            let fileIcon = '📄'; // default document
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension)) {
+                fileIcon = '🖼️';
+            } else if (['mp4', 'avi', 'mkv', 'mov', 'wmv'].includes(extension)) {
+                fileIcon = '🎞️';
+            } else if (['pdf'].includes(extension)) {
+                fileIcon = '📕';
+            } else if (['doc', 'docx'].includes(extension)) {
+                fileIcon = '📘';
+            } else if (['xls', 'xlsx'].includes(extension)) {
+                fileIcon = '📊';
+            } else if (['zip', 'rar', '7z'].includes(extension)) {
+                fileIcon = '🗜️';
+            }
+
             html += `
-                <tr data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="file-tr">
-                    <td>
-                        <div class="file-item-name">
-                            <svg class="file-icon ${fileIconClass}" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="${fileIconPath}"/>
-                            </svg>
-                            <span class="file-name">${item.name}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="owner-info">
-                            <img class="owner-avatar" src="https://lh3.googleusercontent.com/ogw/AOLn63FGDk4Z_C9L2z9z1oGVd3L_6vXhF8PtgTHgZ8Tk6Q=s32-c-mo" alt="saya">
-                            <span class="owner-name">saya</span>
-                        </div>
-                    </td>
-                    <td><span class="modified-date">${formattedDate}</span></td>
-                    <td><span class="file-size">${size}</span></td>
-                    <td class="file-actions">
-                        <button data-id="${item.id}" class="more-btn">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
+                <div class="grid grid-cols-4 gap-x-4 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-tr" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}">
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-lg">${fileIcon}</span>
+                        <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="text-sm">🧑</span>
+                        <span class="text-sm text-gray-700 owner-name">saya</span>
+                    </div>
+                    <div class="text-center text-sm text-gray-700 modified-date">${formattedDate}</div>
+                    <div class="text-center text-sm text-gray-700 file-size">${size}</div>
+                </div>
             `;
 
             if (isTrash) {
