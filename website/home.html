@@ -278,7 +278,7 @@
                 <div class="bg-white">
                     <!-- Table Header -->
                     <div class="border-b border-gray-200 py-3">
-                        <div class="grid px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide" style="grid-template-columns: 1fr 200px 150px 120px;">
+                        <div class="grid px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
                             <div class="flex items-center gap-1">
                                 <span>Nama</span>
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -288,6 +288,7 @@
                             <div class="flex justify-center">Pemilik</div>
                             <div class="flex justify-center">Tanggal diubah</div>
                             <div class="flex justify-center">Ukuran file</div>
+                            <div class="flex justify-center"></div>
                         </div>
                     </div>
                     
@@ -295,7 +296,7 @@
                     <div id="directory-container">
                         <div id="directory-data">
                             <!-- Default placeholder files - will be replaced by JavaScript -->
-                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer" style="grid-template-columns: 1fr 200px 150px 120px;">
+                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-item" data-name="tes" data-type="folder" data-path="/tes" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">📁</span>
                                     <span class="text-sm text-gray-900 truncate">tes</span>
@@ -306,9 +307,16 @@
                                 </div>
                                 <div class="flex justify-center text-sm text-gray-700">8 Des</div>
                                 <div class="flex justify-center text-sm text-gray-700">—</div>
+                                <div class="flex justify-center">
+                                    <button class="more-btn p-1 rounded hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); showContextMenu(event, 'tes', 'folder', '/tes')">
+                                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             
-                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer" style="grid-template-columns: 1fr 200px 150px 120px;">
+                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-item" data-name="Anime" data-type="folder" data-path="/Anime" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">📁</span>
                                     <span class="text-sm text-gray-900 truncate">Anime</span>
@@ -319,9 +327,16 @@
                                 </div>
                                 <div class="flex justify-center text-sm text-gray-700">7 Des</div>
                                 <div class="flex justify-center text-sm text-gray-700">—</div>
+                                <div class="flex justify-center">
+                                    <button class="more-btn p-1 rounded hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); showContextMenu(event, 'Anime', 'folder', '/Anime')">
+                                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             
-                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer" style="grid-template-columns: 1fr 200px 150px 120px;">
+                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-item" data-name="[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4" data-type="file" data-path="/[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">🎞️</span>
                                     <span class="text-sm text-gray-900 truncate">[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4</span>
@@ -332,6 +347,13 @@
                                 </div>
                                 <div class="flex justify-center text-sm text-gray-700">6 Des</div>
                                 <div class="flex justify-center text-sm text-gray-700">109 KB</div>
+                                <div class="flex justify-center">
+                                    <button class="more-btn p-1 rounded hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); showContextMenu(event, '[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4', 'file', '/[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4')">
+                                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -425,6 +447,30 @@
 <script src="static/js/moveFiles.js"></script>
 <script src="static/js/context-menu.js"></script>
 <script src="static/js/google-drive-enhancements.js"></script>
+
+<script>
+// Initialize context menu for default placeholder files on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Add right-click event listeners to default file items
+    document.querySelectorAll('.file-item').forEach(item => {
+        item.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+            const fileName = item.dataset.name;
+            const fileType = item.dataset.type;
+            const filePath = item.dataset.path;
+            
+            // Make sure showContextMenu function is available
+            if (typeof showContextMenu === 'function') {
+                showContextMenu(event, fileName, fileType, filePath);
+            } else {
+                console.log('🖱️ Right-click detected:', { fileName, fileType, filePath });
+            }
+        });
+    });
+    
+    console.log('✅ Context menu initialized for', document.querySelectorAll('.file-item').length, 'file items');
+});
+</script>
 </body>
 
 </html>

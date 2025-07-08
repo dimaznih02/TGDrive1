@@ -60,7 +60,7 @@ function showDirectory(data) {
             const formattedDate = formatDate(item.upload_date);
             
             html += `
-                <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer folder-tr" data-path="${item.path}" data-id="${item.id}" style="grid-template-columns: 1fr 200px 150px 120px;">
+                <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer folder-tr file-item" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" data-type="folder" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
                     <div class="flex items-center gap-2 truncate">
                         <span class="text-lg">📁</span>
                         <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>
@@ -71,6 +71,13 @@ function showDirectory(data) {
                     </div>
                     <div class="flex justify-center text-sm text-gray-700 modified-date">${formattedDate}</div>
                     <div class="flex justify-center text-sm text-gray-700 file-size">—</div>
+                    <div class="flex justify-center">
+                        <button class="more-btn p-1 rounded hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); showContextMenu(event, '${item.name}', 'folder', '${item.path}')">
+                            <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -118,7 +125,7 @@ function showDirectory(data) {
             }
 
             html += `
-                <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-tr" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" style="grid-template-columns: 1fr 200px 150px 120px;">
+                <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-tr file-item" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" data-type="file" style="grid-template-columns: 1fr 200px 150px 120px 40px;">
                     <div class="flex items-center gap-2 truncate">
                         <span class="text-lg">${fileIcon}</span>
                         <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>
@@ -129,6 +136,13 @@ function showDirectory(data) {
                     </div>
                     <div class="flex justify-center text-sm text-gray-700 modified-date">${formattedDate}</div>
                     <div class="flex justify-center text-sm text-gray-700 file-size">${size}</div>
+                    <div class="flex justify-center">
+                        <button class="more-btn p-1 rounded hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); showContextMenu(event, '${item.name}', 'file', '${item.path}')">
+                            <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -159,6 +173,17 @@ function showDirectory(data) {
         });
     });
     
+    // Add right-click context menu to all file items
+    document.querySelectorAll('.file-item').forEach(item => {
+        item.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+            const fileName = item.dataset.name;
+            const fileType = item.dataset.type;
+            const filePath = item.dataset.path;
+            showContextMenu(event, fileName, fileType, filePath);
+        });
+    });
+    
     // Trigger update for move files functionality if it exists
     if (typeof updateShowDirectoryForSelection === 'function') {
         updateShowDirectoryForSelection();
@@ -180,7 +205,187 @@ function showDirectory(data) {
         if (window.moreMenuManager) {
             window.moreMenuManager.onDirectoryRefresh();
         }
+        
+        // Initialize Google Drive UI context menu if not already initialized
+        if (!window.googleDriveUI) {
+            window.googleDriveUI = new GoogleDriveUI();
+            console.log('✅ GoogleDriveUI initialized');
+        }
     }, 120);
+}
+
+// Context Menu Handler
+function showContextMenu(event, fileName, fileType, filePath) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('🖱️ Context menu triggered:', { fileName, fileType, filePath });
+    
+    // Create a mock file item object for compatibility
+    const mockFileItem = {
+        dataset: {
+            path: filePath,
+            name: fileName,
+            type: fileType
+        }
+    };
+    
+    // Use GoogleDriveUI if available
+    if (window.googleDriveUI) {
+        window.googleDriveUI.showContextMenu(event, mockFileItem);
+    } else {
+        // Fallback to basic context menu
+        console.log('⚠️ GoogleDriveUI not available, showing basic menu');
+        showBasicContextMenu(event, fileName, fileType, filePath);
+    }
+}
+
+// Fallback basic context menu
+function showBasicContextMenu(event, fileName, fileType, filePath) {
+    // Remove existing context menu
+    const existingMenu = document.getElementById('basic-context-menu');
+    if (existingMenu) {
+        existingMenu.remove();
+    }
+    
+    // Create basic context menu
+    const contextMenu = document.createElement('div');
+    contextMenu.id = 'basic-context-menu';
+    contextMenu.className = 'context-menu show';
+    contextMenu.style.left = event.pageX + 'px';
+    contextMenu.style.top = event.pageY + 'px';
+    
+    const menuItems = [
+        { icon: '📂', text: fileType === 'folder' ? 'Buka folder' : 'Buka', action: 'open' },
+        { icon: '⬇️', text: 'Download', action: 'download', hide: fileType === 'folder' },
+        { icon: '✏️', text: 'Ganti nama', action: 'rename' },
+        { icon: '👥', text: 'Bagikan', action: 'share' },
+        { icon: '📁', text: 'Pindahkan', action: 'move' },
+        { icon: '🗑️', text: 'Pindahkan ke sampah', action: 'delete' },
+        { icon: 'ℹ️', text: 'Informasi', action: 'info' }
+    ];
+    
+    const menuHTML = menuItems
+        .filter(item => !item.hide)
+        .map(item => `
+            <div class="context-menu-item" onclick="handleBasicContextAction('${item.action}', '${fileName}', '${fileType}', '${filePath}')">
+                <div class="context-menu-item-icon">${item.icon}</div>
+                <span class="context-menu-item-text">${item.text}</span>
+            </div>
+        `).join('');
+    
+    contextMenu.innerHTML = menuHTML;
+    document.body.appendChild(contextMenu);
+    
+    // Close menu when clicking outside
+    const closeMenu = (e) => {
+        if (!contextMenu.contains(e.target)) {
+            contextMenu.remove();
+            document.removeEventListener('click', closeMenu);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', closeMenu), 100);
+}
+
+// Handle basic context menu actions
+function handleBasicContextAction(action, fileName, fileType, filePath) {
+    // Remove context menu
+    const menu = document.getElementById('basic-context-menu');
+    if (menu) menu.remove();
+    
+    console.log('🎯 Context action:', { action, fileName, fileType, filePath });
+    
+    switch (action) {
+        case 'open':
+            if (fileType === 'folder') {
+                openFolder({ target: { closest: () => ({ dataset: { path: filePath } }) } });
+            } else {
+                openFile({ target: { closest: () => ({ dataset: { path: filePath } }) } });
+            }
+            break;
+            
+        case 'download':
+            if (fileType === 'file') {
+                window.open(`/file?path=${encodeURIComponent(filePath)}`, '_blank');
+            }
+            break;
+            
+        case 'rename':
+            const newName = prompt(`Ganti nama "${fileName}" menjadi:`, fileName);
+            if (newName && newName !== fileName) {
+                // Call rename API if available
+                if (typeof renameFileFolder === 'function') {
+                    renameFileFolder(filePath, newName);
+                } else {
+                    alert(`Fitur rename akan mengganti "${fileName}" menjadi "${newName}"`);
+                }
+            }
+            break;
+            
+        case 'share':
+            alert(`👥 Bagikan: ${fileName}`);
+            break;
+            
+        case 'move':
+            // Show move modal or use existing move functionality
+            if (window.moreMenuManager) {
+                // Use existing move files functionality
+                showMoveDialog([filePath]);
+            } else {
+                alert(`📁 Fitur pindahkan untuk: ${fileName}`);
+            }
+            break;
+            
+        case 'delete':
+            if (confirm(`🗑️ Yakin ingin memindahkan "${fileName}" ke sampah?`)) {
+                // Call delete API if available
+                if (typeof deleteFileFolder === 'function') {
+                    deleteFileFolder(filePath);
+                } else {
+                    alert(`File "${fileName}" akan dipindahkan ke sampah`);
+                }
+            }
+            break;
+            
+        case 'info':
+            const info = `ℹ️ Informasi ${fileType}:
+            
+Nama: ${fileName}
+Tipe: ${fileType}
+Path: ${filePath}
+Pemilik: saya`;
+            alert(info);
+            break;
+    }
+}
+
+// Show move dialog function for compatibility
+function showMoveDialog(filePaths) {
+    console.log('📁 Showing move dialog for:', filePaths);
+    
+    // Use existing move files dialog if available
+    const moveDialog = document.getElementById('move-files-dialog');
+    if (moveDialog) {
+        // Set selected files
+        if (window.moreMenuManager) {
+            window.moreMenuManager.selectedFiles.clear();
+            filePaths.forEach(path => window.moreMenuManager.selectedFiles.add(path));
+            window.moreMenuManager.updateSelectionCount();
+        }
+        
+        // Show the dialog
+        document.getElementById('bg-blur').style.display = 'block';
+        moveDialog.style.display = 'block';
+        
+        // Load folders for destination selection
+        if (typeof loadFoldersForMove === 'function') {
+            loadFoldersForMove();
+        }
+    } else {
+        // Fallback alert
+        const fileNames = filePaths.map(path => path.split('/').pop()).join(', ');
+        alert(`📁 Fitur pindahkan file:\n\nFile(s): ${fileNames}\n\nModal pemilihan folder akan segera tersedia.`);
+    }
 }
 
 function showHomePage(data) {
