@@ -60,7 +60,7 @@ function showDirectory(data) {
             const formattedDate = formatDate(item.upload_date);
             
             html += `
-                <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer folder-tr" data-path="${item.path}" data-id="${item.id}">
+                <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer folder-tr" data-path="${item.path}" data-id="${item.id}" style="grid-template-columns: 1fr 200px 150px 120px;">
                     <div class="flex items-center gap-2 truncate">
                         <span class="text-lg">📁</span>
                         <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>
@@ -118,7 +118,7 @@ function showDirectory(data) {
             }
 
             html += `
-                <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-tr" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}">
+                <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer file-tr" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" style="grid-template-columns: 1fr 200px 150px 120px;">
                     <div class="flex items-center gap-2 truncate">
                         <span class="text-lg">${fileIcon}</span>
                         <span class="text-sm text-gray-900 truncate file-name">${item.name}</span>

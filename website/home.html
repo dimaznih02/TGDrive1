@@ -17,7 +17,7 @@
 
 <body class="bg-gray-50">
 
-<div class="max-w-7xl mx-auto bg-white min-h-screen">
+<div class="w-full bg-white min-h-screen">
     
     <!-- Header -->
     <header class="h-16 bg-white border-b border-gray-200 flex items-center px-4 lg:px-6">
@@ -61,12 +61,12 @@
 
     <div class="flex">
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200 p-4">
-            <button id="new-button" class="w-full bg-white border border-gray-300 rounded-full px-6 py-3 flex items-center gap-3 shadow-md hover:shadow-lg transition-shadow mb-6">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <aside class="w-56 lg:w-64 xl:w-72 bg-white border-r border-gray-200 p-3 lg:p-4 flex-shrink-0">
+            <button id="new-button" class="w-full bg-white border border-gray-300 rounded-full px-4 lg:px-6 py-2 lg:py-3 flex items-center gap-2 lg:gap-3 shadow-md hover:shadow-lg transition-shadow mb-4 lg:mb-6">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                 </svg>
-                <span class="font-medium">Baru</span>
+                <span class="font-medium text-sm lg:text-base">Baru</span>
             </button>
             
             <!-- Hidden upload elements for JavaScript -->
@@ -207,7 +207,7 @@
                 <div class="bg-white">
                     <!-- Table Header -->
                     <div class="border-b border-gray-200 py-3">
-                        <div class="grid grid-cols-4 gap-x-6 px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide">
+                        <div class="grid px-4 items-center text-xs font-medium text-gray-600 uppercase tracking-wide" style="grid-template-columns: 1fr 200px 150px 120px;">
                             <div class="flex items-center gap-1">
                                 <span>Nama</span>
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -224,7 +224,7 @@
                     <div id="directory-container">
                         <div id="directory-data">
                             <!-- Default placeholder files - will be replaced by JavaScript -->
-                            <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
+                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer" style="grid-template-columns: 1fr 200px 150px 120px;">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">📁</span>
                                     <span class="text-sm text-gray-900 truncate">tes</span>
@@ -237,7 +237,7 @@
                                 <div class="text-center text-sm text-gray-700">—</div>
                             </div>
                             
-                            <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
+                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer" style="grid-template-columns: 1fr 200px 150px 120px;">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">📁</span>
                                     <span class="text-sm text-gray-900 truncate">Anime</span>
@@ -250,7 +250,7 @@
                                 <div class="text-center text-sm text-gray-700">—</div>
                             </div>
                             
-                            <div class="grid grid-cols-4 gap-x-6 px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer">
+                            <div class="grid px-4 py-2 items-center hover:bg-gray-50 border-b border-gray-200 cursor-pointer" style="grid-template-columns: 1fr 200px 150px 120px;">
                                 <div class="flex items-center gap-2 truncate">
                                     <span class="text-lg">🎞️</span>
                                     <span class="text-sm text-gray-900 truncate">[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4</span>
