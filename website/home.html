@@ -7,6 +7,7 @@
     <title>TG Drive</title>
     <link rel="stylesheet" href="static/home.css" />
     <link rel="stylesheet" href="static/css/context-menu.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Fonts Start -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -197,82 +198,125 @@
                 </div>
             </div>
 
-            <!-- Drive Header with Dropdown and Filters -->
-            <div class="drive-header">
-                <div class="drive-title-section">
-                    <h1 class="drive-title">
-                        Drive Saya
-                        <svg class="dropdown-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                        </svg>
-                    </h1>
-                </div>
-
-                <div class="filter-section">
-                    <button class="filter-btn">
-                        Jenis
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                        </svg>
-                    </button>
-                    <button class="filter-btn">
-                        Orang
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                        </svg>
-                    </button>
-                    <button class="filter-btn">
-                        Dimodifikasi
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                        </svg>
-                    </button>
-                    <button class="filter-btn">
-                        Sumber
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="view-controls">
-                    <button class="view-btn active" title="List view">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M3,5H21V7H3V5M3,13V11H21V13H3M3,19V17H21V19H3Z"/>
-                        </svg>
-                    </button>
-                    <button class="view-btn" title="Grid view">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M3,11H11V3H3M5,5H9V9H5M13,21H21V13H13M15,15H19V19H15M3,21H11V13H3M5,15H9V19H5M13,3V11H21V3M15,5H19V9H15"/>
-                        </svg>
-                    </button>
-                    <button class="action-btn" title="Info">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Files Table -->
-            <div class="files-container" id="directory-container">
-                <table class="files-table">
-                    <thead>
-                        <tr>
-                            <th class="col-name">
-                                Nama
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M3,13H15L9,7L3,13M3,17H15L9,11L3,17Z"/>
+            <!-- NEW IMPROVED DRIVE LAYOUT - Replace existing drive-header and files-container -->
+            <div class="px-6 py-4">
+                <!-- Page Title dan Filter dalam satu container -->
+                <div class="mb-6">
+                    <!-- Judul Drive Saya -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-2xl font-normal text-gray-900">Drive Saya</h1>
+                            <button class="p-1 rounded hover:bg-gray-100">
+                                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
-                            </th>
-                            <th class="col-owner">Pemilik</th>
-                            <th class="col-modified">Tanggal diubah</th>
-                            <th class="col-size">Ukuran file</th>
-                            <th class="col-actions"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="directory-data"></tbody>
-                </table>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="p-2 border border-gray-300 rounded bg-blue-50 text-blue-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                            <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Bar - TEPAT di bawah judul -->
+                    <div class="flex gap-3">
+                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                            <span>Jenis</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                            <span>Orang</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                            <span>Dimodifikasi</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
+                            <span>Sumber</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Perfect 4-Column Table -->
+                <div class="bg-white">
+                    <!-- Table Header -->
+                    <div class="border-b border-gray-200 py-3">
+                        <div class="grid grid-cols-4 gap-6 items-center text-xs font-medium text-gray-600 uppercase tracking-wide">
+                            <div class="flex items-center gap-1">
+                                <span>Nama</span>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="text-center">Pemilik</div>
+                            <div class="text-center">Tanggal diubah</div>
+                            <div class="text-center">Ukuran file</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Files Container -->
+                    <div id="directory-container" class="divide-y divide-gray-100">
+                        <div id="directory-data">
+                            <!-- Example files - JavaScript will replace this -->
+                            <div class="grid grid-cols-4 gap-6 items-center py-3 hover:bg-gray-50 cursor-pointer transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-lg">📁</span>
+                                    <span class="text-sm text-gray-900">tes</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">S</div>
+                                    <span class="text-sm text-gray-700">saya</span>
+                                </div>
+                                <div class="text-center text-sm text-gray-700">19 jam</div>
+                                <div class="text-center text-sm text-gray-700">—</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-4 gap-6 items-center py-3 hover:bg-gray-50 cursor-pointer transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-lg">📁</span>
+                                    <span class="text-sm text-gray-900">Anime</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">S</div>
+                                    <span class="text-sm text-gray-700">saya</span>
+                                </div>
+                                <div class="text-center text-sm text-gray-700">1 hari</div>
+                                <div class="text-center text-sm text-gray-700">—</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-4 gap-6 items-center py-3 hover:bg-gray-50 cursor-pointer transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-lg">🎞️</span>
+                                    <span class="text-sm text-gray-900">[ANICHIN.REST][Super_Cube][EP05].[1080p].mp4</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">S</div>
+                                    <span class="text-sm text-gray-700">saya</span>
+                                </div>
+                                <div class="text-center text-sm text-gray-700">17 jam</div>
+                                <div class="text-center text-sm text-gray-700">109 KB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
