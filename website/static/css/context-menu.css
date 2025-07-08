@@ -121,17 +121,22 @@
     color: #5f6368;
 }
 
-/* Show more button on file row hover */
-.file-item .more-btn {
+/* Show more button on file row hover - support both class names */
+.file-item .more-btn,
+.body-tr .more-btn {
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
-.file-item:hover .more-btn {
+.file-item:hover .more-btn,
+.body-tr:hover .more-btn,
+.files-table tbody tr:hover .more-btn {
     opacity: 0.7;
 }
 
-.file-item:hover .more-btn:hover {
+.file-item:hover .more-btn:hover,
+.body-tr:hover .more-btn:hover,
+.files-table tbody tr:hover .more-btn:hover {
     opacity: 1;
 }
 
