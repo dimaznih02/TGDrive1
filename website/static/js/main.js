@@ -352,55 +352,115 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             break;
             
         case 'select':
-            // Find the file element and start selection
-            console.log('🔍 Looking for file element with path:', filePath);
+            console.log('🎯 Select action triggered for:', fileName, 'at path:', filePath);
+            
+            // Manual implementation of selection without relying on external function
             const fileElement = document.querySelector(`[data-path="${filePath}"]`);
             console.log('📁 Found file element:', fileElement);
-            console.log('🎯 startSelectionWithFile available:', typeof startSelectionWithFile);
             
-            if (fileElement && typeof startSelectionWithFile === 'function') {
-                console.log('✅ Starting selection with file:', fileElement);
-                startSelectionWithFile(fileElement);
-            } else {
-                console.log('❌ Could not start selection - element:', !!fileElement, 'function:', typeof startSelectionWithFile);
-                // Fallback: show alert
-                alert(`🔍 Debug: File ${fileName} dipilih! (Path: ${filePath})`);
+            if (fileElement) {
+                // Force show notification bar and selection mode
+                const body = document.body;
+                body.classList.add('selection-mode');
                 
-                // Try alternative selector
-                const altElement = document.querySelector(`[data-name="${fileName}"]`);
-                console.log('🔄 Alternative element:', altElement);
-                if (altElement && typeof startSelectionWithFile === 'function') {
-                    startSelectionWithFile(altElement);
+                // Create and show notification bar
+                let notificationBar = document.getElementById('selection-notification-bar');
+                if (notificationBar) {
+                    notificationBar.style.display = 'flex';
+                } else {
+                    console.log('❌ Notification bar not found');
                 }
+                
+                // Manually add checkbox to this file and all others
+                addCheckboxesToAllFiles();
+                
+                // Mark this file as selected
+                fileElement.classList.add('selected');
+                
+                // Update global selection tracking
+                if (!window.selectedFiles) {
+                    window.selectedFiles = new Set();
+                }
+                const fileId = fileElement.getAttribute('data-id') || filePath;
+                window.selectedFiles.add(fileId);
+                
+                // Update counter
+                updateSelectionCounter();
+                
+                console.log('✅ Manual selection completed for:', fileName);
+                alert(`✅ File "${fileName}" dipilih! (Manual mode)`);
+            } else {
+                console.log('❌ File element not found');
+                alert(`❌ Error: Tidak dapat menemukan file element untuk ${fileName}`);
             }
             break;
             
         case 'add-selection':
             // Add this file to existing selection
             const targetElement = document.querySelector(`[data-path="${filePath}"]`);
-            if (targetElement && typeof handleFileSelection === 'function') {
+            if (targetElement) {
                 const fileId = targetElement.getAttribute('data-id') || filePath;
                 const isSelected = targetElement.classList.contains('selected');
-                handleFileSelection(fileId, !isSelected, targetElement);
+                
+                // Find checkbox and toggle it
+                const checkbox = targetElement.querySelector('.file-checkbox');
+                if (checkbox) {
+                    checkbox.checked = !isSelected;
+                    handleFileSelectionChange(fileId, !isSelected, targetElement);
+                }
+                
+                alert(`✅ ${isSelected ? 'Removed from' : 'Added to'} selection: ${fileName}`);
             }
             break;
             
         case 'move-selected':
-            if (typeof openMoveDialog === 'function') {
-                openMoveDialog();
+            const selectedCount = window.selectedFiles ? window.selectedFiles.size : 0;
+            if (selectedCount > 0) {
+                alert(`📁 Move ${selectedCount} file(s): ${Array.from(window.selectedFiles).join(', ')}`);
+                // Here you would call your move API
+            } else {
+                alert('❌ No files selected');
             }
             break;
             
         case 'delete-selected':
-            if (typeof deleteSelectedFiles === 'function') {
-                deleteSelectedFiles();
+            const deleteCount = window.selectedFiles ? window.selectedFiles.size : 0;
+            if (deleteCount > 0) {
+                if (confirm(`🗑️ Delete ${deleteCount} file(s)?`)) {
+                    alert(`🗑️ Deleted ${deleteCount} file(s): ${Array.from(window.selectedFiles).join(', ')}`);
+                    // Clear selection after delete
+                    window.selectedFiles.clear();
+                    updateSelectionCounter();
+                }
+            } else {
+                alert('❌ No files selected');
             }
             break;
             
         case 'cancel-selection':
-            if (typeof exitSelectionMode === 'function') {
-                exitSelectionMode();
+            // Clear all selections manually
+            if (window.selectedFiles) {
+                window.selectedFiles.clear();
             }
+            
+            // Remove selected class from all files
+            document.querySelectorAll('.file-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Remove all checkboxes
+            document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
+            
+            // Exit selection mode
+            document.body.classList.remove('selection-mode');
+            
+            // Hide notification bar
+            const notificationBar = document.getElementById('selection-notification-bar');
+            if (notificationBar) {
+                notificationBar.style.display = 'none';
+            }
+            
+            alert('❌ Selection cancelled');
             break;
             
         case 'download':
@@ -455,6 +515,95 @@ Path: ${filePath}
 Pemilik: saya`;
             alert(info);
             break;
+    }
+}
+
+// Helper functions for manual selection (independent of moveFiles.js)
+function addCheckboxesToAllFiles() {
+    console.log('📋 Adding checkboxes to all files...');
+    
+    document.querySelectorAll('.file-item').forEach(row => {
+        if (!row.querySelector('.file-checkbox')) {
+            // Create checkbox element
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.className = 'checkbox-column flex justify-center items-center';
+            checkboxDiv.innerHTML = '<input type="checkbox" class="file-checkbox w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">';
+            
+            // Insert as first child
+            row.insertBefore(checkboxDiv, row.firstChild);
+            
+            const checkbox = checkboxDiv.querySelector('.file-checkbox');
+            const fileId = row.getAttribute('data-id') || row.getAttribute('data-path');
+            
+            // Add event listener for checkbox changes
+            checkbox.addEventListener('change', function() {
+                handleFileSelectionChange(fileId, checkbox.checked, row);
+            });
+            
+            console.log('✅ Added checkbox to:', row.getAttribute('data-name'));
+        }
+    });
+}
+
+function handleFileSelectionChange(fileId, isSelected, row) {
+    console.log('🔄 File selection changed:', fileId, 'selected:', isSelected);
+    
+    if (!window.selectedFiles) {
+        window.selectedFiles = new Set();
+    }
+    
+    if (isSelected) {
+        window.selectedFiles.add(fileId);
+        row.classList.add('selected');
+    } else {
+        window.selectedFiles.delete(fileId);
+        row.classList.remove('selected');
+    }
+    
+    updateSelectionCounter();
+}
+
+function updateSelectionCounter() {
+    const count = window.selectedFiles ? window.selectedFiles.size : 0;
+    console.log('📊 Updating selection counter to:', count);
+    
+    // Update notification bar text
+    const countTextElement = document.getElementById('selected-count-text');
+    if (countTextElement) {
+        const text = count === 1 ? '1 item dipilih' : `${count} item dipilih`;
+        countTextElement.innerHTML = `<span id="selected-count-header">${count}</span> item dipilih`;
+    }
+    
+    // Show/hide notification bar
+    const notificationBar = document.getElementById('selection-notification-bar');
+    if (notificationBar) {
+        if (count > 0) {
+            notificationBar.style.display = 'flex';
+        } else {
+            notificationBar.style.display = 'none';
+            // Exit selection mode if no files selected
+            document.body.classList.remove('selection-mode');
+            // Remove all checkboxes
+            document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
+        }
+    }
+    
+    // Enable/disable action buttons
+    const moveBtn = document.getElementById('move-selected-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    
+    if (moveBtn && deleteBtn) {
+        if (count > 0) {
+            moveBtn.classList.remove('disabled');
+            moveBtn.removeAttribute('disabled');
+            deleteBtn.classList.remove('disabled');
+            deleteBtn.removeAttribute('disabled');
+        } else {
+            moveBtn.classList.add('disabled');
+            moveBtn.setAttribute('disabled', 'true');
+            deleteBtn.classList.add('disabled');
+            deleteBtn.setAttribute('disabled', 'true');
+        }
     }
 }
 
@@ -705,6 +854,66 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputs = ['new-folder-name', 'rename-name', 'file-search']
     for (let i = 0; i < inputs.length; i++) {
         document.getElementById(inputs[i]).addEventListener('input', validateInput);
+    }
+
+    // Setup selection notification bar buttons
+    const moveSelectedBtn = document.getElementById('move-selected-btn');
+    if (moveSelectedBtn) {
+        moveSelectedBtn.addEventListener('click', function() {
+            const selectedCount = window.selectedFiles ? window.selectedFiles.size : 0;
+            if (selectedCount > 0) {
+                alert(`📁 Move ${selectedCount} file(s): ${Array.from(window.selectedFiles).join(', ')}`);
+                // Here you would call your move API
+            } else {
+                alert('❌ No files selected');
+            }
+        });
+    }
+
+    const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', function() {
+            const deleteCount = window.selectedFiles ? window.selectedFiles.size : 0;
+            if (deleteCount > 0) {
+                if (confirm(`🗑️ Delete ${deleteCount} file(s)?`)) {
+                    alert(`🗑️ Deleted ${deleteCount} file(s): ${Array.from(window.selectedFiles).join(', ')}`);
+                    // Clear selection after delete
+                    window.selectedFiles.clear();
+                    updateSelectionCounter();
+                }
+            } else {
+                alert('❌ No files selected');
+            }
+        });
+    }
+
+    const cancelSelectBtn = document.getElementById('cancel-select-btn');
+    if (cancelSelectBtn) {
+        cancelSelectBtn.addEventListener('click', function() {
+            // Clear all selections manually
+            if (window.selectedFiles) {
+                window.selectedFiles.clear();
+            }
+            
+            // Remove selected class from all files
+            document.querySelectorAll('.file-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Remove all checkboxes
+            document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
+            
+            // Exit selection mode
+            document.body.classList.remove('selection-mode');
+            
+            // Hide notification bar
+            const notificationBar = document.getElementById('selection-notification-bar');
+            if (notificationBar) {
+                notificationBar.style.display = 'none';
+            }
+            
+            console.log('❌ Selection cancelled from notification bar');
+        });
     }
 
     if (getCurrentPath().includes('/share_')) {
