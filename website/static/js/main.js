@@ -69,8 +69,8 @@ function showDirectory(data) {
                         <span class="text-sm">🧑</span>
                         <span class="text-sm text-gray-700 owner-name">saya</span>
                     </div>
-                    <div class="text-center text-sm text-gray-700 modified-date">${formattedDate}</div>
-                    <div class="text-center text-sm text-gray-700 file-size">—</div>
+                    <div class="flex justify-center text-sm text-gray-700 modified-date">${formattedDate}</div>
+                    <div class="flex justify-center text-sm text-gray-700 file-size">—</div>
                 </div>
             `;
 
@@ -127,8 +127,8 @@ function showDirectory(data) {
                         <span class="text-sm">🧑</span>
                         <span class="text-sm text-gray-700 owner-name">saya</span>
                     </div>
-                    <div class="text-center text-sm text-gray-700 modified-date">${formattedDate}</div>
-                    <div class="text-center text-sm text-gray-700 file-size">${size}</div>
+                    <div class="flex justify-center text-sm text-gray-700 modified-date">${formattedDate}</div>
+                    <div class="flex justify-center text-sm text-gray-700 file-size">${size}</div>
                 </div>
             `;
 
