@@ -11,6 +11,136 @@
         body { 
             font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
         }
+        
+        /* Context Menu Styles */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #e8eaed;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 8px 0;
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+        
+        .context-menu-item:hover {
+            background-color: #f1f3f4;
+        }
+        
+        .context-menu-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .folder-tree {
+            border: 1px solid #e8eaed;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .folder-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .folder-item.selected {
+            background-color: #e8f0fe;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #1557b0;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8f9fa;
+        }
     </style>
 </head>
 <body class="bg-white">
@@ -177,7 +307,7 @@
                     <div class="bg-white">
                         <!-- Table Header - 4 kolom sesuai screenshot -->
                         <div class="border-b border-gray-200 py-3">
-                            <div class="grid grid-cols-4 gap-6 items-center text-xs font-medium text-gray-600 uppercase tracking-wide">
+                            <div class="grid grid-cols-5 gap-6 items-center text-xs font-medium text-gray-600 uppercase tracking-wide">
                                 <div class="flex items-center gap-1">
                                     <span>Nama</span>
                                     <span class="material-icons text-sm">arrow_drop_up</span>
@@ -185,6 +315,7 @@
                                 <div class="text-center">Pemilik</div>
                                 <div class="text-center">Tanggal diubah</div>
                                 <div class="text-center">Ukuran file</div>
+                                <div class="text-center"></div>
                             </div>
                         </div>
                         
@@ -195,6 +326,64 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" onclick="openWith()">
+            <div class="context-menu-icon">📂</div>
+            <span>Buka dengan</span>
+        </div>
+        <div class="context-menu-item" onclick="downloadFile()">
+            <div class="context-menu-icon">⬇️</div>
+            <span>Download</span>
+        </div>
+        <div class="context-menu-item" onclick="renameFile()">
+            <div class="context-menu-icon">✏️</div>
+            <span>Ganti nama</span>
+        </div>
+        <div class="context-menu-item" onclick="shareFile()">
+            <div class="context-menu-icon">👥</div>
+            <span>Bagikan</span>
+        </div>
+        <div class="context-menu-item" onclick="manageFile()">
+            <div class="context-menu-icon">⚙️</div>
+            <span>Atur</span>
+        </div>
+        <div class="context-menu-item" onclick="showFileInfo()">
+            <div class="context-menu-icon">ℹ️</div>
+            <span>Informasi folder/file</span>
+        </div>
+        <div class="context-menu-item" onclick="moveToTrash()">
+            <div class="context-menu-icon">🗑️</div>
+            <span>Pindahkan ke sampah</span>
+        </div>
+        <div class="context-menu-item" onclick="showMoveModal()">
+            <div class="context-menu-icon">📁</div>
+            <span>Pindahkan</span>
+        </div>
+    </div>
+
+    <!-- Move Modal -->
+    <div id="moveModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Pindahkan ke</h3>
+                <button onclick="closeMoveModal()" class="p-2 hover:bg-gray-100 rounded">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-3">Pilih folder tujuan:</p>
+                <div class="folder-tree" id="folderTree">
+                    <!-- Folder tree akan di-populate oleh JavaScript -->
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeMoveModal()">Batal</button>
+                <button class="btn btn-primary" onclick="moveFile()" id="moveButton" disabled>Pindahkan</button>
+            </div>
         </div>
     </div>
 
@@ -326,8 +515,10 @@
             const fileListContainer = document.getElementById('fileList');
             
             fileListContainer.innerHTML = files.map(file => `
-                <div class="border-b border-gray-100 py-3 hover:bg-gray-50 cursor-pointer transition-colors" onclick="openFile('${file.name}')">
-                    <div class="grid grid-cols-4 gap-6 items-center">
+                <div class="border-b border-gray-100 py-3 hover:bg-gray-50 cursor-pointer transition-colors" 
+                     onclick="openFile('${file.name}')" 
+                     oncontextmenu="event.preventDefault(); showContextMenu(event, '${file.name}', '${file.type}')">
+                    <div class="grid grid-cols-5 gap-6 items-center">
                         <!-- Kolom Nama -->
                         <div class="flex items-center gap-3">
                             <span class="text-lg">${file.icon}</span>
@@ -349,6 +540,15 @@
                         <div class="text-center">
                             <span class="text-sm text-gray-700">${file.size}</span>
                         </div>
+                        
+                        <!-- Kolom Menu Button -->
+                        <div class="text-center">
+                            <button class="menu-btn p-1 rounded hover:bg-gray-200 transition-colors" 
+                                    onclick="event.stopPropagation(); showContextMenu(event, '${file.name}', '${file.type}')"
+                                    data-file-name="${file.name}" data-file-type="${file.type}">
+                                <span class="material-icons text-gray-500 text-lg">more_vert</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -367,6 +567,167 @@
         // New button
         document.getElementById('newBtn').addEventListener('click', function() {
             alert('Fitur upload akan ditambahkan');
+        });
+
+        // Variables untuk context menu
+        let currentSelectedFile = null;
+        let currentSelectedType = null;
+        let selectedDestinationFolder = null;
+
+        // Folder structure untuk modal
+        const folderStructure = [
+            { name: "Drive Saya", path: "/", icon: "🏠", selectable: true },
+            { name: "All File", path: "/All File", icon: "📁", selectable: true },
+            { name: "App", path: "/App", icon: "📁", selectable: true },
+            { name: "BACKUP JUNI 2025", path: "/BACKUP JUNI 2025", icon: "📁", selectable: true },
+            { name: "BackupCache", path: "/BackupCache", icon: "📁", selectable: true },
+            { name: "BackupDestination", path: "/BackupDestination", icon: "📁", selectable: true },
+            { name: "Colab Notebooks", path: "/Colab Notebooks", icon: "📂", selectable: true },
+            { name: "Data baru", path: "/Data baru", icon: "📁", selectable: true },
+            { name: "Data PT", path: "/Data PT", icon: "📁", selectable: true },
+            { name: "KEY SSH", path: "/KEY SSH", icon: "🔐", selectable: true },
+            { name: "LOG_TRANSFER", path: "/LOG_TRANSFER", icon: "📁", selectable: true },
+            { name: "Paspor", path: "/Paspor", icon: "📁", selectable: true },
+            { name: "Project Files Juni", path: "/Project Files Juni", icon: "📁", selectable: true },
+            { name: "Data Backup 2024", path: "/Data Backup 2024", icon: "📁", selectable: true }
+        ];
+
+        // Show context menu
+        function showContextMenu(event, fileName, fileType) {
+            const contextMenu = document.getElementById('contextMenu');
+            currentSelectedFile = fileName;
+            currentSelectedType = fileType;
+            
+            // Position menu
+            contextMenu.style.left = event.pageX + 'px';
+            contextMenu.style.top = event.pageY + 'px';
+            contextMenu.style.display = 'block';
+            
+            // Prevent default context menu
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        // Hide context menu
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        // Click outside to hide context menu
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#contextMenu')) {
+                hideContextMenu();
+            }
+        });
+
+        // Context menu functions
+        function openWith() {
+            alert(`📂 Buka dengan: ${currentSelectedFile}`);
+            hideContextMenu();
+        }
+
+        function downloadFile() {
+            alert(`⬇️ Download: ${currentSelectedFile}`);
+            hideContextMenu();
+        }
+
+        function renameFile() {
+            const newName = prompt(`✏️ Ganti nama "${currentSelectedFile}" menjadi:`, currentSelectedFile);
+            if (newName && newName !== currentSelectedFile) {
+                alert(`File "${currentSelectedFile}" berhasil diganti nama menjadi "${newName}"`);
+                // Di sini bisa update data dan re-render
+            }
+            hideContextMenu();
+        }
+
+        function shareFile() {
+            alert(`👥 Bagikan: ${currentSelectedFile}`);
+            hideContextMenu();
+        }
+
+        function manageFile() {
+            alert(`⚙️ Atur: ${currentSelectedFile}`);
+            hideContextMenu();
+        }
+
+        function showFileInfo() {
+            const info = `ℹ️ Informasi ${currentSelectedType}:
+            
+Nama: ${currentSelectedFile}
+Tipe: ${currentSelectedType}
+Ukuran: ${currentSelectedType === 'folder' ? '—' : 'Bervariasi'}
+Pemilik: saya
+Tanggal dibuat: ${new Date().toLocaleDateString('id-ID')}`;
+            
+            alert(info);
+            hideContextMenu();
+        }
+
+        function moveToTrash() {
+            if (confirm(`🗑️ Yakin ingin memindahkan "${currentSelectedFile}" ke sampah?`)) {
+                alert(`"${currentSelectedFile}" berhasil dipindahkan ke sampah`);
+                // Di sini bisa update data dan re-render
+            }
+            hideContextMenu();
+        }
+
+        // Show move modal
+        function showMoveModal() {
+            hideContextMenu();
+            const modal = document.getElementById('moveModal');
+            modal.style.display = 'flex';
+            renderFolderTree();
+        }
+
+        // Close move modal
+        function closeMoveModal() {
+            document.getElementById('moveModal').style.display = 'none';
+            selectedDestinationFolder = null;
+            document.getElementById('moveButton').disabled = true;
+        }
+
+        // Render folder tree
+        function renderFolderTree() {
+            const folderTree = document.getElementById('folderTree');
+            folderTree.innerHTML = folderStructure.map(folder => `
+                <div class="folder-item" onclick="selectFolder('${folder.path}', this)" data-path="${folder.path}">
+                    <span>${folder.icon}</span>
+                    <span>${folder.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // Select destination folder
+        function selectFolder(path, element) {
+            // Remove previous selection
+            document.querySelectorAll('.folder-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selection to clicked folder
+            element.classList.add('selected');
+            selectedDestinationFolder = path;
+            
+            // Enable move button
+            document.getElementById('moveButton').disabled = false;
+        }
+
+        // Move file
+        function moveFile() {
+            if (selectedDestinationFolder && currentSelectedFile) {
+                const folderName = folderStructure.find(f => f.path === selectedDestinationFolder)?.name || selectedDestinationFolder;
+                alert(`📁 "${currentSelectedFile}" berhasil dipindahkan ke "${folderName}"`);
+                
+                // Di sini bisa update data dan re-render
+                closeMoveModal();
+            }
+        }
+
+        // Close modal when clicking overlay
+        document.getElementById('moveModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMoveModal();
+            }
         });
     </script>
 </body>
