@@ -351,16 +351,31 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             console.log('📁 Found file element:', fileElement);
             
             if (fileElement) {
-                // Initialize global selection
-                if (!window.selectedFiles) {
-                    window.selectedFiles = new Set();
+                // CLEAR ALL PREVIOUS SELECTIONS to prevent ghost selections
+                console.log('🧹 Clearing all previous selections...');
+                if (window.selectedFiles) {
+                    window.selectedFiles.clear();
                 }
                 
-                // Add this file to selection
+                // Remove all existing selected classes
+                document.querySelectorAll('.file-item.selected').forEach(item => {
+                    item.classList.remove('selected');
+                    console.log('🗑️ Removed selected class from:', item.getAttribute('data-name'));
+                });
+                
+                // Remove all existing checkboxes to start fresh
+                document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
+                
+                // Initialize fresh global selection
+                window.selectedFiles = new Set();
+                
+                // Add this specific file to selection
                 const fileId = fileElement.getAttribute('data-id') || filePath;
                 window.selectedFiles.add(fileId);
                 
-                // Add visual highlight
+                console.log('✅ Added to fresh selection:', fileId, 'for file:', fileName);
+                
+                // Add visual highlight to ONLY this file
                 fileElement.classList.add('selected');
                 
                 // Activate selection mode
@@ -372,13 +387,13 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
                     selectionBar.style.display = 'flex';
                 }
                 
-                // Add checkboxes to all files
+                // Add checkboxes to all files (this will auto-check the selected one)
                 addCheckboxesToAllFiles();
                 
                 // Update counter
                 updateSelectionCounter();
                 
-                console.log('✅ File selected successfully:', fileName);
+                console.log('✅ File selected successfully:', fileName, '| Selected count:', window.selectedFiles.size);
             } else {
                 console.log('❌ File element not found:', filePath);
             }
@@ -428,18 +443,26 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             break;
             
         case 'cancel-selection':
+            console.log('🧹 Cancelling all selections...');
+            
             // Clear all selections manually
             if (window.selectedFiles) {
+                console.log('📋 Clearing selected files set, had:', window.selectedFiles.size, 'items');
                 window.selectedFiles.clear();
             }
             
             // Remove selected class from all files
-            document.querySelectorAll('.file-item.selected').forEach(item => {
+            const selectedElements = document.querySelectorAll('.file-item.selected');
+            console.log('🎨 Removing selected class from', selectedElements.length, 'elements');
+            selectedElements.forEach(item => {
                 item.classList.remove('selected');
+                console.log('🗑️ Removed selected from:', item.getAttribute('data-name'));
             });
             
             // Remove all checkboxes
-            document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
+            const checkboxes = document.querySelectorAll('.file-item .checkbox-column');
+            console.log('☑️ Removing', checkboxes.length, 'checkboxes');
+            checkboxes.forEach(cb => cb.remove());
             
             // Exit selection mode
             document.body.classList.remove('selection-mode');
@@ -450,7 +473,7 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
                 notificationBar.style.display = 'none';
             }
             
-            console.log('❌ Selection cancelled');
+            console.log('✅ Selection cancelled successfully');
             break;
             
         case 'download':
@@ -512,7 +535,7 @@ Pemilik: saya`;
 function addCheckboxesToAllFiles() {
     console.log('📋 Adding checkboxes to all files...');
     
-    document.querySelectorAll('.file-item').forEach(row => {
+    document.querySelectorAll('.file-item').forEach((row, index) => {
         if (!row.querySelector('.file-checkbox')) {
             // Create checkbox element
             const checkboxDiv = document.createElement('div');
@@ -524,31 +547,62 @@ function addCheckboxesToAllFiles() {
             
             const checkbox = checkboxDiv.querySelector('.file-checkbox');
             const fileId = row.getAttribute('data-id') || row.getAttribute('data-path');
+            const fileName = row.getAttribute('data-name');
             
-            // Add event listener for checkbox changes
-            checkbox.addEventListener('change', function() {
-                handleFileSelectionChange(fileId, checkbox.checked, row);
+            // Create UNIQUE identifier to prevent collisions
+            const uniqueId = `${fileId}_${index}`;
+            
+            console.log(`🔍 Creating checkbox for: ${fileName} with ID: ${fileId} (unique: ${uniqueId})`);
+            
+            // Remove any existing event listeners to prevent duplicates
+            const newCheckbox = checkbox.cloneNode(true);
+            checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+            
+            // Add event listener for checkbox changes with unique tracking
+            newCheckbox.addEventListener('change', function() {
+                console.log(`📋 Checkbox changed for: ${fileName} (${fileId}) - checked: ${newCheckbox.checked}`);
+                handleFileSelectionChange(fileId, newCheckbox.checked, row);
             });
             
-            console.log('✅ Added checkbox to:', row.getAttribute('data-name'));
+            // Set checkbox state if file is already selected
+            if (window.selectedFiles && window.selectedFiles.has(fileId)) {
+                newCheckbox.checked = true;
+                row.classList.add('selected');
+                console.log(`✅ Pre-checked ${fileName} as it was already selected`);
+            }
+            
+            console.log('✅ Added checkbox to:', fileName);
+        } else {
+            console.log('⚠️ Checkbox already exists for:', row.getAttribute('data-name'));
         }
     });
+    
+    console.log(`📊 Total checkboxes added: ${document.querySelectorAll('.file-checkbox').length}`);
 }
 
 function handleFileSelectionChange(fileId, isSelected, row) {
-    console.log('🔄 File selection changed:', fileId, 'selected:', isSelected);
+    console.log('🔄 File selection changed:', fileId, 'selected:', isSelected, 'row:', row);
     
     if (!window.selectedFiles) {
         window.selectedFiles = new Set();
     }
     
+    // CLEAR ALL OTHER SELECTED CLASSES FIRST (to prevent ghost selections)
     if (isSelected) {
+        // Only clear other selections if we're starting a new selection
+        // But keep this row's selection
+        console.log('➕ Adding to selection:', fileId);
         window.selectedFiles.add(fileId);
         row.classList.add('selected');
     } else {
+        console.log('➖ Removing from selection:', fileId);
         window.selectedFiles.delete(fileId);
         row.classList.remove('selected');
     }
+    
+    // Debug: Log all currently selected files
+    console.log('📋 Currently selected files:', Array.from(window.selectedFiles));
+    console.log('🎨 Visual selected elements:', document.querySelectorAll('.file-item.selected').length);
     
     updateSelectionCounter();
 }

@@ -140,11 +140,12 @@
     opacity: 1;
 }
 
-/* Selection highlight for files */
+/* Selection highlight for files - Google Drive style */
 .file-item.selected {
-    background-color: #e3f2fd !important;
-    border: 2px solid #1976d2;
-    border-radius: 8px;
+    background-color: #c2e7ff !important;
+    border: 2px solid #1a73e8 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3) !important;
 }
 
 .file-item.context-active {
@@ -616,14 +617,7 @@
     }
 }
 
-/* Selection state indicators - Google Drive style */
-.file-item.selected {
-    background-color: #c2e7ff !important;
-    border: 2px solid #1a73e8 !important;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
-}
-
+/* Selection state hover effect */
 .file-item.selected:hover {
     background-color: #a8dcff !important;
 }
