@@ -616,16 +616,16 @@
     }
 }
 
-/* Selection state indicators */
+/* Selection state indicators - Google Drive style */
 .file-item.selected {
-    background-color: #e3f2fd !important;
-    border-left: 4px solid #1976d2;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+    background-color: #c2e7ff !important;
+    border: 2px solid #1a73e8 !important;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
 }
 
 .file-item.selected:hover {
-    background-color: #bbdefb !important;
+    background-color: #a8dcff !important;
 }
 
 /* Selection count badge */

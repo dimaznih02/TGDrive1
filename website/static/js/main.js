@@ -353,9 +353,25 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             
         case 'select':
             // Find the file element and start selection
+            console.log('🔍 Looking for file element with path:', filePath);
             const fileElement = document.querySelector(`[data-path="${filePath}"]`);
+            console.log('📁 Found file element:', fileElement);
+            console.log('🎯 startSelectionWithFile available:', typeof startSelectionWithFile);
+            
             if (fileElement && typeof startSelectionWithFile === 'function') {
+                console.log('✅ Starting selection with file:', fileElement);
                 startSelectionWithFile(fileElement);
+            } else {
+                console.log('❌ Could not start selection - element:', !!fileElement, 'function:', typeof startSelectionWithFile);
+                // Fallback: show alert
+                alert(`🔍 Debug: File ${fileName} dipilih! (Path: ${filePath})`);
+                
+                // Try alternative selector
+                const altElement = document.querySelector(`[data-name="${fileName}"]`);
+                console.log('🔄 Alternative element:', altElement);
+                if (altElement && typeof startSelectionWithFile === 'function') {
+                    startSelectionWithFile(altElement);
+                }
             }
             break;
             

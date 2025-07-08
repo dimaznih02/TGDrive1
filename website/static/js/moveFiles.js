@@ -18,6 +18,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeMoveFiles() {
+    console.log('🔧 Initializing move files system...');
+    
+    // Expose all functions to global scope immediately
+    window.startSelectionWithFile = startSelectionWithFile;
+    window.handleFileSelection = handleFileSelection;
+    window.openMoveDialog = openMoveDialog;
+    window.deleteSelectedFiles = deleteSelectedFiles;
+    window.exitSelectionMode = exitSelectionMode;
+    
+    console.log('🌐 Global functions exposed:', {
+        startSelectionWithFile: typeof window.startSelectionWithFile,
+        handleFileSelection: typeof window.handleFileSelection,
+        openMoveDialog: typeof window.openMoveDialog,
+        deleteSelectedFiles: typeof window.deleteSelectedFiles,
+        exitSelectionMode: typeof window.exitSelectionMode
+    });
+    
     // Selection mode will be triggered from context menu, not button
     
     // Selection notification bar buttons
@@ -46,29 +63,48 @@ function initializeMoveFiles() {
     if (headerSelectAll) {
         headerSelectAll.addEventListener('change', handleSelectAll);
     }
+    
+    console.log('✅ Move files system initialized');
 }
 
 // Start selection mode with a specific file (triggered from context menu)
 function startSelectionWithFile(fileElement) {
+    console.log('🚀 startSelectionWithFile called with element:', fileElement);
+    console.log('📂 Current selection mode:', isSelectionMode);
+    
     if (!isSelectionMode) {
+        console.log('⚡ Entering selection mode...');
         enterSelectionMode();
     }
     
     // Get file ID/path
     const fileId = fileElement.getAttribute('data-id') || fileElement.getAttribute('data-path');
     const fileName = fileElement.getAttribute('data-name');
+    console.log('📋 File info - ID:', fileId, 'Name:', fileName);
     
     // Add this file to selection
     selectedFiles.add(fileId);
     fileElement.classList.add('selected');
+    console.log('✅ Added to selection, element classes:', fileElement.className);
     
     // Update UI
     updateSelectedCount();
     updateSelectAllCheckbox();
     
+    // Force notification bar to show
+    const notificationBar = document.getElementById('selection-notification-bar');
+    if (notificationBar) {
+        notificationBar.style.display = 'flex';
+        console.log('📢 Notification bar displayed');
+    } else {
+        console.log('❌ Notification bar not found');
+    }
+    
     // Show toast notification
     if (window.googleDriveUI && window.googleDriveUI.showToast) {
         window.googleDriveUI.showToast(`"${fileName}" dipilih`, 'success');
+    } else {
+        console.log('🔔 Toast: File dipilih -', fileName);
     }
     
     console.log('🎯 Started selection with file:', fileName, 'Total selected:', selectedFiles.size);
@@ -199,26 +235,52 @@ function handleSelectAll(event) {
 
 function updateSelectedCount() {
     const count = selectedFiles.size;
-    document.getElementById('selected-count-header').textContent = count;
+    console.log('📊 Updating selected count:', count);
+    
+    // Update counter in header if element exists
+    const counterHeader = document.getElementById('selected-count-header');
+    if (counterHeader) {
+        counterHeader.textContent = count;
+    }
     
     // Update text in notification bar
     const notificationText = count === 1 ? '1 item dipilih' : `${count} item dipilih`;
-    document.getElementById('selected-count-text').innerHTML = `<span id="selected-count-header">${count}</span> item dipilih`;
+    const countTextElement = document.getElementById('selected-count-text');
+    if (countTextElement) {
+        countTextElement.innerHTML = `<span id="selected-count-header">${count}</span> item dipilih`;
+        console.log('📝 Updated notification text:', notificationText);
+    }
+    
+    // Show/hide notification bar based on selection count
+    const notificationBar = document.getElementById('selection-notification-bar');
+    if (notificationBar) {
+        if (count > 0) {
+            notificationBar.style.display = 'flex';
+            console.log('📢 Notification bar shown');
+        } else {
+            notificationBar.style.display = 'none';
+            console.log('📢 Notification bar hidden');
+        }
+    }
     
     // Enable/disable action buttons
     const moveBtn = document.getElementById('move-selected-btn');
     const deleteBtn = document.getElementById('delete-selected-btn');
     
-    if (count > 0) {
-        moveBtn.classList.remove('disabled');
-        moveBtn.removeAttribute('disabled');
-        deleteBtn.classList.remove('disabled');
-        deleteBtn.removeAttribute('disabled');
-    } else {
-        moveBtn.classList.add('disabled');
-        moveBtn.setAttribute('disabled', 'true');
-        deleteBtn.classList.add('disabled');
-        deleteBtn.setAttribute('disabled', 'true');
+    if (moveBtn && deleteBtn) {
+        if (count > 0) {
+            moveBtn.classList.remove('disabled');
+            moveBtn.removeAttribute('disabled');
+            deleteBtn.classList.remove('disabled');
+            deleteBtn.removeAttribute('disabled');
+            console.log('🔘 Action buttons enabled');
+        } else {
+            moveBtn.classList.add('disabled');
+            moveBtn.setAttribute('disabled', 'true');
+            deleteBtn.classList.add('disabled');
+            deleteBtn.setAttribute('disabled', 'true');
+            console.log('🔘 Action buttons disabled');
+        }
     }
 }
 
