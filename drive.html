@@ -9,7 +9,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body { font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { 
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+        }
+        .file-table-row {
+            transition: background-color 0.15s ease;
+        }
+        .file-table-row:hover {
+            background-color: #f8f9fa;
+        }
+        .file-icon {
+            min-width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .truncate-filename {
+            max-width: 250px;
+        }
     </style>
 </head>
 <body class="bg-white text-gray-800">
@@ -267,19 +284,24 @@
                         </div>
                     </div>
                     
-                    <div class="bg-white rounded-lg overflow-hidden">
-                        <div class="grid grid-cols-5 gap-4 p-3 bg-gray-50 text-xs font-medium text-gray-600 uppercase tracking-wide items-center">
-                            <div class="flex items-center gap-1">
+                    <!-- File Table with Perfect Alignment -->
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <!-- Table Header -->
+                        <div class="grid grid-cols-4 gap-x-4 px-4 py-3 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-600 uppercase tracking-wide">
+                            <div class="flex items-center gap-1 min-w-[280px]">
                                 <span>Nama</span>
-                                <span class="material-icons text-lg text-gray-500">arrow_drop_up</span>
+                                <span class="material-icons text-sm text-gray-500">arrow_drop_up</span>
                             </div>
-                            <div>Pemilik</div>
-                            <div>Tanggal diubah</div>
-                            <div>Ukuran file</div>
-                            <div></div>
+                            <div class="min-w-[120px] text-center">Pemilik</div>
+                            <div class="min-w-[140px] text-center">Tanggal diubah</div>
+                            <div class="min-w-[100px] text-center">Ukuran file</div>
                         </div>
-                        <div id="folderList">
-                            <!-- Files and folders populated by JavaScript -->
+                        
+                        <!-- File List Container with Overflow -->
+                        <div class="overflow-x-auto">
+                            <div id="folderList">
+                                <!-- Files and folders populated by JavaScript -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -507,21 +529,56 @@
         function renderDriveSayaContent() {
             if (!folderList) return;
             
-            folderList.innerHTML = mockFolders.map(item => `
-                <div class="grid grid-cols-5 gap-4 p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer items-center transition-colors" onclick="openItem('${item.name}', '${item.type}')">
-                    <div class="flex items-center gap-3">
-                        <span class="material-icons text-gray-600 ${item.type === 'folder' ? 'text-blue-600' : 'text-gray-600'}">${item.icon}</span>
-                        <span class="text-sm text-gray-800 font-normal">${item.name}</span>
+            // Enhanced file data with emoji icons
+            const enhancedFiles = [
+                { name: "All File", type: "folder", icon: "📁", owner: "saya", modified: "—", size: "—" },
+                { name: "App", type: "folder", icon: "📁", owner: "saya", modified: "2 Jun", size: "—" },
+                { name: "BACKUP JUNI 2025", type: "folder", icon: "📁", owner: "saya", modified: "29 Jun", size: "—" },
+                { name: "BackupCache", type: "folder", icon: "📁", owner: "saya", modified: "29 Jun", size: "—" },
+                { name: "BackupDestination", type: "folder", icon: "📁", owner: "saya", modified: "30 Jun", size: "—" },
+                { name: "Colab Notebooks", type: "folder", icon: "📂", owner: "saya", modified: "26 Jun", size: "—" },
+                { name: "Data baru", type: "folder", icon: "📁", owner: "saya", modified: "16 Mei 2024", size: "—" },
+                { name: "Data PT", type: "folder", icon: "📁", owner: "saya", modified: "16 Mei 2024", size: "—" },
+                { name: "Folder tanpa nama", type: "folder", icon: "📁", owner: "saya", modified: "11 Jan 2024", size: "—" },
+                { name: "KEY SSH", type: "folder", icon: "🔐", owner: "saya", modified: "2 Mei", size: "—" },
+                { name: "LOG_TRANSFER", type: "folder", icon: "📁", owner: "saya", modified: "29 Jun", size: "—" },
+                { name: "Paspor", type: "folder", icon: "📁", owner: "saya", modified: "5 Jun", size: "—" },
+                { name: "Proof of transaction", type: "file", icon: "📄", owner: "saya", modified: "18 Okt 2024", size: "2.3 MB" },
+                { name: "tes", type: "file", icon: "📄", owner: "saya", modified: "17 Nov 2024", size: "1.2 KB" },
+                { name: "Toy", type: "folder", icon: "📁", owner: "saya", modified: "29 Jun", size: "—" },
+                { name: "Project Presentation.pptx", type: "file", icon: "📊", owner: "saya", modified: "15 Des 2024", size: "5.2 MB" },
+                { name: "Budget Analysis.xlsx", type: "file", icon: "📈", owner: "saya", modified: "14 Des 2024", size: "3.8 MB" },
+                { name: "Team Meeting Video.mp4", type: "video", icon: "🎥", owner: "saya", modified: "13 Des 2024", size: "125.6 MB" },
+                { name: "Annual Report 2024.pdf", type: "file", icon: "📕", owner: "saya", modified: "12 Des 2024", size: "8.9 MB" },
+                { name: "Profile Picture.jpg", type: "image", icon: "🖼️", owner: "saya", modified: "11 Des 2024", size: "2.1 MB" }
+            ];
+            
+            folderList.innerHTML = enhancedFiles.map(file => `
+                <div class="file-table-row grid grid-cols-4 gap-x-4 px-4 py-3 border-b border-gray-100 cursor-pointer items-center hover:bg-gray-50 transition-colors duration-150" onclick="openItem('${file.name}', '${file.type}')">
+                    <!-- Name Column with Icon -->
+                    <div class="flex items-center gap-3 min-w-[280px]">
+                        <span class="file-icon text-lg flex-shrink-0" style="min-width: 24px; display: flex; align-items: center; justify-content: center;">${file.icon}</span>
+                        <span class="text-sm text-gray-800 font-normal truncate" style="max-width: 250px;">${file.name}</span>
                     </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-500">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iMTAiIGZpbGw9IiNFNzRDM0MiLz4KPC9zdmc+" alt="Owner" class="w-5 h-5 rounded-full">
-                        <span>${item.owner}</span>
+                    
+                    <!-- Owner Column -->
+                    <div class="flex items-center justify-center gap-2 text-sm text-gray-500 min-w-[120px]">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iMTAiIGZpbGw9IiNFNzRDM0MiLz4KPC9zdmc+" alt="Owner" class="w-5 h-5 rounded-full flex-shrink-0">
+                        <span class="truncate">${file.owner}</span>
                     </div>
-                    <div class="text-sm text-gray-500">${item.modified}</div>
-                    <div class="text-sm text-gray-500">${item.size}</div>
-                    <button class="p-1 rounded hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); showItemMenu('${item.name}')">
-                        <span class="material-icons text-gray-500">more_vert</span>
-                    </button>
+                    
+                    <!-- Modified Date Column -->
+                    <div class="text-sm text-gray-500 text-center min-w-[140px] truncate">
+                        ${file.modified}
+                    </div>
+                    
+                    <!-- Size Column with Menu -->
+                    <div class="flex items-center justify-between min-w-[100px]">
+                        <span class="text-sm text-gray-500 flex-grow text-center">${file.size}</span>
+                        <button class="p-1 rounded hover:bg-gray-200 transition-colors ml-2 flex-shrink-0" onclick="event.stopPropagation(); showItemMenu('${file.name}')">
+                            <span class="material-icons text-gray-500 text-lg">more_vert</span>
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -574,14 +631,18 @@
 
         function openItem(name, type) {
             if (type === 'folder') {
-                alert(`Membuka folder: ${name}`);
+                alert(`📁 Membuka folder: ${name}`);
+            } else if (type === 'video') {
+                alert(`🎥 Memutar video: ${name}`);
+            } else if (type === 'image') {
+                alert(`🖼️ Membuka gambar: ${name}`);
             } else {
-                alert(`Membuka file: ${name}`);
+                alert(`📄 Membuka file: ${name}`);
             }
         }
 
         function showItemMenu(name) {
-            alert(`Menu untuk: ${name}`);
+            alert(`⚙️ Menu untuk: ${name}\n\n- Download\n- Share\n- Move\n- Rename\n- Delete`);
         }
 
         // Mobile menu toggle
