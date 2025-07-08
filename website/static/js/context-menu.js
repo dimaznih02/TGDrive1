@@ -142,15 +142,60 @@ class GoogleDriveUI {
         this.setupDragAndDrop();
     }
 
-    // Show context menu at mouse position
+    // Show context menu at mouse position with smart positioning
     showContextMenu(event, fileItem) {
         this.activeFileItem = fileItem;
-        this.contextMenu.style.left = event.pageX + 'px';
-        this.contextMenu.style.top = event.pageY + 'px';
+        
+        // First, make menu visible but hidden to measure dimensions
+        this.contextMenu.style.position = 'fixed';
+        this.contextMenu.style.visibility = 'hidden';
+        this.contextMenu.style.opacity = '0';
         this.contextMenu.classList.add('show');
-
+        
         // Update context menu based on file type
         this.updateContextMenuItems(fileItem);
+        
+        // Get menu dimensions and viewport bounds
+        const menuRect = this.contextMenu.getBoundingClientRect();
+        const menuWidth = menuRect.width;
+        const menuHeight = menuRect.height;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        // Calculate initial position
+        let left = event.clientX;
+        let top = event.clientY;
+        
+        // Smart positioning - adjust if menu would go outside viewport
+        
+        // Check right edge
+        if (left + menuWidth > viewportWidth) {
+            left = viewportWidth - menuWidth - 10; // 10px margin
+        }
+        
+        // Check left edge
+        if (left < 10) {
+            left = 10;
+        }
+        
+        // Check bottom edge - this is the main issue for files at bottom!
+        if (top + menuHeight > viewportHeight) {
+            // Position above the cursor instead of below
+            top = event.clientY - menuHeight - 5; // 5px margin above cursor
+        }
+        
+        // Check top edge (in case menu is too tall)
+        if (top < 10) {
+            top = 10;
+        }
+        
+        // Apply final position and make visible
+        this.contextMenu.style.left = left + 'px';
+        this.contextMenu.style.top = top + 'px';
+        this.contextMenu.style.visibility = 'visible';
+        this.contextMenu.style.opacity = '1';
+        
+        console.log(`📍 GoogleDriveUI context menu positioned at: ${left}, ${top} (viewport: ${viewportWidth}x${viewportHeight}, menu: ${menuWidth}x${menuHeight})`);
 
         // Add active styling to file
         document.querySelectorAll('.file-item.context-active').forEach(item => {

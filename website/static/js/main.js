@@ -81,12 +81,7 @@ function showDirectory(data) {
                 </div>
             `;
 
-            if (isTrash) {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
-            }
-            else {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr><div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr><div id="folder-share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div></div>`
-            }
+            // Old more-options system removed to avoid conflict with new context menu
         }
     }
 
@@ -146,12 +141,7 @@ function showDirectory(data) {
                 </div>
             `;
 
-            if (isTrash) {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
-            }
-            else {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr><div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr><div id="share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div></div>`
-            }
+            // Old more-options system removed to avoid conflict with new context menu
         }
     }
     document.getElementById('directory-data').innerHTML = html
@@ -165,13 +155,7 @@ function showDirectory(data) {
         });
     }
 
-    document.querySelectorAll('.more-btn').forEach(btn => {
-        btn.addEventListener('click', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            openMoreButton(btn)
-        });
-    });
+    // More buttons now use new context menu system - no need for old openMoreButton
     
     // Add right-click context menu to all file items
     document.querySelectorAll('.file-item').forEach(item => {
@@ -240,20 +224,13 @@ function showContextMenu(event, fileName, fileType, filePath) {
     }
 }
 
-// Fallback basic context menu
+// Fallback basic context menu with smart positioning
 function showBasicContextMenu(event, fileName, fileType, filePath) {
     // Remove existing context menu
     const existingMenu = document.getElementById('basic-context-menu');
     if (existingMenu) {
         existingMenu.remove();
     }
-    
-    // Create basic context menu
-    const contextMenu = document.createElement('div');
-    contextMenu.id = 'basic-context-menu';
-    contextMenu.className = 'context-menu show';
-    contextMenu.style.left = event.pageX + 'px';
-    contextMenu.style.top = event.pageY + 'px';
     
     const menuItems = [
         { icon: '📂', text: fileType === 'folder' ? 'Buka folder' : 'Buka', action: 'open' },
@@ -274,8 +251,59 @@ function showBasicContextMenu(event, fileName, fileType, filePath) {
             </div>
         `).join('');
     
+    // Create basic context menu
+    const contextMenu = document.createElement('div');
+    contextMenu.id = 'basic-context-menu';
+    contextMenu.className = 'context-menu show';
     contextMenu.innerHTML = menuHTML;
+    
+    // Add to DOM first to measure dimensions
+    contextMenu.style.position = 'fixed';
+    contextMenu.style.visibility = 'hidden';
+    contextMenu.style.opacity = '0';
     document.body.appendChild(contextMenu);
+    
+    // Get menu dimensions and viewport bounds
+    const menuRect = contextMenu.getBoundingClientRect();
+    const menuWidth = menuRect.width;
+    const menuHeight = menuRect.height;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate initial position
+    let left = event.clientX;
+    let top = event.clientY;
+    
+    // Smart positioning - adjust if menu would go outside viewport
+    
+    // Check right edge
+    if (left + menuWidth > viewportWidth) {
+        left = viewportWidth - menuWidth - 10; // 10px margin
+    }
+    
+    // Check left edge
+    if (left < 10) {
+        left = 10;
+    }
+    
+    // Check bottom edge - this is the main issue!
+    if (top + menuHeight > viewportHeight) {
+        // Position above the cursor instead of below
+        top = event.clientY - menuHeight - 5; // 5px margin above cursor
+    }
+    
+    // Check top edge (in case menu is too tall)
+    if (top < 10) {
+        top = 10;
+    }
+    
+    // Apply final position and make visible
+    contextMenu.style.left = left + 'px';
+    contextMenu.style.top = top + 'px';
+    contextMenu.style.visibility = 'visible';
+    contextMenu.style.opacity = '1';
+    
+    console.log(`📍 Context menu positioned at: ${left}, ${top} (viewport: ${viewportWidth}x${viewportHeight}, menu: ${menuWidth}x${menuHeight})`);
     
     // Close menu when clicking outside
     const closeMenu = (e) => {
