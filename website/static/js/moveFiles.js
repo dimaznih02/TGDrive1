@@ -162,7 +162,30 @@ function startSelectionWithFile(fileElement) {
         // Add this specific file to selection
         selectedFiles.add(fileId);
         fileElement.classList.add('selected');
+        
+        // Force immediate visual feedback
+        fileElement.style.backgroundColor = '#c2e7ff';
+        fileElement.style.border = '2px solid #1a73e8';
+        fileElement.style.borderRadius = '8px';
+        fileElement.style.boxShadow = '0 2px 8px rgba(26, 115, 232, 0.3)';
+        fileElement.style.transform = 'translateY(-1px)';
+        
         console.log('✅ Added to fresh selection, element classes:', fileElement.className);
+        console.log('🎨 Applied visual styling to element:', fileElement.getAttribute('style'));
+        
+        // Force notification bar to show immediately
+        const notificationBar = document.getElementById('selection-notification-bar');
+        if (notificationBar) {
+            notificationBar.style.display = 'flex';
+            notificationBar.classList.add('animate-slide-down');
+            console.log('📢 Notification bar displayed');
+        } else {
+            console.log('❌ Notification bar not found');
+        }
+        
+        // Update UI immediately
+        updateSelectedCount();
+        updateSelectAllCheckbox();
         
         // Give a small delay for DOM to update, then find and check the checkbox
         setTimeout(() => {
@@ -170,6 +193,10 @@ function startSelectionWithFile(fileElement) {
             if (checkbox) {
                 checkbox.checked = true;
                 console.log('☑️ Checked checkbox for selected file');
+                
+                // Add visual feedback to checkbox too
+                checkbox.style.backgroundColor = '#1a73e8';
+                checkbox.style.borderColor = '#1a73e8';
             } else {
                 console.log('⚠️ Checkbox not found for selected file, searching again...');
                 // Try to find checkbox by searching all checkboxes
@@ -179,24 +206,17 @@ function startSelectionWithFile(fileElement) {
                     const rowId = row?.getAttribute('data-id') || row?.getAttribute('data-path');
                     if (rowId === fileId) {
                         cb.checked = true;
+                        cb.style.backgroundColor = '#1a73e8';
+                        cb.style.borderColor = '#1a73e8';
                         console.log('☑️ Found and checked checkbox at index:', index);
                     }
                 });
             }
             
-            // Update UI
+            // Update UI again after checkbox update
             updateSelectedCount();
             updateSelectAllCheckbox();
         }, 50);
-        
-        // Force notification bar to show
-        const notificationBar = document.getElementById('selection-notification-bar');
-        if (notificationBar) {
-            notificationBar.style.display = 'flex';
-            console.log('📢 Notification bar displayed');
-        } else {
-            console.log('❌ Notification bar not found');
-        }
         
         // Show toast notification
         if (window.googleDriveUI && window.googleDriveUI.showToast) {
@@ -260,40 +280,141 @@ function enterSelectionMode() {
 }
 
 function exitSelectionMode() {
+    console.log('🚪 Exiting selection mode...');
+    console.log('📊 Current state before exit:', {
+        isSelectionMode,
+        selectedFilesCount: selectedFiles.size,
+        selectedFiles: Array.from(selectedFiles)
+    });
+    
     isSelectionMode = false;
     document.body.classList.remove('selection-mode');
     selectedFiles.clear();
     
-    // Remove checkboxes from file items
-    document.querySelectorAll('.file-item .checkbox-column').forEach(checkbox => {
+    // Remove checkboxes from file items with debugging
+    const checkboxes = document.querySelectorAll('.file-item .checkbox-column');
+    console.log(`🗑️ Removing ${checkboxes.length} checkboxes...`);
+    
+    checkboxes.forEach((checkbox, index) => {
+        const row = checkbox.closest('.file-item');
+        console.log(`🗑️ Removing checkbox ${index} from:`, row?.getAttribute('data-name'));
         checkbox.remove();
     });
     
-    // Remove selected styling from rows
-    document.querySelectorAll('.file-item.selected').forEach(row => {
+    // Remove selected styling from rows with debugging
+    const selectedRows = document.querySelectorAll('.file-item.selected');
+    console.log(`🎨 Removing selection styling from ${selectedRows.length} rows...`);
+    
+    selectedRows.forEach((row, index) => {
+        console.log(`🎨 Cleaning row ${index}:`, row.getAttribute('data-name'));
+        
         row.classList.remove('selected');
+        
+        // Clear all inline styles
+        row.style.backgroundColor = '';
+        row.style.border = '';
+        row.style.borderRadius = '';
+        row.style.boxShadow = '';
+        row.style.transform = '';
+        
+        // Reset grid template to original
+        const currentStyle = row.getAttribute('style') || '';
+        const gridMatch = currentStyle.match(/grid-template-columns:\s*([^;]+)/);
+        
+        if (gridMatch) {
+            const columns = gridMatch[1];
+            if (columns.includes('40px')) {
+                // Remove the checkbox column (first 40px)
+                const newColumns = columns.replace(/^40px\s*/, '');
+                row.style.gridTemplateColumns = newColumns;
+                console.log(`📐 Reset grid template for row ${index}: ${newColumns}`);
+            }
+        }
     });
     
+    // Reset table header
+    const tableHeader = document.getElementById('table-header');
+    if (tableHeader) {
+        const headerCheckboxCol = tableHeader.querySelector('.checkbox-column');
+        if (headerCheckboxCol) {
+            headerCheckboxCol.style.display = 'none';
+            console.log('👁️ Hidden header checkbox column');
+        }
+        
+        // Reset header grid template
+        tableHeader.style.gridTemplateColumns = '1fr 200px 150px 120px 40px';
+        console.log('📐 Reset table header grid template');
+    }
+    
     // Uncheck select all checkboxes
-    document.getElementById('select-all-checkbox').checked = false;
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        console.log('☑️ Reset select-all checkbox');
+    }
+    
     const headerSelectAll = document.getElementById('header-select-all');
     if (headerSelectAll) {
         headerSelectAll.checked = false;
+        headerSelectAll.indeterminate = false;
+        console.log('☑️ Reset header select-all checkbox');
+    }
+    
+    // Hide notification bar with animation
+    const notificationBar = document.getElementById('selection-notification-bar');
+    if (notificationBar) {
+        notificationBar.style.display = 'none';
+        notificationBar.classList.remove('animate-slide-down');
+        console.log('📢 Hidden notification bar');
     }
     
     updateSelectedCount();
+    
+    console.log('✅ Selection mode exited successfully');
+    console.log('📊 Final state:', {
+        isSelectionMode,
+        selectedFilesCount: selectedFiles.size,
+        bodyClasses: document.body.className
+    });
 }
 
 // Expose to global scope
 window.exitSelectionMode = exitSelectionMode;
 
 function addCheckboxesToRows() {
-    document.querySelectorAll('.file-item').forEach(row => {
+    console.log('🔧 Adding checkboxes to rows...');
+    let addedCount = 0;
+    
+    document.querySelectorAll('.file-item').forEach((row, index) => {
         if (!row.querySelector('.file-checkbox')) {
+            // Debug element before adding checkbox
+            console.log(`📝 Adding checkbox to row ${index}:`, {
+                name: row.getAttribute('data-name'),
+                path: row.getAttribute('data-path'),
+                type: row.getAttribute('data-type'),
+                currentClasses: row.className
+            });
+            
             // Create checkbox element
             const checkboxDiv = document.createElement('div');
             checkboxDiv.className = 'checkbox-column flex justify-center items-center';
             checkboxDiv.innerHTML = '<input type="checkbox" class="file-checkbox w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">';
+            
+            // Get the current grid template and modify it to include checkbox column
+            const currentStyle = row.getAttribute('style') || '';
+            const gridMatch = currentStyle.match(/grid-template-columns:\s*([^;]+)/);
+            
+            if (gridMatch) {
+                const originalColumns = gridMatch[1];
+                const newColumns = `40px ${originalColumns}`;
+                row.style.gridTemplateColumns = newColumns;
+                console.log(`📐 Updated grid template for row ${index}: ${newColumns}`);
+            } else {
+                // Fallback: add checkbox column to default grid
+                row.style.gridTemplateColumns = '40px 1fr 200px 150px 120px 40px';
+                console.log(`📐 Applied default grid template with checkbox for row ${index}`);
+            }
             
             // Insert as first child
             row.insertBefore(checkboxDiv, row.firstChild);
@@ -302,20 +423,76 @@ function addCheckboxesToRows() {
             const fileId = row.getAttribute('data-id') || row.getAttribute('data-path');
             
             checkbox.addEventListener('change', function() {
+                console.log(`☑️ Checkbox changed for ${fileId}:`, checkbox.checked);
                 handleFileSelection(fileId, checkbox.checked, row);
             });
+            
+            addedCount++;
         }
     });
+    
+    console.log(`✅ Added ${addedCount} checkboxes to file items`);
+    
+    // Also update table header grid if needed
+    const tableHeader = document.getElementById('table-header');
+    if (tableHeader) {
+        const headerStyle = tableHeader.getAttribute('style') || '';
+        if (!headerStyle.includes('40px')) {
+            tableHeader.style.gridTemplateColumns = '40px 1fr 200px 150px 120px 40px';
+            console.log('📐 Updated table header grid template');
+        }
+        
+        // Show checkbox column in header
+        const headerCheckboxCol = tableHeader.querySelector('.checkbox-column');
+        if (headerCheckboxCol) {
+            headerCheckboxCol.style.display = 'flex';
+            console.log('👁️ Showed header checkbox column');
+        }
+    }
 }
 
 function handleFileSelection(fileId, isSelected, row) {
+    console.log('🎯 handleFileSelection called:', {
+        fileId,
+        isSelected,
+        rowElement: row,
+        rowName: row.getAttribute('data-name')
+    });
+    
     if (isSelected) {
         selectedFiles.add(fileId);
         row.classList.add('selected');
+        
+        // Force visual update with inline styles as backup
+        row.style.backgroundColor = '#c2e7ff';
+        row.style.border = '2px solid #1a73e8';
+        row.style.borderRadius = '8px';
+        row.style.boxShadow = '0 1px 3px rgba(26, 115, 232, 0.3)';
+        
+        console.log('✅ File selected:', {
+            fileId,
+            selectedFilesCount: selectedFiles.size,
+            rowClasses: row.className,
+            rowStyle: row.getAttribute('style')
+        });
     } else {
         selectedFiles.delete(fileId);
         row.classList.remove('selected');
+        
+        // Remove inline styles to revert to normal
+        row.style.backgroundColor = '';
+        row.style.border = '';
+        row.style.borderRadius = '';
+        row.style.boxShadow = '';
+        
+        console.log('❌ File deselected:', {
+            fileId,
+            selectedFilesCount: selectedFiles.size,
+            rowClasses: row.className
+        });
     }
+    
+    console.log('📊 Current selectedFiles:', Array.from(selectedFiles));
     
     updateSelectedCount();
     updateSelectAllCheckbox();
