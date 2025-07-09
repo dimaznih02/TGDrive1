@@ -78,32 +78,37 @@ function injectDirectSelectionCSS() {
         position: relative !important;
     }
     
-    /* Fix layout priority - ensure name column always visible */
-    .direct-selected .flex.items-center.gap-2.truncate {
+    /* 🔧 FIX LAYOUT PRIORITY - Ensure name column ALWAYS visible for ALL file items */
+    .file-item {
+        grid-template-columns: minmax(250px, 1fr) 150px 120px 100px 40px !important;
+    }
+    
+    /* Force name column container to never shrink */
+    .file-item .flex.items-center.gap-2.truncate {
         min-width: 200px !important;
         flex-shrink: 0 !important;
         max-width: none !important;
     }
     
-    /* Ensure grid template doesn't collapse name column */
-    .file-item.direct-selected {
-        grid-template-columns: minmax(250px, 1fr) 150px 120px 100px 40px !important;
-    }
-    
     /* Force name column to stay visible on small screens */
     @media (max-width: 768px) {
-        .file-item.direct-selected {
+        .file-item {
             grid-template-columns: minmax(200px, 2fr) 120px 100px 80px 40px !important;
         }
     }
     
-    /* Ensure file name text is always visible */
-    .direct-selected .file-name,
-    .direct-selected .text-sm.text-gray-900.truncate {
+    /* Ensure file name text is always visible for ALL items */
+    .file-item .file-name,
+    .file-item .text-sm.text-gray-900.truncate {
         min-width: 150px !important;
         overflow: visible !important;
         white-space: nowrap !important;
         flex-shrink: 0 !important;
+    }
+    
+    /* Additional fixes for selected items to override any conflicting styles */
+    .direct-selected {
+        grid-template-columns: minmax(250px, 1fr) 150px 120px 100px 40px !important;
     }
 
     .direct-selected::after {
@@ -277,12 +282,16 @@ window.directClear = function() {
         el.style.boxShadow = '';
         el.style.transform = '';
         
-        // Ensure grid template returns to normal
-        const originalGridStyle = el.getAttribute('style');
-        if (originalGridStyle && originalGridStyle.includes('grid-template-columns')) {
-            // Reset to default grid template
-            el.style.gridTemplateColumns = '1fr 200px 150px 120px 40px';
-        }
+        // Force clear any grid template overrides - let CSS handle it
+        el.style.gridTemplateColumns = '';
+        
+        // Force clear any other layout-related inline styles
+        el.style.width = '';
+        el.style.minWidth = '';
+        el.style.maxWidth = '';
+        el.style.flexShrink = '';
+        el.style.overflow = '';
+        el.style.whiteSpace = '';
         
         console.log(`✅ Cleared visual selection from: ${fileName}`);
     });
@@ -343,11 +352,11 @@ function updateDirectCounter() {
         console.log(`📝 Header counter updated to: "${count}"`);
     }
     
-    if (notificationElement) {
+    if (notificationBar) {
         const shouldShow = count > 0;
-        notificationElement.style.display = shouldShow ? 'block' : 'none';
+        notificationBar.style.display = shouldShow ? 'block' : 'none';
         console.log(`👁️ Notification display set to: ${shouldShow ? 'visible' : 'hidden'}`);
-        console.log(`�️ Notification actual display: ${notificationElement.style.display}`);
+        console.log(`👁️ Notification actual display: ${notificationBar.style.display}`);
     } else {
         console.log('❌ Notification element not found!');
     }
