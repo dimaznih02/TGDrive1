@@ -195,6 +195,12 @@ function showDirectory(data) {
             window.googleDriveUI = new GoogleDriveUI();
             console.log('✅ GoogleDriveUI initialized');
         }
+        
+        // Reinitialize direct selection system after directory refresh
+        if (window.reinitializeDirectSelection && typeof window.reinitializeDirectSelection === 'function') {
+            window.reinitializeDirectSelection();
+            console.log('✅ Direct selection system reinitialized');
+        }
     }, 120);
 }
 
