@@ -371,7 +371,43 @@ function exitSelectionMode() {
     
     updateSelectedCount();
     
-    console.log('✅ Selection mode exited successfully');
+    // 🔧 BUG FIX INTEGRATION: Call directNuclearClear for comprehensive fixes
+    console.log('🔧 Calling directNuclearClear() to fix post-cancel bugs...');
+    if (window.directNuclearClear && typeof window.directNuclearClear === 'function') {
+        try {
+            window.directNuclearClear();
+            console.log('✅ directNuclearClear() completed - all post-cancel bugs should be fixed');
+        } catch (error) {
+            console.warn('⚠️ directNuclearClear() failed:', error);
+        }
+    } else {
+        console.warn('⚠️ directNuclearClear() not available - some post-cancel bugs may persist');
+        
+        // 🔧 FALLBACK: Apply critical bug fixes manually
+        console.log('🔧 Applying fallback bug fixes...');
+        
+        // Fallback Fix 1: Consistent grid layout
+        const allFileItems = document.querySelectorAll('.file-item, [data-name]');
+        allFileItems.forEach(el => {
+            el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+        });
+        
+        // Fallback Fix 2: Force repaint all elements
+        allFileItems.forEach(el => {
+            el.style.transform = 'translateZ(0)';
+            el.offsetHeight;
+            el.style.transform = '';
+        });
+        
+        // Fallback Fix 3: Basic context menu restoration
+        if (window.attachContextListeners && typeof window.attachContextListeners === 'function') {
+            window.attachContextListeners();
+        }
+        
+        console.log('✅ Fallback bug fixes applied');
+    }
+    
+    console.log('✅ Selection mode exited successfully with comprehensive bug fixes');
     console.log('📊 Final state:', {
         isSelectionMode,
         selectedFilesCount: selectedFiles.size,

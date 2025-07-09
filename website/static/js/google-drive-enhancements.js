@@ -257,6 +257,19 @@ class DriveEnhancements {
         
         // Update counter
         document.getElementById('selected-count-header').textContent = '0';
+        
+        // 🔧 BUG FIX INTEGRATION: Call directNuclearClear for comprehensive fixes
+        console.log('🔧 google-drive-enhancements: Calling directNuclearClear() to fix post-cancel bugs...');
+        if (window.directNuclearClear && typeof window.directNuclearClear === 'function') {
+            try {
+                window.directNuclearClear();
+                console.log('✅ google-drive-enhancements: directNuclearClear() completed');
+            } catch (error) {
+                console.warn('⚠️ google-drive-enhancements: directNuclearClear() failed:', error);
+            }
+        } else {
+            console.warn('⚠️ google-drive-enhancements: directNuclearClear() not available');
+        }
     }
 
     addFileCheckboxes() {
