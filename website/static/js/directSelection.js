@@ -8,18 +8,44 @@ let directSelected = new Set();
 function normalizePath(el) {
     let path = el?.getAttribute('data-path')?.trim();
     let name = el?.getAttribute('data-name')?.trim();
-    let textContent = el?.textContent?.trim();
+    let id = el?.getAttribute('data-id')?.trim();
     
-    // Try data-path first, then data-name, then textContent as fallback
-    let result = path || name;
-    if (!result) {
-        // If still empty, try to get filename from textContent
+    // Debug: show what we found
+    console.log('🔍 normalizePath raw data:', {
+        'data-path': path,
+        'data-name': name,
+        'data-id': id
+    });
+    
+    // Try to build unique identifier
+    let result = '';
+    
+    // Priority 1: data-path (if it's not just root "/")
+    if (path && path !== '/' && path.length > 1) {
+        result = path;
+    }
+    // Priority 2: data-name (most reliable for file names)
+    else if (name && name.length > 0) {
+        result = name;
+    }
+    // Priority 3: data-id
+    else if (id && id.length > 0) {
+        result = id;
+    }
+    // Priority 4: Fallback to .file-name element text
+    else {
         const fileNameEl = el?.querySelector('.file-name');
         if (fileNameEl) {
             result = fileNameEl.textContent?.trim();
-        } else {
-            result = textContent;
         }
+    }
+    
+    // Final fallback: create unique ID from element position
+    if (!result || result === '/') {
+        const allItems = document.querySelectorAll('.file-item, [data-name]');
+        const index = Array.from(allItems).indexOf(el);
+        result = `file-${index}-${Date.now()}`;
+        console.log('⚠️ Using fallback unique ID:', result);
     }
     
     // Final cleanup
@@ -30,9 +56,10 @@ function normalizePath(el) {
         element: el,
         'data-path': path,
         'data-name': name,
-        'textContent': textContent,
+        'data-id': id,
         'final result': result,
-        'result length': result.length
+        'result length': result.length,
+        'is unique': result !== '/'
     });
     
     return result;
