@@ -340,15 +340,14 @@ function setupExistingNotificationBar() {
             e.stopPropagation();
             e.stopImmediatePropagation();
             
-            console.log('🎯 About to call directClearViaToggle() (Same approach as CTRL+Click)...');
+            console.log('☢️ NUCLEAR APPROACH: Force clearing all visual selection...');
             
-            // 🔑 KEY FIX: Use directClearViaToggle() instead of directClear()
-            // This ensures identical behavior to CTRL+Click deselection
+            // � NUCLEAR CLEAR: Most aggressive approach possible
             const startTime = Date.now();
-            directClearViaToggle();
+            directNuclearClear();
             const endTime = Date.now();
             
-            console.log(`🕐 directClearViaToggle() completed in ${endTime - startTime}ms`);
+            console.log(`🕐 directNuclearClear() completed in ${endTime - startTime}ms`);
             console.log('🔍 Post-clear verification:');
             console.log(`  - directSelected.size: ${directSelected.size}`);
             console.log(`  - Elements with .direct-selected: ${document.querySelectorAll('.direct-selected').length}`);
@@ -539,6 +538,151 @@ window.directClearViaToggle = function() {
     updateDirectCounter();
     
     console.log(`✅✅✅ ENHANCED CLEAR completed - processed ${initialCount} elements total`);
+};
+
+// ☢️ NUCLEAR CLEAR: Most aggressive clearing possible
+window.directNuclearClear = function() {
+    console.log('\n☢️☢️☢️ NUCLEAR CLEAR - Most aggressive approach...');
+    console.log(`📊 Before nuclear clear: ${directSelected.size} items selected`);
+    console.log(`🎨 Before nuclear clear: ${document.querySelectorAll('.direct-selected').length} visually selected elements`);
+    
+    // 🔥 STEP 1: Clear the Set immediately
+    directSelected.clear();
+    console.log('✅ directSelected Set cleared immediately');
+    
+    // 🔥 STEP 2: Find ALL possible selected elements using every method possible
+    const allPossibleSelectors = [
+        '.direct-selected',
+        '.file-item.direct-selected',
+        '[data-name].direct-selected',
+        '[class*="direct-selected"]',
+        '.file-item[class*="selected"]',
+        '[class*="selected"]',
+        '.selected',
+        '.active',
+        '.highlighted',
+        '.checked'
+    ];
+    
+    let allFoundElements = new Set();
+    
+    allPossibleSelectors.forEach(selector => {
+        try {
+            const found = document.querySelectorAll(selector);
+            console.log(`☢️ Selector "${selector}" found: ${found.length} elements`);
+            found.forEach(el => allFoundElements.add(el));
+        } catch (error) {
+            console.log(`⚠️ Selector "${selector}" failed:`, error);
+        }
+    });
+    
+    // 🔥 STEP 3: Also manually scan ALL file items
+    const allFileItems = document.querySelectorAll('.file-item, [data-name], [data-path], .grid');
+    console.log(`☢️ Found ${allFileItems.length} total file items to scan`);
+    
+    allFileItems.forEach(el => {
+        if (el.className && (
+            el.className.includes('direct-selected') ||
+            el.className.includes('selected') ||
+            el.className.includes('active') ||
+            el.className.includes('highlighted')
+        )) {
+            allFoundElements.add(el);
+        }
+    });
+    
+    console.log(`☢️ Total unique elements to clear: ${allFoundElements.size}`);
+    
+    // 🔥 STEP 4: Nuclear clear each element
+    Array.from(allFoundElements).forEach((el, index) => {
+        const fileName = el.getAttribute('data-name') || el.getAttribute('data-path') || `element-${index}`;
+        console.log(`☢️ Nuclear clearing ${index + 1}/${allFoundElements.size}: "${fileName}"`);
+        
+        // Remove ALL possible classes
+        const classesToNuke = [
+            'direct-selected', 'selected', 'active', 'highlighted', 'checked',
+            'file-selected', 'item-selected', 'row-selected', 'table-selected'
+        ];
+        
+        classesToNuke.forEach(className => {
+            el.classList.remove(className);
+        });
+        
+        // Nuclear style clearing
+        el.style.backgroundColor = '';
+        el.style.background = '';
+        el.style.border = '';
+        el.style.borderColor = '';
+        el.style.borderRadius = '';
+        el.style.boxShadow = '';
+        el.style.filter = '';
+        el.style.opacity = '';
+        el.style.transform = '';
+        
+        // Remove any style attribute completely
+        el.removeAttribute('style');
+        
+        // Remove data attributes
+        ['data-selected', 'data-direct-selected', 'data-checked', 'data-active'].forEach(attr => {
+            el.removeAttribute(attr);
+        });
+        
+        // Force DOM repaint
+        el.offsetHeight;
+        
+        console.log(`  ✅ Nuclear cleared: "${fileName}"`);
+    });
+    
+    // 🔥 STEP 5: Additional nuclear measures
+    console.log('\n☢️ STEP 5: Additional nuclear measures...');
+    
+    // Remove any lingering styles from document head
+    const existingStyles = document.querySelectorAll('style[id*="select"], style[data-selection]');
+    existingStyles.forEach(style => {
+        console.log('🔥 Removing lingering style:', style.id);
+        style.remove();
+    });
+    
+    // Force style recalculation on body
+    document.body.style.transform = 'translateZ(0)';
+    document.body.offsetHeight;
+    document.body.style.transform = '';
+    
+    // 🔥 STEP 6: Update UI components
+    updateDirectCounter();
+    
+    // Hide any open menus
+    hideDirectMenu();
+    
+    // 🔥 STEP 7: Final verification
+    const finalCheck = {
+        setSize: directSelected.size,
+        directSelectedClass: document.querySelectorAll('.direct-selected').length,
+        selectedClass: document.querySelectorAll('.selected').length,
+        anySelectedElements: document.querySelectorAll('[class*="selected"]').length
+    };
+    
+    console.log('\n☢️ NUCLEAR CLEAR FINAL VERIFICATION:');
+    console.log(`  - directSelected Set size: ${finalCheck.setSize}`);
+    console.log(`  - .direct-selected elements: ${finalCheck.directSelectedClass}`);
+    console.log(`  - .selected elements: ${finalCheck.selectedClass}`);
+    console.log(`  - Any [class*="selected"]: ${finalCheck.anySelectedElements}`);
+    
+    if (finalCheck.directSelectedClass === 0 && finalCheck.selectedClass === 0 && finalCheck.setSize === 0) {
+        console.log('✅✅✅ NUCLEAR CLEAR SUCCESSFUL - All selection removed!');
+    } else {
+        console.warn('⚠️ NUCLEAR CLEAR INCOMPLETE - Some selection may remain');
+        
+        // Ultimate last resort
+        if (finalCheck.directSelectedClass > 0) {
+            console.log('🔥 ULTIMATE LAST RESORT: Force removing remaining .direct-selected');
+            document.querySelectorAll('.direct-selected').forEach(el => {
+                el.className = el.className.replace(/direct-selected/g, '').trim();
+            });
+        }
+    }
+    
+    console.log('☢️☢️☢️ NUCLEAR CLEAR COMPLETED');
 };
 
 // 🔧 LEGACY directClear function (kept for fallback)
@@ -1042,10 +1186,10 @@ function setupKeyboardShortcuts() {
         // ESC - Clear all selections
         if (e.key === 'Escape') {
             e.preventDefault();
-            console.log('⌨️ ESC pressed - using directClearViaToggle() for consistency...');
-            window.directClearViaToggle();
+            console.log('⌨️ ESC pressed - using NUCLEAR CLEAR for maximum effectiveness...');
+            window.directNuclearClear();
             hideDirectMenu();
-            console.log('✅ ESC: Cleared all selections via toggle method');
+            console.log('✅ ESC: Cleared all selections via nuclear method');
             return;
         }
     });
@@ -1246,6 +1390,58 @@ window.diagnoseCancelButtonIssue = function() {
     }, 100);
 };
 
+// 🧪 DEBUG: Test nuclear clear approach
+window.testNuclearClear = function() {
+    console.log('\n☢️ TESTING NUCLEAR CLEAR APPROACH...');
+    
+    // First, simulate CTRL+A to create the exact same problem user has
+    console.log('📋 Step 1: Simulating CTRL+A selection (exact user scenario)...');
+    
+    const allElements = document.querySelectorAll('.file-item, [data-name]');
+    allElements.forEach(item => {
+        const path = normalizePath(item);
+        if (path) {
+            directSelected.add(path);
+            item.classList.add('direct-selected');
+        }
+    });
+    updateDirectCounter();
+    
+    const beforeNuclear = {
+        setSize: directSelected.size,
+        visualElements: document.querySelectorAll('.direct-selected').length
+    };
+    
+    console.log(`✅ Simulated user scenario: ${beforeNuclear.setSize} files selected`);
+    console.log(`🎨 Visual elements with blue background: ${beforeNuclear.visualElements}`);
+    
+    // Wait a moment to ensure DOM is ready
+    setTimeout(() => {
+        console.log('\n☢️ Step 2: Applying NUCLEAR CLEAR...');
+        directNuclearClear();
+        
+        // Check results
+        const afterNuclear = {
+            setSize: directSelected.size,
+            visualElements: document.querySelectorAll('.direct-selected').length,
+            anySelected: document.querySelectorAll('[class*="selected"]').length
+        };
+        
+        console.log('\n📊 NUCLEAR CLEAR TEST RESULTS:');
+        console.log(`  Before: Set=${beforeNuclear.setSize}, Visual=${beforeNuclear.visualElements}`);
+        console.log(`  After:  Set=${afterNuclear.setSize}, Visual=${afterNuclear.visualElements}, AnySelected=${afterNuclear.anySelected}`);
+        
+        const success = afterNuclear.setSize === 0 && afterNuclear.visualElements === 0 && afterNuclear.anySelected === 0;
+        console.log(`  Result: ${success ? '✅ NUCLEAR CLEAR SUCCESSFUL!' : '❌ NUCLEAR CLEAR FAILED'}`);
+        
+        if (!success) {
+            console.warn('⚠️ Some visual selection may still remain. Check browser for blue backgrounds.');
+        } else {
+            console.log('🎉 Nuclear clear worked! All visual selection should be gone.');
+        }
+    }, 500);
+};
+
 // 🧪 DEBUG: Compare ESC vs Cancel Button behavior
 window.compareClearMethods = function() {
     console.log('\n🧪 COMPARING CLEAR METHODS...');
@@ -1346,7 +1542,8 @@ function initializeDirectSelectionSystem() {
         // Expose functions globally
         window.directSelect = window.directSelect;
         window.directClear = window.directClear;
-        window.directClearViaToggle = window.directClearViaToggle; // 🎯 NEW: Toggle-based clear
+        window.directClearViaToggle = window.directClearViaToggle; // 🎯 Enhanced clear
+        window.directNuclearClear = window.directNuclearClear; // ☢️ NUCLEAR: Most aggressive clear
         window.directMove = window.directMove;
         window.hideDirectMenu = hideDirectMenu;
         
@@ -1360,11 +1557,13 @@ function initializeDirectSelectionSystem() {
         console.log('\n🧪 Debug Functions:');
         console.log('   testNotificationBar() → Test notification bar visibility');
         console.log('   testCancelButton() → Test cancel button functionality');
-        console.log('   testToggleClear() → Test NEW toggle clear approach (CTRL+A fix)');
+        console.log('   testToggleClear() → Test enhanced toggle clear approach');
         console.log('   diagnoseCancelButtonIssue() → 🔍 DIAGNOSE exact cancel button problem');
+        console.log('   testNuclearClear() → ☢️ TEST nuclear clear approach');
         console.log('   compareClearMethods() → Compare ESC vs Cancel button');
         console.log('   debugUpdateCounter() → Manual trigger counter update');
         console.log('\n🎯 Core Functions:');
+        console.log('   directNuclearClear() → ☢️ NUCLEAR: Most aggressive clear (now default for cancel)');
         console.log('   directClearViaToggle() → ENHANCED: Robust clear with multiple fallbacks');
         console.log('   directClear() → LEGACY: Old clear method');
         
