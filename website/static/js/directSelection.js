@@ -77,6 +77,34 @@ function injectDirectSelectionCSS() {
         box-shadow: 0 4px 12px rgba(33,150,243,0.4) !important;
         position: relative !important;
     }
+    
+    /* Fix layout priority - ensure name column always visible */
+    .direct-selected .flex.items-center.gap-2.truncate {
+        min-width: 200px !important;
+        flex-shrink: 0 !important;
+        max-width: none !important;
+    }
+    
+    /* Ensure grid template doesn't collapse name column */
+    .file-item.direct-selected {
+        grid-template-columns: minmax(250px, 1fr) 150px 120px 100px 40px !important;
+    }
+    
+    /* Force name column to stay visible on small screens */
+    @media (max-width: 768px) {
+        .file-item.direct-selected {
+            grid-template-columns: minmax(200px, 2fr) 120px 100px 80px 40px !important;
+        }
+    }
+    
+    /* Ensure file name text is always visible */
+    .direct-selected .file-name,
+    .direct-selected .text-sm.text-gray-900.truncate {
+        min-width: 150px !important;
+        overflow: visible !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
 
     .direct-selected::after {
         content: '✓';
@@ -230,12 +258,55 @@ window.directSelect = function(element) {
 
 window.directClear = function() {
     console.log('🧹 Clearing all selections...');
-    document.querySelectorAll('.direct-selected').forEach(el => {
+    console.log(`📊 Before clear: ${directSelected.size} items selected`);
+    console.log(`🎨 Before clear: ${document.querySelectorAll('.direct-selected').length} visually selected elements`);
+    
+    // Remove all direct-selected classes
+    const selectedElements = document.querySelectorAll('.direct-selected');
+    selectedElements.forEach((el, index) => {
+        const fileName = el.getAttribute('data-name') || 'unknown';
+        console.log(`🎨 Removing selection from element ${index + 1}: ${fileName}`);
+        
+        // Remove the class
         el.classList.remove('direct-selected');
+        
+        // Force clear any inline styles that might persist
+        el.style.backgroundColor = '';
+        el.style.border = '';
+        el.style.borderRadius = '';
+        el.style.boxShadow = '';
+        el.style.transform = '';
+        
+        // Ensure grid template returns to normal
+        const originalGridStyle = el.getAttribute('style');
+        if (originalGridStyle && originalGridStyle.includes('grid-template-columns')) {
+            // Reset to default grid template
+            el.style.gridTemplateColumns = '1fr 200px 150px 120px 40px';
+        }
+        
+        console.log(`✅ Cleared visual selection from: ${fileName}`);
     });
+    
+    // Clear the Set
     directSelected.clear();
+    console.log(`📦 directSelected cleared, size now: ${directSelected.size}`);
+    
+    // Update UI counter and notification
     updateDirectCounter();
-    console.log('✅ All selections cleared');
+    
+    // Verification
+    const remainingSelected = document.querySelectorAll('.direct-selected');
+    console.log(`🔍 Verification: ${remainingSelected.length} elements still have .direct-selected class`);
+    
+    if (remainingSelected.length > 0) {
+        console.warn('⚠️ Some elements still have selection class, force removing...');
+        remainingSelected.forEach((el, i) => {
+            el.classList.remove('direct-selected');
+            console.log(`🔧 Force removed selection from element ${i + 1}`);
+        });
+    }
+    
+    console.log('✅ All selections cleared successfully');
 };
 
 window.directMove = function() {
