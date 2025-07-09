@@ -144,59 +144,36 @@ function injectDirectSelectionCSS() {
         margin: 8px 12px;
     }
 
-    #direct-notification {
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #2196f3, #1976d2);
-        color: white;
-        padding: 16px 24px;
-        border-radius: 30px;
-        box-shadow: 0 8px 24px rgba(33,150,243,0.4);
-        z-index: 99999;
-        display: none;
-        font-weight: 600;
-        font-family: Arial, sans-serif;
-    }
 
-    .direct-btn {
-        background: rgba(255,255,255,0.2);
-        border: none;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 15px;
-        margin-left: 12px;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-    .direct-btn:hover {
-        background: rgba(255,255,255,0.3);
-        transform: translateY(-1px);
-    }
     `;
     document.head.appendChild(directCSS);
     console.log('✅ Direct selection CSS injected');
 }
 
-// Create notification bar
-function createDirectNotificationBar() {
-    // Remove existing notification if any
-    const existingNotification = document.getElementById('direct-notification');
-    if (existingNotification) {
-        existingNotification.remove();
+// Setup existing notification bar (no need to create new one)
+function setupExistingNotificationBar() {
+    // Use existing notification bar in HTML: #selection-notification-bar
+    console.log('✅ Using existing notification bar from HTML');
+    
+    // Wire up existing buttons to our functions
+    const moveBtn = document.getElementById('move-selected-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    const cancelBtn = document.getElementById('cancel-select-btn');
+    
+    if (moveBtn) {
+        moveBtn.addEventListener('click', directMove);
+        console.log('✅ Move button wired up');
     }
-
-    const directNotification = document.createElement('div');
-    directNotification.id = 'direct-notification';
-    directNotification.innerHTML = `
-        <span id="direct-count">0 item dipilih</span>
-        <button class="direct-btn" onclick="directMove()">📁 Pindahkan</button>
-        <button class="direct-btn" onclick="directClear()">❌ Batal</button>
-    `;
-    document.body.appendChild(directNotification);
-    console.log('✅ Direct notification bar created');
+    
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', directClear); // For now, use directClear for delete
+        console.log('✅ Delete button wired up');
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', directClear);
+        console.log('✅ Cancel button wired up');
+    }
 }
 
 // Create context menu element
@@ -278,19 +255,21 @@ function updateDirectCounter() {
     console.log(`📊 directSelected.size: ${count}`);
     console.log(`📦 directSelected contents:`, Array.from(directSelected));
     
-    const counterElement = document.getElementById('direct-count');
-    const notificationElement = document.getElementById('direct-notification');
+    // Use existing notification bar elements from HTML
+    const headerCounter = document.getElementById('selected-count-header');
+    const notificationBar = document.getElementById('selection-notification-bar');
+    const moveBtn = document.getElementById('move-selected-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
     
-    console.log(`🎯 Counter element found:`, !!counterElement);
-    console.log(`🎯 Notification element found:`, !!notificationElement);
+    console.log(`🎯 Header counter found:`, !!headerCounter);
+    console.log(`🎯 Notification bar found:`, !!notificationBar);
+    console.log(`🎯 Move button found:`, !!moveBtn);
+    console.log(`🎯 Delete button found:`, !!deleteBtn);
     
-    if (counterElement) {
-        const newText = `${count} item dipilih`;
-        counterElement.textContent = newText;
-        console.log(`📝 Counter text updated to: "${newText}"`);
-        console.log(`📝 Counter element textContent now: "${counterElement.textContent}"`);
-    } else {
-        console.log('❌ Counter element not found!');
+    // Update header counter
+    if (headerCounter) {
+        headerCounter.textContent = count;
+        console.log(`📝 Header counter updated to: "${count}"`);
     }
     
     if (notificationElement) {
@@ -302,7 +281,7 @@ function updateDirectCounter() {
         console.log('❌ Notification element not found!');
     }
     
-    console.log(`✅ updateDirectCounter() completed`);
+    console.log(`✅ updateDirectCounter() completed - using existing HTML notification bar`);
 }
 
 function hideDirectMenu() {
@@ -546,8 +525,8 @@ function initializeDirectSelectionSystem() {
         // Inject CSS
         injectDirectSelectionCSS();
         
-        // Create UI elements
-        createDirectNotificationBar();
+        // Setup UI elements
+        setupExistingNotificationBar();
         createDirectContextMenu();
         
         // Setup event handlers
