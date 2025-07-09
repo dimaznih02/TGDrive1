@@ -386,11 +386,11 @@ function exitSelectionMode() {
         // 🔧 FALLBACK: Apply critical bug fixes manually
         console.log('🔧 Applying fallback bug fixes...');
         
-        // Fallback Fix 1: Consistent grid layout
-        const allFileItems = document.querySelectorAll('.file-item, [data-name]');
-        allFileItems.forEach(el => {
-            el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
-        });
+                 // Fallback Fix 1: Consistent grid layout (NAMA column priority)
+         const allFileItems = document.querySelectorAll('.file-item, [data-name]');
+         allFileItems.forEach(el => {
+             el.style.gridTemplateColumns = '1fr 150px 120px 100px 40px';
+         });
         
         // Fallback Fix 2: Force repaint all elements
         allFileItems.forEach(el => {

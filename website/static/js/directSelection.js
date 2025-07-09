@@ -80,7 +80,7 @@ function injectDirectSelectionCSS() {
     
     /* 🔧 ENHANCED LAYOUT PRIORITY - Prioritize name column ALWAYS */
     .file-item {
-        grid-template-columns: minmax(350px, 3fr) 150px 120px 100px 40px !important;
+        grid-template-columns: 1fr 150px 120px 100px 40px !important;
     }
     
     /* Force name column container to never shrink */
@@ -110,12 +110,12 @@ function injectDirectSelectionCSS() {
     
     /* IMPORTANT: Reset grid layout after selection cleared */
     .file-item:not(.direct-selected) {
-        grid-template-columns: minmax(350px, 3fr) 150px 120px 100px 40px !important;
+        grid-template-columns: 1fr 150px 120px 100px 40px !important;
     }
     
     /* Selected items maintain same layout */
     .direct-selected {
-        grid-template-columns: minmax(350px, 3fr) 150px 120px 100px 40px !important;
+        grid-template-columns: 1fr 150px 120px 100px 40px !important;
     }
     
     /* 🎯 CRITICAL: Ensure notification bar is ALWAYS visible when needed */
@@ -636,8 +636,8 @@ window.directNuclearClear = function() {
         
         // 🔧 CRITICAL BUG FIX 1: CONSISTENT GRID LAYOUT for all elements
         if (el.classList.contains('file-item') || el.hasAttribute('data-name')) {
-            // ✅ FIXED: Use consistent grid template (same as CSS)
-            el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+                    // ✅ FIXED: Use consistent grid template (NAMA column priority)
+        el.style.gridTemplateColumns = '1fr 150px 120px 100px 40px';
             console.log(`  🔧 Reset grid layout with CONSISTENT values for: ${fileName}`);
         }
         
@@ -729,8 +729,8 @@ function forceConsistentGridLayoutReset() {
     allFileItems.forEach((el, index) => {
         const fileName = el.getAttribute('data-name') || `item-${index}`;
         
-        // ✅ FIXED: Use CONSISTENT grid layout (same as CSS injection)
-        el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+        // ✅ FIXED: Use CONSISTENT grid layout (NAMA column priority)
+        el.style.gridTemplateColumns = '1fr 150px 120px 100px 40px';
         
         // Ensure name column flex properties
         const nameContainer = el.querySelector('.flex.items-center.gap-2.truncate');
@@ -1001,7 +1001,7 @@ function clearElementSelection(el) {
     
     // 🔧 CRITICAL: Reset grid layout for name column priority (don't remove it)
     if (el.classList.contains('file-item') || el.hasAttribute('data-name')) {
-        el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+        el.style.gridTemplateColumns = '1fr 150px 120px 100px 40px';
         console.log(`  🔧 Reset grid layout for optimal name column display`);
         
         // Ensure name column container properties
@@ -1770,7 +1770,7 @@ window.testAllBugFixes = function() {
     fileItems.forEach((el, index) => {
         const fileName = el.getAttribute('data-name') || `item-${index}`;
         const gridCols = el.style.gridTemplateColumns || 'not set';
-        const expectedGrid = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+        const expectedGrid = '1fr 150px 120px 100px 40px';
         
         const isCorrect = gridCols === expectedGrid;
         if (!isCorrect) layoutBugFixed = false;
@@ -1784,7 +1784,7 @@ window.testAllBugFixes = function() {
     
     console.log(`🐞 Bug 1 Result: ${layoutBugFixed ? '✅ FIXED' : '❌ NOT FIXED'}`);
     console.log(`   - Checked ${fileItems.length} file items`);
-    console.log(`   - Expected grid: minmax(350px, 3fr) 150px 120px 100px 40px`);
+    console.log(`   - Expected grid: 1fr 150px 120px 100px 40px`);
     if (!layoutBugFixed) {
         console.log('   - Layout issues found:', layoutResults.filter(r => !r.correct));
     }
