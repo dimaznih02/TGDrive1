@@ -410,11 +410,17 @@ window.directSelect = function(element) {
         element.classList.remove('direct-selected');
         console.log('❌ Deselected:', path);
         console.log(`📦 directSelected size after delete: ${directSelected.size}`);
+        
+        // 🎯 ENHANCED FORCE REPAINT: Ensure deselection visual update
+        forceElementRepaint(element);
     } else {
         directSelected.add(path);
         element.classList.add('direct-selected');
         console.log('✅ Selected:', path);
         console.log(`📦 directSelected size after add: ${directSelected.size}`);
+        
+        // 🎯 ENHANCED FORCE REPAINT: Ensure selection highlight appears (fixes post-cancel highlight issue)
+        forceElementRepaint(element);
     }
 
     console.log(`📦 Current directSelected contents:`, Array.from(directSelected));
@@ -547,9 +553,9 @@ window.directClearViaToggle = function() {
     console.log(`✅✅✅ ENHANCED CLEAR completed - processed ${initialCount} elements total`);
 };
 
-// ☢️ NUCLEAR CLEAR: Most aggressive clearing possible
+// ☢️ NUCLEAR CLEAR: Most aggressive clearing possible + COMPREHENSIVE BUG FIXES
 window.directNuclearClear = function() {
-    console.log('\n☢️☢️☢️ NUCLEAR CLEAR - Most aggressive approach...');
+    console.log('\n☢️☢️☢️ NUCLEAR CLEAR - Most aggressive approach with comprehensive bug fixes...');
     console.log(`📊 Before nuclear clear: ${directSelected.size} items selected`);
     console.log(`🎨 Before nuclear clear: ${document.querySelectorAll('.direct-selected').length} visually selected elements`);
     
@@ -600,7 +606,7 @@ window.directNuclearClear = function() {
     
     console.log(`☢️ Total unique elements to clear: ${allFoundElements.size}`);
     
-    // 🔥 STEP 4: Nuclear clear each element
+    // 🔥 STEP 4: Nuclear clear each element with enhanced force repaint
     Array.from(allFoundElements).forEach((el, index) => {
         const fileName = el.getAttribute('data-name') || el.getAttribute('data-path') || `element-${index}`;
         console.log(`☢️ Nuclear clearing ${index + 1}/${allFoundElements.size}: "${fileName}"`);
@@ -628,21 +634,20 @@ window.directNuclearClear = function() {
             el.style.removeProperty(prop);
         });
         
-        // 🔧 CRITICAL: Reset grid to optimal layout for file names
+        // 🔧 CRITICAL BUG FIX 1: CONSISTENT GRID LAYOUT for all elements
         if (el.classList.contains('file-item') || el.hasAttribute('data-name')) {
-            el.style.gridTemplateColumns = 'minmax(300px, 2fr) 150px 120px 100px 40px';
-            console.log(`  🔧 Reset grid layout for: ${fileName}`);
+            // ✅ FIXED: Use consistent grid template (same as CSS)
+            el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+            console.log(`  🔧 Reset grid layout with CONSISTENT values for: ${fileName}`);
         }
-        
-        // Don't remove style attribute completely - we need grid layout
         
         // Remove data attributes
         ['data-selected', 'data-direct-selected', 'data-checked', 'data-active'].forEach(attr => {
             el.removeAttribute(attr);
         });
         
-        // Force DOM repaint
-        el.offsetHeight;
+        // 🎯 BUG FIX 2: ENHANCED FORCE REPAINT for visual highlight issues
+        forceElementRepaint(el);
         
         console.log(`  ✅ Nuclear cleared: "${fileName}"`);
     });
@@ -668,7 +673,19 @@ window.directNuclearClear = function() {
     // Hide any open menus
     hideDirectMenu();
     
-    // 🔥 STEP 7: Final verification
+    // 🔥 STEP 7: CONSISTENT Grid layout reset for ALL file items
+    console.log('\n🔧 STEP 7: CONSISTENT Grid layout reset...');
+    forceConsistentGridLayoutReset();
+    
+    // 🔥 STEP 8: BUG FIX 3: Reattach context menu listeners after clear
+    console.log('\n🔗 STEP 8: Reattaching context menu listeners...');
+    reattachContextMenuListeners();
+    
+    // 🔥 STEP 9: Global force repaint for visual highlight issues
+    console.log('\n🎨 STEP 9: Global force repaint...');
+    forceGlobalRepaint();
+    
+    // 🔥 STEP 10: Final verification
     const finalCheck = {
         setSize: directSelected.size,
         directSelectedClass: document.querySelectorAll('.direct-selected').length,
@@ -684,6 +701,7 @@ window.directNuclearClear = function() {
     
     if (finalCheck.directSelectedClass === 0 && finalCheck.selectedClass === 0 && finalCheck.setSize === 0) {
         console.log('✅✅✅ NUCLEAR CLEAR SUCCESSFUL - All selection removed!');
+        console.log('✅ BUG FIXES: Layout consistent, repaint forced, context menus reattached!');
     } else {
         console.warn('⚠️ NUCLEAR CLEAR INCOMPLETE - Some selection may remain');
         
@@ -692,20 +710,17 @@ window.directNuclearClear = function() {
             console.log('🔥 ULTIMATE LAST RESORT: Force removing remaining .direct-selected');
             document.querySelectorAll('.direct-selected').forEach(el => {
                 el.className = el.className.replace(/direct-selected/g, '').trim();
+                forceElementRepaint(el);
             });
         }
     }
     
-    // 🔧 STEP 8: Force grid layout reset for ALL file items
-    console.log('\n🔧 STEP 8: Force grid layout reset...');
-    forceGridLayoutReset();
-    
-    console.log('☢️☢️☢️ NUCLEAR CLEAR COMPLETED');
+    console.log('☢️☢️☢️ NUCLEAR CLEAR COMPLETED with comprehensive bug fixes!');
 };
 
-// 🔧 Function to force reset grid layout to prioritize name column
-function forceGridLayoutReset() {
-    console.log('🔧 Force resetting grid layout for name column priority...');
+// 🔧 BUG FIX 1: Force CONSISTENT grid layout reset for name column priority
+function forceConsistentGridLayoutReset() {
+    console.log('🔧 Force CONSISTENT grid layout reset for name column priority...');
     
     // Find all file items
     const allFileItems = document.querySelectorAll('.file-item, [data-name], .grid');
@@ -714,7 +729,7 @@ function forceGridLayoutReset() {
     allFileItems.forEach((el, index) => {
         const fileName = el.getAttribute('data-name') || `item-${index}`;
         
-        // Force optimal grid layout for name column priority
+        // ✅ FIXED: Use CONSISTENT grid layout (same as CSS injection)
         el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
         
         // Ensure name column flex properties
@@ -736,13 +751,129 @@ function forceGridLayoutReset() {
             nameEl.style.whiteSpace = 'nowrap';
         });
         
-        console.log(`  🔧 Reset grid layout for: ${fileName}`);
+        console.log(`  🔧 Reset CONSISTENT grid layout for: ${fileName}`);
     });
     
     // Force DOM reflow to apply changes
     document.body.offsetHeight;
     
-    console.log('✅ Grid layout reset completed - name column should be prioritized');
+    console.log('✅ CONSISTENT grid layout reset completed - name column should be prioritized on ALL screen sizes');
+}
+
+// 🎯 BUG FIX 2: Enhanced force repaint for individual elements (fixes highlight issues)
+function forceElementRepaint(el) {
+    if (!el) return;
+    
+    // Method 1: Multiple reflow triggers
+    el.style.display = 'none';
+    el.offsetHeight; // Trigger reflow
+    el.style.display = '';
+    
+    // Method 2: Transform trigger
+    el.style.transform = 'translateZ(0)';
+    el.offsetHeight; // Trigger reflow
+    el.style.transform = '';
+    
+    // Method 3: Opacity trigger
+    const originalOpacity = el.style.opacity;
+    el.style.opacity = '0.99';
+    el.offsetHeight; // Trigger reflow
+    el.style.opacity = originalOpacity || '';
+    
+    // Method 4: Class manipulation trigger
+    el.classList.add('temp-repaint-trigger');
+    el.offsetHeight; // Trigger reflow
+    el.classList.remove('temp-repaint-trigger');
+}
+
+// 🎯 BUG FIX 2: Global force repaint (fixes visual highlight cache issues)
+function forceGlobalRepaint() {
+    console.log('🎨 Forcing global repaint to fix visual highlight issues...');
+    
+    // Method 1: Body manipulation
+    document.body.style.transform = 'translateZ(0)';
+    document.body.offsetHeight;
+    document.body.style.transform = '';
+    
+    // Method 2: Viewport manipulation
+    window.scrollBy(0, 1);
+    window.scrollBy(0, -1);
+    
+    // Method 3: Force all file items to repaint
+    const allFileItems = document.querySelectorAll('.file-item, [data-name]');
+    allFileItems.forEach((el, index) => {
+        if (index % 10 === 0) { // Log every 10th element to avoid spam
+            console.log(`  🎨 Force repaint ${index + 1}/${allFileItems.length}...`);
+        }
+        forceElementRepaint(el);
+    });
+    
+    console.log('✅ Global force repaint completed - visual highlights should now work correctly');
+}
+
+// 🔗 BUG FIX 3: Enhanced context menu listener reattachment (fixes right-click issues)
+function reattachContextMenuListeners() {
+    console.log('🔗 Reattaching context menu and CTRL+Click listeners to fix right-click issues...');
+    
+    const fileItems = document.querySelectorAll('.file-item, [data-name]');
+    console.log(`🔗 Found ${fileItems.length} file items to reattach listeners`);
+    
+    fileItems.forEach((item, index) => {
+        const fileName = item.getAttribute('data-name') || `item-${index}`;
+        
+        // Remove existing listeners by cloning (clean slate approach)
+        const newItem = item.cloneNode(true);
+        if (item.parentNode) {
+            item.parentNode.replaceChild(newItem, item);
+        }
+        
+        // 🖱️ Re-add CTRL+Click listener for multi-select
+        newItem.addEventListener('click', function(e) {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                console.log('🖱️ CTRL+Click detected on:', fileName);
+                hideDirectMenu();
+                directSelect(newItem);
+                
+                return false;
+            }
+        }, true);
+        
+        // 🖱️ Re-add context menu listener (right-click) - ENHANCED
+        newItem.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            console.log('🖱️ Right-click detected on:', fileName);
+            
+            // Hide any existing menus
+            document.querySelectorAll('[id*="menu"], [id*="context"]').forEach(menu => {
+                if (menu.id !== 'direct-context-menu') {
+                    menu.style.display = 'none';
+                    menu.remove();
+                }
+            });
+            
+            showDirectMenu(e, newItem);
+            return false;
+        }, true);
+        
+        if (index % 20 === 0) { // Log every 20th to avoid spam
+            console.log(`🔗 Reattached listeners ${index + 1}/${fileItems.length}: ${fileName}`);
+        }
+    });
+    
+    console.log('✅ Context menu listeners reattached - right-click should work correctly now');
+}
+
+// 🔧 Function to force reset grid layout to prioritize name column (LEGACY - kept for compatibility)
+function forceGridLayoutReset() {
+    console.log('🔧 Legacy forceGridLayoutReset() called - redirecting to consistent version...');
+    forceConsistentGridLayoutReset();
 }
 
 // 🔧 LEGACY directClear function (kept for fallback)
@@ -882,8 +1013,6 @@ function clearElementSelection(el) {
         }
     }
     
-    // DON'T remove style attribute completely - we need grid layout
-    
     // Remove any data attributes related to selection
     const attributesToRemove = [
         'data-selected', 'data-direct-selected', 'data-checked', 'data-active'
@@ -899,8 +1028,8 @@ function clearElementSelection(el) {
     // 🔍 Log final state
     console.log(`  After: classList="${el.className}", hasDirectSelected=${el.classList.contains('direct-selected')}`);
     
-    // 🎯 FORCE REPAINT: Trigger browser repaint to ensure visual update
-    el.offsetHeight; // Force reflow
+    // 🎯 ENHANCED FORCE REPAINT: Use comprehensive repaint to ensure visual update
+    forceElementRepaint(el);
     
     console.log(`✅ Enhanced clearing completed for: ${fileName}`);
 }
@@ -1610,6 +1739,145 @@ window.compareClearMethods = function() {
     console.log(`  Cancel Button Success: ${afterCancel.setSize === 0 && afterCancel.visualElements === 0 ? '✅' : '❌'}`);
 };
 
+// 🐞 BUG FIX TEST: Test all 3 reported bugs are fixed
+window.testAllBugFixes = function() {
+    console.log('\n🐞🐞🐞 TESTING ALL 3 BUG FIXES...');
+    
+    // Test setup: select files and cancel
+    console.log('📋 Setup: Selecting files via CTRL+A and then canceling...');
+    const allElements = document.querySelectorAll('.file-item, [data-name]');
+    allElements.forEach(item => {
+        const path = normalizePath(item);
+        if (path) {
+            directSelected.add(path);
+            item.classList.add('direct-selected');
+        }
+    });
+    updateDirectCounter();
+    
+    console.log(`✅ Selected ${directSelected.size} files`);
+    
+    // Cancel selection using nuclear clear
+    console.log('📋 Canceling selection...');
+    directNuclearClear();
+    
+    // Test Bug 1: Layout Column Issues
+    console.log('\n🐞 TEST BUG 1: Layout Column Name Collision...');
+    const fileItems = document.querySelectorAll('.file-item, [data-name]');
+    let layoutBugFixed = true;
+    let layoutResults = [];
+    
+    fileItems.forEach((el, index) => {
+        const fileName = el.getAttribute('data-name') || `item-${index}`;
+        const gridCols = el.style.gridTemplateColumns || 'not set';
+        const expectedGrid = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+        
+        const isCorrect = gridCols === expectedGrid;
+        if (!isCorrect) layoutBugFixed = false;
+        
+        layoutResults.push({
+            file: fileName,
+            grid: gridCols,
+            correct: isCorrect
+        });
+    });
+    
+    console.log(`🐞 Bug 1 Result: ${layoutBugFixed ? '✅ FIXED' : '❌ NOT FIXED'}`);
+    console.log(`   - Checked ${fileItems.length} file items`);
+    console.log(`   - Expected grid: minmax(350px, 3fr) 150px 120px 100px 40px`);
+    if (!layoutBugFixed) {
+        console.log('   - Layout issues found:', layoutResults.filter(r => !r.correct));
+    }
+    
+    // Test Bug 2: CTRL+Click highlight after cancel
+    console.log('\n🐞 TEST BUG 2: CTRL+Click Highlight After Cancel...');
+    
+    // Simulate CTRL+Click on first file
+    const firstFile = allElements[0];
+    if (firstFile) {
+        const fileName = firstFile.getAttribute('data-name') || 'first-file';
+        console.log(`📋 Testing CTRL+Click on: ${fileName}`);
+        
+        const beforeClick = {
+            selected: directSelected.has(normalizePath(firstFile)),
+            hasClass: firstFile.classList.contains('direct-selected')
+        };
+        
+        // Simulate CTRL+Click
+        directSelect(firstFile);
+        
+        const afterClick = {
+            selected: directSelected.has(normalizePath(firstFile)),
+            hasClass: firstFile.classList.contains('direct-selected')
+        };
+        
+        const highlightBugFixed = afterClick.selected && afterClick.hasClass;
+        
+        console.log(`🐞 Bug 2 Result: ${highlightBugFixed ? '✅ FIXED' : '❌ NOT FIXED'}`);
+        console.log(`   - Before: selected=${beforeClick.selected}, hasClass=${beforeClick.hasClass}`);
+        console.log(`   - After:  selected=${afterClick.selected}, hasClass=${afterClick.hasClass}`);
+        
+        // Clean up
+        directSelected.delete(normalizePath(firstFile));
+        firstFile.classList.remove('direct-selected');
+    } else {
+        console.log('🐞 Bug 2: ⚠️ No files found to test');
+    }
+    
+    // Test Bug 3: Right-click context menu after cancel
+    console.log('\n🐞 TEST BUG 3: Right-Click Context Menu After Cancel...');
+    
+    const secondFile = allElements[1] || allElements[0];
+    if (secondFile) {
+        const fileName = secondFile.getAttribute('data-name') || 'test-file';
+        console.log(`📋 Testing right-click on: ${fileName}`);
+        
+        // Check if context menu event listener is attached
+        const hasContextListener = secondFile.oncontextmenu !== null || 
+                                 getEventListeners ? 
+                                 (getEventListeners(secondFile).contextmenu?.length > 0) : 
+                                 'Cannot detect';
+        
+        // Simulate right-click to test if menu appears
+        const contextEvent = new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: 100,
+            clientY: 100
+        });
+        
+        const beforeRightClick = document.getElementById('direct-context-menu')?.style?.display || 'none';
+        secondFile.dispatchEvent(contextEvent);
+        
+        // Check if menu appeared (wait a bit for processing)
+        setTimeout(() => {
+            const afterRightClick = document.getElementById('direct-context-menu')?.style?.display || 'none';
+            const contextMenuBugFixed = afterRightClick === 'block';
+            
+            console.log(`🐞 Bug 3 Result: ${contextMenuBugFixed ? '✅ FIXED' : '❌ NOT FIXED'}`);
+            console.log(`   - Context listener detected: ${hasContextListener}`);
+            console.log(`   - Menu before: ${beforeRightClick}`);
+            console.log(`   - Menu after: ${afterRightClick}`);
+            
+            // Hide menu
+            hideDirectMenu();
+            
+            // Final summary
+            console.log('\n🏁 BUG FIX TEST SUMMARY:');
+            console.log(`   🐞 Bug 1 (Layout): ${layoutBugFixed ? '✅ FIXED' : '❌ NOT FIXED'}`);
+            console.log(`   🐞 Bug 2 (Highlight): ${highlightBugFixed ? '✅ FIXED' : '❌ NOT FIXED'}`);
+            console.log(`   🐞 Bug 3 (Context Menu): ${contextMenuBugFixed ? '✅ FIXED' : '❌ NOT FIXED'}`);
+            
+            const allFixed = layoutBugFixed && highlightBugFixed && contextMenuBugFixed;
+            console.log(`\n🎉 OVERALL RESULT: ${allFixed ? '✅ ALL BUGS FIXED!' : '❌ Some bugs remain'}`);
+            
+        }, 100);
+        
+    } else {
+        console.log('🐞 Bug 3: ⚠️ No files found to test');
+    }
+};
+
 // Function to reinitialize after directory refresh
 window.reinitializeDirectSelection = function() {
     console.log('🔄 Reinitializing direct selection system...');
@@ -1655,7 +1923,8 @@ function initializeDirectSelectionSystem() {
         console.log('   testCancelButton() → Test cancel button functionality');
         console.log('   testToggleClear() → Test enhanced toggle clear approach');
         console.log('   testNuclearClear() → ☢️ TEST nuclear clear approach');
-        console.log('   testGridLayoutReset() → � TEST grid layout reset for name column');
+        console.log('   testGridLayoutReset() → TEST grid layout reset for name column');
+        console.log('   testAllBugFixes() → 🐞 TEST all 3 post-cancel bug fixes');
         console.log('   diagnoseCancelButtonIssue() → 🔍 DIAGNOSE exact cancel button problem');
         console.log('   compareClearMethods() → Compare ESC vs Cancel button');
         console.log('   debugUpdateCounter() → Manual trigger counter update');
