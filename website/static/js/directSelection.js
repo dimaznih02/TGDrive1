@@ -4,9 +4,38 @@ console.log('🔧 Initializing Direct Selection System...');
 // Global variables
 let directSelected = new Set();
 
-// Utility function to normalize file paths
+// Utility function to normalize file paths with fallback
 function normalizePath(el) {
-    return (el?.getAttribute('data-path') || el?.getAttribute('data-name') || '').trim();
+    let path = el?.getAttribute('data-path')?.trim();
+    let name = el?.getAttribute('data-name')?.trim();
+    let textContent = el?.textContent?.trim();
+    
+    // Try data-path first, then data-name, then textContent as fallback
+    let result = path || name;
+    if (!result) {
+        // If still empty, try to get filename from textContent
+        const fileNameEl = el?.querySelector('.file-name');
+        if (fileNameEl) {
+            result = fileNameEl.textContent?.trim();
+        } else {
+            result = textContent;
+        }
+    }
+    
+    // Final cleanup
+    result = (result || '').trim();
+    
+    // Debug logging
+    console.log('🔍 normalizePath debug:', {
+        element: el,
+        'data-path': path,
+        'data-name': name,
+        'textContent': textContent,
+        'final result': result,
+        'result length': result.length
+    });
+    
+    return result;
 }
 
 // CSS Injection for direct selection styling
@@ -159,24 +188,40 @@ function createDirectContextMenu() {
 
 // Core Functions
 window.directSelect = function(element) {
+    console.log('\n🎯 directSelect() called');
+    console.log('Element received:', element);
+    console.log('Element classes:', element?.className);
+    
     const path = normalizePath(element);
+    console.log(`📋 normalizePath() returned: "${path}" (length: ${path.length})`);
+    
     if (!path) {
         console.warn('⚠️ No valid path found for element:', element);
+        console.warn('⚠️ Cannot proceed with selection');
         return;
     }
 
-    if (directSelected.has(path)) {
+    const wasSelected = directSelected.has(path);
+    console.log(`🔍 Was previously selected: ${wasSelected}`);
+
+    if (wasSelected) {
         directSelected.delete(path);
         element.classList.remove('direct-selected');
         console.log('❌ Deselected:', path);
+        console.log(`📦 directSelected size after delete: ${directSelected.size}`);
     } else {
         directSelected.add(path);
         element.classList.add('direct-selected');
         console.log('✅ Selected:', path);
+        console.log(`📦 directSelected size after add: ${directSelected.size}`);
     }
 
+    console.log(`📦 Current directSelected contents:`, Array.from(directSelected));
+    
     updateDirectCounter();
     hideDirectMenu();
+    
+    console.log('🎯 directSelect() completed');
 };
 
 window.directClear = function() {
@@ -202,19 +247,35 @@ window.directMove = function() {
 
 function updateDirectCounter() {
     const count = directSelected.size;
+    console.log(`\n🔄 updateDirectCounter() called`);
+    console.log(`📊 directSelected.size: ${count}`);
+    console.log(`📦 directSelected contents:`, Array.from(directSelected));
+    
     const counterElement = document.getElementById('direct-count');
     const notificationElement = document.getElementById('direct-notification');
     
+    console.log(`🎯 Counter element found:`, !!counterElement);
+    console.log(`🎯 Notification element found:`, !!notificationElement);
+    
     if (counterElement) {
-        counterElement.textContent = `${count} item dipilih`;
+        const newText = `${count} item dipilih`;
+        counterElement.textContent = newText;
+        console.log(`📝 Counter text updated to: "${newText}"`);
+        console.log(`📝 Counter element textContent now: "${counterElement.textContent}"`);
+    } else {
+        console.log('❌ Counter element not found!');
     }
     
     if (notificationElement) {
-        notificationElement.style.display = count > 0 ? 'block' : 'none';
+        const shouldShow = count > 0;
+        notificationElement.style.display = shouldShow ? 'block' : 'none';
+        console.log(`👁️ Notification display set to: ${shouldShow ? 'visible' : 'hidden'}`);
+        console.log(`�️ Notification actual display: ${notificationElement.style.display}`);
+    } else {
+        console.log('❌ Notification element not found!');
     }
     
-    console.log(`📊 Counter updated: ${count} items selected`);
-    console.log('📦 Selected files:', Array.from(directSelected));
+    console.log(`✅ updateDirectCounter() completed`);
 }
 
 function hideDirectMenu() {
@@ -290,9 +351,45 @@ function showDirectMenu(e, element) {
     console.log('✅ Context menu shown for:', fileName, 'at position:', { left, top });
 }
 
+// Debug function to analyze DOM structure
+function debugDOMStructure() {
+    console.log('\n🔍 DOM STRUCTURE ANALYSIS:');
+    
+    const fileItems = document.querySelectorAll('.file-item, [data-name]');
+    console.log(`📁 Found ${fileItems.length} file elements`);
+    
+    fileItems.forEach((item, index) => {
+        console.log(`\n📄 Element ${index + 1}:`);
+        console.log('  Element:', item);
+        console.log('  Tag:', item.tagName);
+        console.log('  Classes:', item.className);
+        console.log('  data-name:', item.getAttribute('data-name'));
+        console.log('  data-path:', item.getAttribute('data-path'));
+        console.log('  data-type:', item.getAttribute('data-type'));
+        console.log('  innerHTML preview:', item.innerHTML.substring(0, 100) + '...');
+        
+        // Look for .file-name elements
+        const fileNameEl = item.querySelector('.file-name');
+        if (fileNameEl) {
+            console.log('  .file-name found:', fileNameEl.textContent?.trim());
+        } else {
+            console.log('  .file-name: NOT FOUND');
+        }
+        
+        // Test normalizePath on this element
+        const normalizedPath = normalizePath(item);
+        console.log(`  normalizePath result: "${normalizedPath}" (length: ${normalizedPath.length})`);
+    });
+    
+    console.log('\n✅ DOM Structure analysis completed');
+}
+
 // Attach context menu listeners to all file items
 function attachContextListeners() {
     console.log('🔗 Attaching context menu listeners...');
+    
+    // First, analyze DOM structure for debugging
+    debugDOMStructure();
     
     document.querySelectorAll('.file-item, [data-name]').forEach(item => {
         // Clone node to remove existing event listeners
@@ -345,19 +442,52 @@ function setupKeyboardShortcuts() {
         // CTRL+A - Select all files
         if (e.ctrlKey && e.key.toLowerCase() === 'a') {
             e.preventDefault();
+            console.log('🚀 CTRL+A triggered - starting select all process...');
+            
+            // Find all file elements
+            const allElements = document.querySelectorAll('.file-item, [data-name]');
+            console.log(`📁 Found ${allElements.length} total elements to process`);
             
             let addedCount = 0;
-            document.querySelectorAll('.file-item, [data-name]').forEach(item => {
+            let skippedCount = 0;
+            let emptyPathCount = 0;
+            
+            allElements.forEach((item, index) => {
+                console.log(`\n🔍 Processing element ${index + 1}/${allElements.length}:`);
+                console.log('Element:', item);
+                console.log('Element classes:', item.className);
+                
                 const path = normalizePath(item);
-                if (path && !directSelected.has(path)) {
+                console.log(`📋 Normalized path: "${path}" (length: ${path.length})`);
+                
+                if (!path) {
+                    emptyPathCount++;
+                    console.log('❌ Empty path, skipping this element');
+                    return;
+                }
+                
+                if (directSelected.has(path)) {
+                    skippedCount++;
+                    console.log('⏭️ Already selected, skipping');
+                } else {
+                    console.log('✅ Adding to selection...');
                     directSelected.add(path);
                     item.classList.add('direct-selected');
                     addedCount++;
+                    console.log(`📦 directSelected now contains: ${directSelected.size} items`);
                 }
             });
             
+            console.log('\n📊 CTRL+A Summary:');
+            console.log(`  - Total elements found: ${allElements.length}`);
+            console.log(`  - Added to selection: ${addedCount}`);
+            console.log(`  - Already selected (skipped): ${skippedCount}`);
+            console.log(`  - Empty paths (skipped): ${emptyPathCount}`);
+            console.log(`  - Final directSelected size: ${directSelected.size}`);
+            console.log(`  - directSelected contents:`, Array.from(directSelected));
+            
             updateDirectCounter();
-            console.log(`✅ CTRL+A: Selected ${addedCount} additional files. Total: ${directSelected.size}`);
+            console.log(`✅ CTRL+A completed. updateDirectCounter() called.`);
             return;
         }
         
