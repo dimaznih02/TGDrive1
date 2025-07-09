@@ -78,37 +78,44 @@ function injectDirectSelectionCSS() {
         position: relative !important;
     }
     
-    /* 🔧 FIX LAYOUT PRIORITY - Ensure name column ALWAYS visible for ALL file items */
+    /* 🔧 ENHANCED LAYOUT PRIORITY - Prioritize name column ALWAYS */
     .file-item {
-        grid-template-columns: minmax(250px, 1fr) 150px 120px 100px 40px !important;
+        grid-template-columns: minmax(350px, 3fr) 150px 120px 100px 40px !important;
     }
     
     /* Force name column container to never shrink */
     .file-item .flex.items-center.gap-2.truncate {
-        min-width: 200px !important;
+        min-width: 300px !important;
         flex-shrink: 0 !important;
         max-width: none !important;
+        flex-grow: 1 !important;
     }
     
     /* Force name column to stay visible on small screens */
     @media (max-width: 768px) {
         .file-item {
-            grid-template-columns: minmax(200px, 2fr) 120px 100px 80px 40px !important;
+            grid-template-columns: minmax(250px, 3fr) 120px 100px 80px 40px !important;
         }
     }
     
     /* Ensure file name text is always visible for ALL items */
     .file-item .file-name,
     .file-item .text-sm.text-gray-900.truncate {
-        min-width: 150px !important;
+        min-width: 200px !important;
         overflow: visible !important;
         white-space: nowrap !important;
         flex-shrink: 0 !important;
+        flex-grow: 1 !important;
     }
     
-    /* Additional fixes for selected items to override any conflicting styles */
+    /* IMPORTANT: Reset grid layout after selection cleared */
+    .file-item:not(.direct-selected) {
+        grid-template-columns: minmax(350px, 3fr) 150px 120px 100px 40px !important;
+    }
+    
+    /* Selected items maintain same layout */
     .direct-selected {
-        grid-template-columns: minmax(250px, 1fr) 150px 120px 100px 40px !important;
+        grid-template-columns: minmax(350px, 3fr) 150px 120px 100px 40px !important;
     }
     
     /* 🎯 CRITICAL: Ensure notification bar is ALWAYS visible when needed */
@@ -608,19 +615,26 @@ window.directNuclearClear = function() {
             el.classList.remove(className);
         });
         
-        // Nuclear style clearing
-        el.style.backgroundColor = '';
-        el.style.background = '';
-        el.style.border = '';
-        el.style.borderColor = '';
-        el.style.borderRadius = '';
-        el.style.boxShadow = '';
-        el.style.filter = '';
-        el.style.opacity = '';
-        el.style.transform = '';
+        // Nuclear style clearing - but preserve grid layout
+        const stylesToClear = [
+            'backgroundColor', 'background', 'background-color',
+            'border', 'borderColor', 'border-color', 'borderRadius', 'border-radius',
+            'boxShadow', 'box-shadow', 'filter', 'opacity', 'transform'
+        ];
         
-        // Remove any style attribute completely
-        el.removeAttribute('style');
+        // Clear selection-related styles but preserve grid layout
+        stylesToClear.forEach(prop => {
+            el.style[prop] = '';
+            el.style.removeProperty(prop);
+        });
+        
+        // 🔧 CRITICAL: Reset grid to optimal layout for file names
+        if (el.classList.contains('file-item') || el.hasAttribute('data-name')) {
+            el.style.gridTemplateColumns = 'minmax(300px, 2fr) 150px 120px 100px 40px';
+            console.log(`  🔧 Reset grid layout for: ${fileName}`);
+        }
+        
+        // Don't remove style attribute completely - we need grid layout
         
         // Remove data attributes
         ['data-selected', 'data-direct-selected', 'data-checked', 'data-active'].forEach(attr => {
@@ -682,8 +696,54 @@ window.directNuclearClear = function() {
         }
     }
     
+    // 🔧 STEP 8: Force grid layout reset for ALL file items
+    console.log('\n🔧 STEP 8: Force grid layout reset...');
+    forceGridLayoutReset();
+    
     console.log('☢️☢️☢️ NUCLEAR CLEAR COMPLETED');
 };
+
+// 🔧 Function to force reset grid layout to prioritize name column
+function forceGridLayoutReset() {
+    console.log('🔧 Force resetting grid layout for name column priority...');
+    
+    // Find all file items
+    const allFileItems = document.querySelectorAll('.file-item, [data-name], .grid');
+    console.log(`🔧 Found ${allFileItems.length} file items to reset grid layout`);
+    
+    allFileItems.forEach((el, index) => {
+        const fileName = el.getAttribute('data-name') || `item-${index}`;
+        
+        // Force optimal grid layout for name column priority
+        el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+        
+        // Ensure name column flex properties
+        const nameContainer = el.querySelector('.flex.items-center.gap-2.truncate');
+        if (nameContainer) {
+            nameContainer.style.minWidth = '300px';
+            nameContainer.style.flexShrink = '0';
+            nameContainer.style.flexGrow = '1';
+            nameContainer.style.maxWidth = 'none';
+        }
+        
+        // Ensure file name text properties
+        const fileNameElements = el.querySelectorAll('.file-name, .text-sm.text-gray-900.truncate');
+        fileNameElements.forEach(nameEl => {
+            nameEl.style.minWidth = '200px';
+            nameEl.style.flexShrink = '0';
+            nameEl.style.flexGrow = '1';
+            nameEl.style.overflow = 'visible';
+            nameEl.style.whiteSpace = 'nowrap';
+        });
+        
+        console.log(`  🔧 Reset grid layout for: ${fileName}`);
+    });
+    
+    // Force DOM reflow to apply changes
+    document.body.offsetHeight;
+    
+    console.log('✅ Grid layout reset completed - name column should be prioritized');
+}
 
 // 🔧 LEGACY directClear function (kept for fallback)
 window.directClear = function() {
@@ -787,19 +847,15 @@ function clearElementSelection(el) {
         }
     });
     
-    // Clear ALL possible inline styles
-    const stylesToClear = [
+    // Clear ONLY selection-related styles, preserve layout
+    const selectionStylesToClear = [
         'backgroundColor', 'background', 'background-color',
         'border', 'borderRadius', 'border-radius', 'borderWidth', 'border-width',
-        'boxShadow', 'box-shadow', 'transform', 'filter',
-        'gridTemplateColumns', 'grid-template-columns',
-        'width', 'minWidth', 'min-width', 'maxWidth', 'max-width',
-        'flexShrink', 'flex-shrink', 'overflow', 'whiteSpace', 'white-space',
-        'position', 'zIndex', 'z-index', 'opacity'
+        'boxShadow', 'box-shadow', 'transform', 'filter', 'opacity'
     ];
     
     let clearedStyles = [];
-    stylesToClear.forEach(prop => {
+    selectionStylesToClear.forEach(prop => {
         if (el.style[prop]) {
             el.style[prop] = '';
             clearedStyles.push(prop);
@@ -809,14 +865,24 @@ function clearElementSelection(el) {
     });
     
     if (clearedStyles.length > 0) {
-        console.log(`  🎨 Cleared styles: ${clearedStyles.join(', ')}`);
+        console.log(`  🎨 Cleared selection styles: ${clearedStyles.join(', ')}`);
     }
     
-    // Force remove any remaining style attribute if it's empty
-    if (!el.style.cssText || el.style.cssText.trim() === '') {
-        el.removeAttribute('style');
-        console.log(`  🗑️ Removed empty style attribute`);
+    // 🔧 CRITICAL: Reset grid layout for name column priority (don't remove it)
+    if (el.classList.contains('file-item') || el.hasAttribute('data-name')) {
+        el.style.gridTemplateColumns = 'minmax(350px, 3fr) 150px 120px 100px 40px';
+        console.log(`  🔧 Reset grid layout for optimal name column display`);
+        
+        // Ensure name column container properties
+        const nameContainer = el.querySelector('.flex.items-center.gap-2.truncate');
+        if (nameContainer) {
+            nameContainer.style.minWidth = '300px';
+            nameContainer.style.flexShrink = '0';
+            nameContainer.style.flexGrow = '1';
+        }
     }
+    
+    // DON'T remove style attribute completely - we need grid layout
     
     // Remove any data attributes related to selection
     const attributesToRemove = [
@@ -1442,6 +1508,35 @@ window.testNuclearClear = function() {
     }, 500);
 };
 
+// 🧪 DEBUG: Test grid layout reset
+window.testGridLayoutReset = function() {
+    console.log('\n🔧 TESTING GRID LAYOUT RESET...');
+    
+    console.log('📋 Step 1: Checking current grid layout...');
+    const fileItems = document.querySelectorAll('.file-item, [data-name]');
+    console.log(`🔍 Found ${fileItems.length} file items`);
+    
+    // Show current grid layout
+    fileItems.forEach((el, index) => {
+        const fileName = el.getAttribute('data-name') || `item-${index}`;
+        const currentGrid = el.style.gridTemplateColumns || 'not set';
+        console.log(`  Current grid for "${fileName}": ${currentGrid}`);
+    });
+    
+    console.log('\n📋 Step 2: Applying grid layout reset...');
+    forceGridLayoutReset();
+    
+    console.log('\n📋 Step 3: Verifying grid layout after reset...');
+    fileItems.forEach((el, index) => {
+        const fileName = el.getAttribute('data-name') || `item-${index}`;
+        const newGrid = el.style.gridTemplateColumns || 'not set';
+        console.log(`  New grid for "${fileName}": ${newGrid}`);
+    });
+    
+    console.log('\n✅ Grid layout reset test completed');
+    console.log('👁️ Check visually if name columns are now properly prioritized');
+};
+
 // 🧪 DEBUG: Compare ESC vs Cancel Button behavior
 window.compareClearMethods = function() {
     console.log('\n🧪 COMPARING CLEAR METHODS...');
@@ -1544,6 +1639,7 @@ function initializeDirectSelectionSystem() {
         window.directClear = window.directClear;
         window.directClearViaToggle = window.directClearViaToggle; // 🎯 Enhanced clear
         window.directNuclearClear = window.directNuclearClear; // ☢️ NUCLEAR: Most aggressive clear
+        window.forceGridLayoutReset = forceGridLayoutReset; // 🔧 Grid layout reset
         window.directMove = window.directMove;
         window.hideDirectMenu = hideDirectMenu;
         
@@ -1558,12 +1654,14 @@ function initializeDirectSelectionSystem() {
         console.log('   testNotificationBar() → Test notification bar visibility');
         console.log('   testCancelButton() → Test cancel button functionality');
         console.log('   testToggleClear() → Test enhanced toggle clear approach');
-        console.log('   diagnoseCancelButtonIssue() → 🔍 DIAGNOSE exact cancel button problem');
         console.log('   testNuclearClear() → ☢️ TEST nuclear clear approach');
+        console.log('   testGridLayoutReset() → � TEST grid layout reset for name column');
+        console.log('   diagnoseCancelButtonIssue() → 🔍 DIAGNOSE exact cancel button problem');
         console.log('   compareClearMethods() → Compare ESC vs Cancel button');
         console.log('   debugUpdateCounter() → Manual trigger counter update');
         console.log('\n🎯 Core Functions:');
-        console.log('   directNuclearClear() → ☢️ NUCLEAR: Most aggressive clear (now default for cancel)');
+        console.log('   directNuclearClear() → ☢️ NUCLEAR: Most aggressive clear (with grid reset)');
+        console.log('   forceGridLayoutReset() → 🔧 Reset grid layout to prioritize name column');
         console.log('   directClearViaToggle() → ENHANCED: Robust clear with multiple fallbacks');
         console.log('   directClear() → LEGACY: Old clear method');
         
