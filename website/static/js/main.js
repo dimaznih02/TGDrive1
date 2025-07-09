@@ -351,9 +351,8 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             console.log('📁 Found file element:', fileElement);
             
             if (fileElement) {
-                // First check if moveFiles.js system is loaded and ready
-                if (window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
-                    console.log('✅ Using moveFiles.js selection system');
+                // Function to start selection
+                const startSelection = () => {
                     try {
                         window.startSelectionWithFile(fileElement);
                         console.log('✅ Selection started successfully for:', fileName);
@@ -361,25 +360,40 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
                         console.error('❌ Error starting selection:', error);
                         alert('Error starting selection: ' + error.message);
                     }
+                };
+                
+                // Check if moveFiles system is ready
+                if (window.moveFilesSystemReady && window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
+                    console.log('✅ moveFiles system is ready, starting selection immediately');
+                    startSelection();
                 } else {
-                    console.log('❌ moveFiles.js selection system not available, checking if it needs time to load...');
+                    console.log('⏳ moveFiles system not ready, waiting for it...');
                     
-                    // Give it a moment for the system to load, then try again
-                    setTimeout(() => {
-                        if (window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
-                            console.log('✅ Selection system now available, retrying...');
-                            try {
-                                window.startSelectionWithFile(fileElement);
-                                console.log('✅ Selection started successfully for:', fileName);
-                            } catch (error) {
-                                console.error('❌ Error starting selection (retry):', error);
-                                alert('Error starting selection: ' + error.message);
-                            }
+                    // Listen for moveFiles ready event
+                    const waitForMoveFiles = () => {
+                        if (window.moveFilesSystemReady && window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
+                            console.log('✅ moveFiles system now ready, starting selection');
+                            startSelection();
                         } else {
-                            console.log('❌ Selection system still not available after retry');
-                            alert('Selection system not available. Please refresh the page and try again.');
+                            console.log('⚠️ moveFiles system still not ready after event');
+                            alert('Selection system initialization failed. Please refresh the page.');
                         }
-                    }, 100);
+                    };
+                    
+                    // Set up event listener for when system becomes ready
+                    window.addEventListener('moveFilesReady', waitForMoveFiles, { once: true });
+                    
+                    // Also try again after a short delay as fallback
+                    setTimeout(() => {
+                        if (window.moveFilesSystemReady && window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
+                            console.log('✅ moveFiles system ready after timeout, starting selection');
+                            // Remove the event listener since we don't need it anymore
+                            window.removeEventListener('moveFilesReady', waitForMoveFiles);
+                            startSelection();
+                        } else {
+                            console.log('❌ moveFiles system still not ready after timeout, will wait for event');
+                        }
+                    }, 200);
                 }
             } else {
                 console.log('❌ File element not found for path:', filePath);
@@ -388,14 +402,25 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
                                          document.querySelector(`[data-id="${filePath}"]`);
                 if (alternativeElement) {
                     console.log('✅ Found alternative file element:', alternativeElement);
-                    if (window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
-                        try {
-                            window.startSelectionWithFile(alternativeElement);
-                            console.log('✅ Selection started successfully with alternative element for:', fileName);
-                        } catch (error) {
-                            console.error('❌ Error starting selection with alternative element:', error);
-                            alert('Error starting selection: ' + error.message);
+                    
+                    // Same waiting logic for alternative element
+                    const startSelectionAlt = () => {
+                        if (window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
+                            try {
+                                window.startSelectionWithFile(alternativeElement);
+                                console.log('✅ Selection started successfully with alternative element for:', fileName);
+                            } catch (error) {
+                                console.error('❌ Error starting selection with alternative element:', error);
+                                alert('Error starting selection: ' + error.message);
+                            }
                         }
+                    };
+                    
+                    if (window.moveFilesSystemReady && window.startSelectionWithFile) {
+                        startSelectionAlt();
+                    } else {
+                        window.addEventListener('moveFilesReady', startSelectionAlt, { once: true });
+                        setTimeout(startSelectionAlt, 200);
                     }
                 } else {
                     console.log('❌ No file element found for:', fileName, 'path:', filePath);

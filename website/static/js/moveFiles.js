@@ -12,10 +12,20 @@ window.openMoveDialog = null;
 window.deleteSelectedFiles = null;
 window.exitSelectionMode = null;
 
+// Add ready state indicator
+window.moveFilesSystemReady = false;
+
 // Initialize move files functionality when document loads
 document.addEventListener('DOMContentLoaded', function() {
     initializeMoveFiles();
 });
+
+// Also initialize immediately if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeMoveFiles);
+} else {
+    initializeMoveFiles();
+}
 
 function initializeMoveFiles() {
     console.log('🔧 Initializing move files system...');
@@ -35,36 +45,66 @@ function initializeMoveFiles() {
         exitSelectionMode: typeof window.exitSelectionMode
     });
     
+    // Set ready state
+    window.moveFilesSystemReady = true;
+    
+    // Dispatch ready event for other scripts to listen to
+    window.dispatchEvent(new CustomEvent('moveFilesReady', {
+        detail: { 
+            systemReady: true,
+            functions: ['startSelectionWithFile', 'handleFileSelection', 'openMoveDialog', 'deleteSelectedFiles', 'exitSelectionMode']
+        }
+    }));
+    
     // Selection mode will be triggered from context menu, not button
     
-    // Selection notification bar buttons
-    document.getElementById('move-selected-btn').addEventListener('click', function() {
-        if (selectedFiles.size > 0) {
-            openMoveDialog();
-        }
-    });
+    // Selection notification bar buttons (with safety checks)
+    const moveSelectedBtn = document.getElementById('move-selected-btn');
+    if (moveSelectedBtn) {
+        moveSelectedBtn.addEventListener('click', function() {
+            if (selectedFiles.size > 0) {
+                openMoveDialog();
+            }
+        });
+    }
     
-    document.getElementById('delete-selected-btn').addEventListener('click', function() {
-        if (selectedFiles.size > 0) {
-            deleteSelectedFiles();
-        }
-    });
+    const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', function() {
+            if (selectedFiles.size > 0) {
+                deleteSelectedFiles();
+            }
+        });
+    }
     
-    document.getElementById('cancel-select-btn').addEventListener('click', exitSelectionMode);
+    const cancelSelectBtn = document.getElementById('cancel-select-btn');
+    if (cancelSelectBtn) {
+        cancelSelectBtn.addEventListener('click', exitSelectionMode);
+    }
     
-    // Move dialog buttons
-    document.getElementById('move-cancel').addEventListener('click', closeMoveDialog);
-    document.getElementById('move-confirm').addEventListener('click', confirmMoveFiles);
+    // Move dialog buttons (with safety checks)
+    const moveCancelBtn = document.getElementById('move-cancel');
+    if (moveCancelBtn) {
+        moveCancelBtn.addEventListener('click', closeMoveDialog);
+    }
+    
+    const moveConfirmBtn = document.getElementById('move-confirm');
+    if (moveConfirmBtn) {
+        moveConfirmBtn.addEventListener('click', confirmMoveFiles);
+    }
     
     // Select all checkbox (both in notification bar and header)
-    document.getElementById('select-all-checkbox').addEventListener('change', handleSelectAll);
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', handleSelectAll);
+    }
     
     const headerSelectAll = document.getElementById('header-select-all');
     if (headerSelectAll) {
         headerSelectAll.addEventListener('change', handleSelectAll);
     }
     
-    console.log('✅ Move files system initialized');
+    console.log('✅ Move files system initialized and ready');
 }
 
 // Start selection mode with a specific file (triggered from context menu)
@@ -660,3 +700,20 @@ if (originalShowDirectory) {
         updateShowDirectoryForSelection();
     };
 }
+
+// Expose functions at the end of file as well for maximum compatibility
+window.startSelectionWithFile = window.startSelectionWithFile || startSelectionWithFile;
+window.handleFileSelection = window.handleFileSelection || handleFileSelection;
+window.openMoveDialog = window.openMoveDialog || openMoveDialog;
+window.deleteSelectedFiles = window.deleteSelectedFiles || deleteSelectedFiles;
+window.exitSelectionMode = window.exitSelectionMode || exitSelectionMode;
+
+// Final console log to confirm system is ready
+console.log('🎯 moveFiles.js loaded and functions exposed:', {
+    startSelectionWithFile: typeof window.startSelectionWithFile,
+    handleFileSelection: typeof window.handleFileSelection,
+    openMoveDialog: typeof window.openMoveDialog,
+    deleteSelectedFiles: typeof window.deleteSelectedFiles,
+    exitSelectionMode: typeof window.exitSelectionMode,
+    moveFilesSystemReady: window.moveFilesSystemReady
+});
