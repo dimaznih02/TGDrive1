@@ -340,14 +340,15 @@ function setupExistingNotificationBar() {
             e.stopPropagation();
             e.stopImmediatePropagation();
             
-            console.log('🧹 About to call directClear()...');
+            console.log('🎯 About to call directClearViaToggle() (Same approach as CTRL+Click)...');
             
-            // Call directClear with timing
+            // 🔑 KEY FIX: Use directClearViaToggle() instead of directClear()
+            // This ensures identical behavior to CTRL+Click deselection
             const startTime = Date.now();
-            directClear();
+            directClearViaToggle();
             const endTime = Date.now();
             
-            console.log(`🕐 directClear() completed in ${endTime - startTime}ms`);
+            console.log(`🕐 directClearViaToggle() completed in ${endTime - startTime}ms`);
             console.log('🔍 Post-clear verification:');
             console.log(`  - directSelected.size: ${directSelected.size}`);
             console.log(`  - Elements with .direct-selected: ${document.querySelectorAll('.direct-selected').length}`);
@@ -418,6 +419,50 @@ window.directSelect = function(element) {
     console.log('🎯 directSelect() completed');
 };
 
+// 🎯 NEW APPROACH: Clear via directSelect() toggle - same as CTRL+Click behavior
+window.directClearViaToggle = function() {
+    console.log('\n🎯🎯🎯 CLEAR VIA TOGGLE (Same as CTRL+Click) - Starting...');
+    console.log(`📊 Before clear: ${directSelected.size} items selected`);
+    console.log(`🎨 Before clear: ${document.querySelectorAll('.direct-selected').length} visually selected elements`);
+    
+    // 🔑 KEY INSIGHT: Use directSelect() to toggle off each selected element
+    // This ensures identical behavior to CTRL+Click deselection
+    
+    const selectedElements = document.querySelectorAll('.file-item.direct-selected, [data-name].direct-selected');
+    console.log(`🔍 Found ${selectedElements.length} visually selected elements to toggle off`);
+    
+    if (selectedElements.length === 0) {
+        console.log('✅ No visually selected elements found - nothing to clear');
+        // Still clear the Set just in case
+        directSelected.clear();
+        updateDirectCounter();
+        return;
+    }
+    
+    // Process each selected element using directSelect() toggle
+    selectedElements.forEach((el, index) => {
+        const fileName = el.getAttribute('data-name') || 'unknown';
+        console.log(`🔄 Toggling off element ${index + 1}/${selectedElements.length}: "${fileName}"`);
+        
+        // Call directSelect() which will toggle the element OFF (since it's currently selected)
+        directSelect(el);
+    });
+    
+    console.log(`✅✅✅ CLEAR VIA TOGGLE completed - processed ${selectedElements.length} elements`);
+    
+    // Final verification
+    const remainingSelected = document.querySelectorAll('.direct-selected');
+    console.log(`🔍 Final verification: ${remainingSelected.length} elements still selected`);
+    console.log(`📦 Final directSelected.size: ${directSelected.size}`);
+    
+    if (remainingSelected.length > 0 || directSelected.size > 0) {
+        console.warn('⚠️ Some elements might still be selected - this should not happen');
+        console.log('Remaining selected elements:', remainingSelected);
+        console.log('Remaining directSelected contents:', Array.from(directSelected));
+    }
+};
+
+// 🔧 LEGACY directClear function (kept for fallback)
 window.directClear = function() {
     console.log('\n🧹🧹🧹 TOTAL CLEAR - Clearing all selections...');
     console.log(`📊 Before clear: ${directSelected.size} items selected`);
@@ -877,9 +922,10 @@ function setupKeyboardShortcuts() {
         // ESC - Clear all selections
         if (e.key === 'Escape') {
             e.preventDefault();
-            window.directClear();
+            console.log('⌨️ ESC pressed - using directClearViaToggle() for consistency...');
+            window.directClearViaToggle();
             hideDirectMenu();
-            console.log('✅ ESC: Cleared all selections');
+            console.log('✅ ESC: Cleared all selections via toggle method');
             return;
         }
     });
@@ -940,6 +986,44 @@ window.testCancelButton = function() {
     }
 };
 
+// 🧪 DEBUG: Function to test new toggle approach directly
+window.testToggleClear = function() {
+    console.log('\n🧪 TESTING NEW TOGGLE CLEAR APPROACH...');
+    
+    // First, select some files via CTRL+A simulation
+    console.log('📋 Step 1: Simulating CTRL+A selection...');
+    const allElements = document.querySelectorAll('.file-item, [data-name]');
+    allElements.forEach(item => {
+        const path = normalizePath(item);
+        if (path) {
+            directSelected.add(path);
+            item.classList.add('direct-selected');
+        }
+    });
+    updateDirectCounter();
+    
+    const beforeToggle = {
+        setSize: directSelected.size,
+        visualElements: document.querySelectorAll('.direct-selected').length
+    };
+    
+    console.log(`✅ Selected ${beforeToggle.setSize} files via CTRL+A simulation`);
+    console.log(`🎨 Visual elements: ${beforeToggle.visualElements}`);
+    
+    console.log('\n📋 Step 2: Testing directClearViaToggle()...');
+    directClearViaToggle();
+    
+    const afterToggle = {
+        setSize: directSelected.size,
+        visualElements: document.querySelectorAll('.direct-selected').length
+    };
+    
+    console.log('📊 Toggle Clear Results:');
+    console.log(`  Before: Set=${beforeToggle.setSize}, Visual=${beforeToggle.visualElements}`);
+    console.log(`  After:  Set=${afterToggle.setSize}, Visual=${afterToggle.visualElements}`);
+    console.log(`  Success: ${afterToggle.setSize === 0 && afterToggle.visualElements === 0 ? '✅ PERFECT!' : '❌ FAILED'}`);
+};
+
 // 🧪 DEBUG: Compare ESC vs Cancel Button behavior
 window.compareClearMethods = function() {
     console.log('\n🧪 COMPARING CLEAR METHODS...');
@@ -965,7 +1049,7 @@ window.compareClearMethods = function() {
         visualElements: document.querySelectorAll('.direct-selected').length
     };
     
-    // Simulate ESC
+    // Simulate ESC (which now uses directClearViaToggle)
     const escEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
     document.dispatchEvent(escEvent);
     
@@ -1040,6 +1124,7 @@ function initializeDirectSelectionSystem() {
         // Expose functions globally
         window.directSelect = window.directSelect;
         window.directClear = window.directClear;
+        window.directClearViaToggle = window.directClearViaToggle; // 🎯 NEW: Toggle-based clear
         window.directMove = window.directMove;
         window.hideDirectMenu = hideDirectMenu;
         
@@ -1053,8 +1138,12 @@ function initializeDirectSelectionSystem() {
         console.log('\n🧪 Debug Functions:');
         console.log('   testNotificationBar() → Test notification bar visibility');
         console.log('   testCancelButton() → Test cancel button functionality');
+        console.log('   testToggleClear() → Test NEW toggle clear approach (CTRL+A fix)');
         console.log('   compareClearMethods() → Compare ESC vs Cancel button');
         console.log('   debugUpdateCounter() → Manual trigger counter update');
+        console.log('\n🎯 Core Functions:');
+        console.log('   directClearViaToggle() → NEW: Clear using directSelect() toggle');
+        console.log('   directClear() → LEGACY: Old clear method');
         
         // Show success notification
         const successToast = document.createElement('div');
