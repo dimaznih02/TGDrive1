@@ -419,47 +419,126 @@ window.directSelect = function(element) {
     console.log('🎯 directSelect() completed');
 };
 
-// 🎯 NEW APPROACH: Clear via directSelect() toggle - same as CTRL+Click behavior
+// 🎯 ENHANCED APPROACH: Robust clearing with multiple fallback methods
 window.directClearViaToggle = function() {
-    console.log('\n🎯🎯🎯 CLEAR VIA TOGGLE (Same as CTRL+Click) - Starting...');
+    console.log('\n🎯🎯🎯 ENHANCED CLEAR VIA TOGGLE - Starting...');
     console.log(`📊 Before clear: ${directSelected.size} items selected`);
     console.log(`🎨 Before clear: ${document.querySelectorAll('.direct-selected').length} visually selected elements`);
     
-    // 🔑 KEY INSIGHT: Use directSelect() to toggle off each selected element
-    // This ensures identical behavior to CTRL+Click deselection
+    // � ENHANCED DETECTION: Try multiple selectors to find selected elements
+    const possibleSelectors = [
+        '.direct-selected',
+        '.file-item.direct-selected', 
+        '[data-name].direct-selected',
+        '.file-item[class*="direct-selected"]',
+        '[class*="direct-selected"]'
+    ];
     
-    const selectedElements = document.querySelectorAll('.file-item.direct-selected, [data-name].direct-selected');
-    console.log(`🔍 Found ${selectedElements.length} visually selected elements to toggle off`);
+    let selectedElements = [];
+    possibleSelectors.forEach(selector => {
+        const found = document.querySelectorAll(selector);
+        console.log(`🔍 Selector "${selector}" found: ${found.length} elements`);
+        if (found.length > 0) {
+            selectedElements = [...new Set([...selectedElements, ...found])]; // Merge unique elements
+        }
+    });
+    
+    console.log(`🔍 Total unique selected elements found: ${selectedElements.length}`);
     
     if (selectedElements.length === 0) {
-        console.log('✅ No visually selected elements found - nothing to clear');
-        // Still clear the Set just in case
+        console.log('⚠️ No visually selected elements detected - trying fallback...');
+        
+        // 🔄 FALLBACK: Clear based on directSelected Set contents
+        if (directSelected.size > 0) {
+            console.log('🔄 Fallback: Clearing based on directSelected Set...');
+            Array.from(directSelected).forEach(path => {
+                const possibleElements = [
+                    ...document.querySelectorAll(`[data-name="${path}"]`),
+                    ...document.querySelectorAll(`[data-path="${path}"]`),
+                    ...document.querySelectorAll(`[data-id="${path}"]`)
+                ];
+                possibleElements.forEach(el => {
+                    if (el.classList.contains('direct-selected')) {
+                        console.log(`🧹 Force clearing fallback element: ${path}`);
+                        clearElementSelection(el);
+                    }
+                });
+            });
+        }
+        
+        // Clear the Set and update counter
         directSelected.clear();
         updateDirectCounter();
         return;
     }
     
-    // Process each selected element using directSelect() toggle
+    // 🎯 METHOD 1: Try directSelect() toggle approach
+    console.log('\n🎯 METHOD 1: Using directSelect() toggle...');
+    const initialCount = selectedElements.length;
+    let toggledCount = 0;
+    
     selectedElements.forEach((el, index) => {
-        const fileName = el.getAttribute('data-name') || 'unknown';
-        console.log(`🔄 Toggling off element ${index + 1}/${selectedElements.length}: "${fileName}"`);
+        const fileName = el.getAttribute('data-name') || el.getAttribute('data-path') || 'unknown';
+        console.log(`🔄 Toggling element ${index + 1}/${initialCount}: "${fileName}"`);
         
-        // Call directSelect() which will toggle the element OFF (since it's currently selected)
-        directSelect(el);
+        try {
+            const wasSelected = el.classList.contains('direct-selected');
+            directSelect(el);
+            const nowSelected = el.classList.contains('direct-selected');
+            
+            if (wasSelected && !nowSelected) {
+                toggledCount++;
+                console.log(`✅ Successfully toggled off: ${fileName}`);
+            } else if (wasSelected && nowSelected) {
+                console.warn(`⚠️ Toggle failed for: ${fileName} - trying manual clear...`);
+                clearElementSelection(el);
+            }
+        } catch (error) {
+            console.error(`❌ Error toggling ${fileName}:`, error);
+            console.log(`🔧 Applying manual clear as fallback...`);
+            clearElementSelection(el);
+        }
     });
     
-    console.log(`✅✅✅ CLEAR VIA TOGGLE completed - processed ${selectedElements.length} elements`);
+    console.log(`🎯 METHOD 1 Results: ${toggledCount}/${initialCount} elements toggled successfully`);
     
-    // Final verification
-    const remainingSelected = document.querySelectorAll('.direct-selected');
-    console.log(`🔍 Final verification: ${remainingSelected.length} elements still selected`);
-    console.log(`📦 Final directSelected.size: ${directSelected.size}`);
+    // 🔍 VERIFICATION AFTER METHOD 1
+    const remainingAfterToggle = document.querySelectorAll('.direct-selected');
+    console.log(`🔍 After toggle method: ${remainingAfterToggle.length} elements still selected`);
     
-    if (remainingSelected.length > 0 || directSelected.size > 0) {
-        console.warn('⚠️ Some elements might still be selected - this should not happen');
-        console.log('Remaining selected elements:', remainingSelected);
-        console.log('Remaining directSelected contents:', Array.from(directSelected));
+    // 🎯 METHOD 2: Manual clearing for any remaining elements
+    if (remainingAfterToggle.length > 0) {
+        console.log('\n🎯 METHOD 2: Manual clearing for remaining elements...');
+        remainingAfterToggle.forEach((el, index) => {
+            const fileName = el.getAttribute('data-name') || 'unknown';
+            console.log(`🧹 Force clearing remaining element ${index + 1}: ${fileName}`);
+            clearElementSelection(el);
+        });
     }
+    
+    // 🔍 FINAL VERIFICATION
+    const finalSelected = document.querySelectorAll('.direct-selected');
+    console.log('\n🔍 FINAL VERIFICATION:');
+    console.log(`  - Visual elements with .direct-selected: ${finalSelected.length}`);
+    console.log(`  - directSelected Set size: ${directSelected.size}`);
+    
+    // 🔄 NUCLEAR OPTION: If still any elements remain
+    if (finalSelected.length > 0) {
+        console.warn('\n☢️ NUCLEAR OPTION: Force clearing all remaining visual artifacts...');
+        finalSelected.forEach((el, i) => {
+            console.log(`☢️ Nuclear clear ${i + 1}: ${el.getAttribute('data-name') || 'unknown'}`);
+            el.classList.remove('direct-selected');
+            el.removeAttribute('style');
+            // Remove any other possible selection classes
+            ['selected', 'active', 'highlighted'].forEach(cls => el.classList.remove(cls));
+        });
+    }
+    
+    // Ensure Set is cleared and counter updated
+    directSelected.clear();
+    updateDirectCounter();
+    
+    console.log(`✅✅✅ ENHANCED CLEAR completed - processed ${initialCount} elements total`);
 };
 
 // 🔧 LEGACY directClear function (kept for fallback)
@@ -541,38 +620,79 @@ window.directClear = function() {
     console.log('✅✅✅ TOTAL CLEAR completed successfully');
 };
 
-// Helper function for thorough element clearing
+// 🔧 ENHANCED Helper function for thorough element clearing
 function clearElementSelection(el) {
     if (!el) return;
     
-    // Remove the class
-    el.classList.remove('direct-selected');
+    const fileName = el.getAttribute('data-name') || 'unknown';
+    console.log(`🧹 Detailed clearing for: ${fileName}`);
+    
+    // 🔍 Log current state
+    console.log(`  Before: classList="${el.className}", hasDirectSelected=${el.classList.contains('direct-selected')}`);
+    
+    // Remove ALL possible selection-related classes
+    const classesToRemove = [
+        'direct-selected', 'selected', 'active', 'highlighted', 
+        'file-selected', 'item-selected', 'checked'
+    ];
+    
+    classesToRemove.forEach(className => {
+        if (el.classList.contains(className)) {
+            el.classList.remove(className);
+            console.log(`  ✅ Removed class: ${className}`);
+        }
+    });
     
     // Clear ALL possible inline styles
     const stylesToClear = [
         'backgroundColor', 'background', 'background-color',
-        'border', 'borderRadius', 'border-radius',
-        'boxShadow', 'box-shadow', 'transform',
+        'border', 'borderRadius', 'border-radius', 'borderWidth', 'border-width',
+        'boxShadow', 'box-shadow', 'transform', 'filter',
         'gridTemplateColumns', 'grid-template-columns',
         'width', 'minWidth', 'min-width', 'maxWidth', 'max-width',
         'flexShrink', 'flex-shrink', 'overflow', 'whiteSpace', 'white-space',
-        'position', 'zIndex', 'z-index'
+        'position', 'zIndex', 'z-index', 'opacity'
     ];
     
+    let clearedStyles = [];
     stylesToClear.forEach(prop => {
-        el.style[prop] = '';
+        if (el.style[prop]) {
+            el.style[prop] = '';
+            clearedStyles.push(prop);
+        }
         el.style.removeProperty(prop);
         el.style.removeProperty(prop.replace(/([A-Z])/g, '-$1').toLowerCase());
     });
     
+    if (clearedStyles.length > 0) {
+        console.log(`  🎨 Cleared styles: ${clearedStyles.join(', ')}`);
+    }
+    
     // Force remove any remaining style attribute if it's empty
     if (!el.style.cssText || el.style.cssText.trim() === '') {
         el.removeAttribute('style');
+        console.log(`  🗑️ Removed empty style attribute`);
     }
     
     // Remove any data attributes related to selection
-    el.removeAttribute('data-selected');
-    el.removeAttribute('data-direct-selected');
+    const attributesToRemove = [
+        'data-selected', 'data-direct-selected', 'data-checked', 'data-active'
+    ];
+    
+    attributesToRemove.forEach(attr => {
+        if (el.hasAttribute(attr)) {
+            el.removeAttribute(attr);
+            console.log(`  🗑️ Removed attribute: ${attr}`);
+        }
+    });
+    
+    // 🔍 Log final state
+    console.log(`  After: classList="${el.className}", hasDirectSelected=${el.classList.contains('direct-selected')}`);
+    
+    // 🎯 FORCE REPAINT: Trigger browser repaint to ensure visual update
+    el.offsetHeight; // Force reflow
+    
+    console.log(`✅ Enhanced clearing completed for: ${fileName}`);
 }
 
 window.directMove = function() {
@@ -1024,6 +1144,108 @@ window.testToggleClear = function() {
     console.log(`  Success: ${afterToggle.setSize === 0 && afterToggle.visualElements === 0 ? '✅ PERFECT!' : '❌ FAILED'}`);
 };
 
+// 🧪 DEBUG: Diagnose the exact cancel button issue
+window.diagnoseCancelButtonIssue = function() {
+    console.log('\n🔍🔍🔍 DIAGNOSE CANCEL BUTTON ISSUE...');
+    
+    // Step 1: Simulate the exact user scenario
+    console.log('📋 Step 1: Simulating exact user scenario (CTRL+A)...');
+    
+    // Trigger CTRL+A exactly like the user does
+    const ctrlAEvent = new KeyboardEvent('keydown', { 
+        key: 'a', 
+        ctrlKey: true, 
+        bubbles: true,
+        cancelable: true
+    });
+    
+    document.dispatchEvent(ctrlAEvent);
+    
+    // Wait a moment for CTRL+A to process
+    setTimeout(() => {
+        const afterCtrlA = {
+            setSize: directSelected.size,
+            visualElements: document.querySelectorAll('.direct-selected').length,
+            allClasses: []
+        };
+        
+        // Collect all classes from selected elements
+        document.querySelectorAll('.direct-selected').forEach(el => {
+            afterCtrlA.allClasses.push({
+                name: el.getAttribute('data-name') || 'unknown',
+                classes: el.className
+            });
+        });
+        
+        console.log('📊 After CTRL+A:');
+        console.log(`  Set size: ${afterCtrlA.setSize}`);
+        console.log(`  Visual elements: ${afterCtrlA.visualElements}`);
+        console.log('  Element classes:', afterCtrlA.allClasses);
+        
+        // Step 2: Test cancel button detection
+        console.log('\n📋 Step 2: Testing cancel button...');
+        const cancelBtn = document.getElementById('cancel-select-btn');
+        console.log('Cancel button found:', !!cancelBtn);
+        
+        if (cancelBtn) {
+            console.log('Cancel button details:');
+            console.log('  Element:', cancelBtn);
+            console.log('  Disabled:', cancelBtn.disabled);
+            console.log('  Display style:', window.getComputedStyle(cancelBtn).display);
+            console.log('  Visibility style:', window.getComputedStyle(cancelBtn).visibility);
+            
+            // Step 3: Manually trigger cancel button click
+            console.log('\n📋 Step 3: Manually triggering cancel button...');
+            
+            // Simulate the exact click that user does
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            
+            cancelBtn.dispatchEvent(clickEvent);
+            
+            // Check results after cancel click
+            setTimeout(() => {
+                const afterCancel = {
+                    setSize: directSelected.size,
+                    visualElements: document.querySelectorAll('.direct-selected').length
+                };
+                
+                console.log('\n📊 After Cancel Button Click:');
+                console.log(`  Set size: ${afterCancel.setSize}`);
+                console.log(`  Visual elements: ${afterCancel.visualElements}`);
+                
+                if (afterCancel.visualElements > 0) {
+                    console.warn('⚠️ ISSUE CONFIRMED: Visual elements still selected after cancel!');
+                    
+                    // Detailed analysis of remaining elements
+                    const remaining = document.querySelectorAll('.direct-selected');
+                    console.log('🔍 Detailed analysis of remaining selected elements:');
+                    remaining.forEach((el, i) => {
+                        console.log(`  Element ${i + 1}:`, {
+                            name: el.getAttribute('data-name'),
+                            classes: el.className,
+                            computedStyle: {
+                                backgroundColor: window.getComputedStyle(el).backgroundColor,
+                                border: window.getComputedStyle(el).border,
+                                boxShadow: window.getComputedStyle(el).boxShadow
+                            }
+                        });
+                    });
+                } else {
+                    console.log('✅ ISSUE RESOLVED: Cancel button working correctly!');
+                }
+            }, 100);
+            
+        } else {
+            console.error('❌ Cancel button not found!');
+        }
+        
+    }, 100);
+};
+
 // 🧪 DEBUG: Compare ESC vs Cancel Button behavior
 window.compareClearMethods = function() {
     console.log('\n🧪 COMPARING CLEAR METHODS...');
@@ -1139,10 +1361,11 @@ function initializeDirectSelectionSystem() {
         console.log('   testNotificationBar() → Test notification bar visibility');
         console.log('   testCancelButton() → Test cancel button functionality');
         console.log('   testToggleClear() → Test NEW toggle clear approach (CTRL+A fix)');
+        console.log('   diagnoseCancelButtonIssue() → 🔍 DIAGNOSE exact cancel button problem');
         console.log('   compareClearMethods() → Compare ESC vs Cancel button');
         console.log('   debugUpdateCounter() → Manual trigger counter update');
         console.log('\n🎯 Core Functions:');
-        console.log('   directClearViaToggle() → NEW: Clear using directSelect() toggle');
+        console.log('   directClearViaToggle() → ENHANCED: Robust clear with multiple fallbacks');
         console.log('   directClear() → LEGACY: Old clear method');
         
         // Show success notification
