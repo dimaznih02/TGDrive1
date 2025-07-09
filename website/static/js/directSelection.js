@@ -262,38 +262,54 @@ window.directSelect = function(element) {
 };
 
 window.directClear = function() {
-    console.log('🧹 Clearing all selections...');
+    console.log('\n🧹🧹🧹 TOTAL CLEAR - Clearing all selections...');
     console.log(`📊 Before clear: ${directSelected.size} items selected`);
     console.log(`🎨 Before clear: ${document.querySelectorAll('.direct-selected').length} visually selected elements`);
     
-    // Remove all direct-selected classes
+    // 🔥 AGGRESSIVE CLEARING - Multiple approaches to ensure complete reset
+    
+    // Method 1: Clear using current directSelected Set
+    if (directSelected.size > 0) {
+        console.log('🔥 Method 1: Clearing via directSelected Set...');
+        Array.from(directSelected).forEach((path, index) => {
+            console.log(`🔧 Processing selected path ${index + 1}: "${path}"`);
+            
+            // Find elements by various selectors
+            const possibleElements = [
+                ...document.querySelectorAll(`[data-name="${path}"]`),
+                ...document.querySelectorAll(`[data-path="${path}"]`),
+                ...document.querySelectorAll(`[data-id="${path}"]`)
+            ];
+            
+            possibleElements.forEach(el => {
+                if (el.classList.contains('direct-selected')) {
+                    console.log(`🧹 Clearing element: ${el.getAttribute('data-name') || 'unknown'}`);
+                    clearElementSelection(el);
+                }
+            });
+        });
+    }
+    
+    // Method 2: Clear all elements with .direct-selected class (safety net)
+    console.log('🔥 Method 2: Clearing via .direct-selected class...');
     const selectedElements = document.querySelectorAll('.direct-selected');
     selectedElements.forEach((el, index) => {
         const fileName = el.getAttribute('data-name') || 'unknown';
-        console.log(`🎨 Removing selection from element ${index + 1}: ${fileName}`);
-        
-        // Remove the class
-        el.classList.remove('direct-selected');
-        
-        // Force clear any inline styles that might persist
-        el.style.backgroundColor = '';
-        el.style.border = '';
-        el.style.borderRadius = '';
-        el.style.boxShadow = '';
-        el.style.transform = '';
-        
-        // Force clear any grid template overrides - let CSS handle it
-        el.style.gridTemplateColumns = '';
-        
-        // Force clear any other layout-related inline styles
-        el.style.width = '';
-        el.style.minWidth = '';
-        el.style.maxWidth = '';
-        el.style.flexShrink = '';
-        el.style.overflow = '';
-        el.style.whiteSpace = '';
-        
-        console.log(`✅ Cleared visual selection from: ${fileName}`);
+        console.log(`🧹 Force clearing element ${index + 1}: ${fileName}`);
+        clearElementSelection(el);
+    });
+    
+    // Method 3: Nuclear option - scan ALL file items for any remaining selection artifacts
+    console.log('🔥 Method 3: Nuclear scan of all file items...');
+    const allFileItems = document.querySelectorAll('.file-item, [data-name]');
+    allFileItems.forEach((el, index) => {
+        if (el.classList.contains('direct-selected') || 
+            el.style.backgroundColor || 
+            el.style.border || 
+            el.style.boxShadow) {
+            console.log(`☢️ Nuclear clear on element ${index + 1}: ${el.getAttribute('data-name') || 'unknown'}`);
+            clearElementSelection(el);
+        }
     });
     
     // Clear the Set
@@ -303,20 +319,59 @@ window.directClear = function() {
     // Update UI counter and notification
     updateDirectCounter();
     
-    // Verification
+    // Final verification with enhanced logging
     const remainingSelected = document.querySelectorAll('.direct-selected');
-    console.log(`🔍 Verification: ${remainingSelected.length} elements still have .direct-selected class`);
+    const remainingStyles = document.querySelectorAll('[style*="background"], [style*="border"], [style*="box-shadow"]');
     
-    if (remainingSelected.length > 0) {
-        console.warn('⚠️ Some elements still have selection class, force removing...');
-        remainingSelected.forEach((el, i) => {
-            el.classList.remove('direct-selected');
-            console.log(`🔧 Force removed selection from element ${i + 1}`);
+    console.log(`\n🔍 FINAL VERIFICATION:`);
+    console.log(`  - Elements with .direct-selected: ${remainingSelected.length}`);
+    console.log(`  - Elements with selection styles: ${remainingStyles.length}`);
+    console.log(`  - directSelected.size: ${directSelected.size}`);
+    
+    if (remainingSelected.length > 0 || remainingStyles.length > 0) {
+        console.warn('⚠️ STILL HAVE SELECTED ELEMENTS - Final cleanup...');
+        [...remainingSelected, ...remainingStyles].forEach((el, i) => {
+            console.log(`🔧 Emergency clear on element ${i + 1}`);
+            clearElementSelection(el);
         });
     }
     
-    console.log('✅ All selections cleared successfully');
+    console.log('✅✅✅ TOTAL CLEAR completed successfully');
 };
+
+// Helper function for thorough element clearing
+function clearElementSelection(el) {
+    if (!el) return;
+    
+    // Remove the class
+    el.classList.remove('direct-selected');
+    
+    // Clear ALL possible inline styles
+    const stylesToClear = [
+        'backgroundColor', 'background', 'background-color',
+        'border', 'borderRadius', 'border-radius',
+        'boxShadow', 'box-shadow', 'transform',
+        'gridTemplateColumns', 'grid-template-columns',
+        'width', 'minWidth', 'min-width', 'maxWidth', 'max-width',
+        'flexShrink', 'flex-shrink', 'overflow', 'whiteSpace', 'white-space',
+        'position', 'zIndex', 'z-index'
+    ];
+    
+    stylesToClear.forEach(prop => {
+        el.style[prop] = '';
+        el.style.removeProperty(prop);
+        el.style.removeProperty(prop.replace(/([A-Z])/g, '-$1').toLowerCase());
+    });
+    
+    // Force remove any remaining style attribute if it's empty
+    if (!el.style.cssText || el.style.cssText.trim() === '') {
+        el.removeAttribute('style');
+    }
+    
+    // Remove any data attributes related to selection
+    el.removeAttribute('data-selected');
+    el.removeAttribute('data-direct-selected');
+}
 
 window.directMove = function() {
     if (directSelected.size === 0) {
@@ -470,9 +525,9 @@ function debugDOMStructure() {
     console.log('\n✅ DOM Structure analysis completed');
 }
 
-// Attach context menu listeners to all file items
+// Attach context menu and CTRL+Click listeners to all file items
 function attachContextListeners() {
-    console.log('🔗 Attaching context menu listeners...');
+    console.log('🔗 Attaching context menu and CTRL+Click listeners...');
     
     // First, analyze DOM structure for debugging
     debugDOMStructure();
@@ -482,11 +537,35 @@ function attachContextListeners() {
         const newItem = item.cloneNode(true);
         item.parentNode.replaceChild(newItem, item);
         
-        // Add context menu listener
+        // 🖱️ Add CTRL+Click listener for multi-select
+        newItem.addEventListener('click', function(e) {
+            // Only trigger on CTRL+Click
+            if (e.ctrlKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                console.log('🖱️ CTRL+Click detected on:', newItem.getAttribute('data-name'));
+                
+                // Hide any open context menus
+                hideDirectMenu();
+                
+                // Toggle selection on this item
+                directSelect(newItem);
+                
+                return false;
+            }
+            
+            // For non-CTRL clicks, let other handlers process normally
+        }, true);
+        
+        // 🖱️ Add context menu listener (right-click)
         newItem.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
+            
+            console.log('🖱️ Right-click detected on:', newItem.getAttribute('data-name'));
             
             // Hide any existing menus
             document.querySelectorAll('[id*="menu"], [id*="context"]').forEach(menu => {
@@ -500,10 +579,10 @@ function attachContextListeners() {
             return false;
         }, true);
         
-        console.log('📁 Context menu attached to:', newItem.getAttribute('data-name'));
+        console.log('📁 CTRL+Click & Context menu attached to:', newItem.getAttribute('data-name'));
     });
     
-    console.log('✅ Context menu listeners attached to all file items');
+    console.log('✅ Context menu and CTRL+Click listeners attached to all file items');
 }
 
 // Global click handler to hide context menu
@@ -623,8 +702,10 @@ function initializeDirectSelectionSystem() {
         console.log('✅ Direct Selection System initialized successfully!');
         console.log('📖 Usage:');
         console.log('   🖱️  Right-click file → Context menu');
+        console.log('   🖱️  CTRL+Click file → Toggle selection (multi-select)');
         console.log('   ⌨️  CTRL+A → Select all files');
         console.log('   ⌨️  ESC → Clear all selections');
+        console.log('   ❌  Click "Batal" button → Clear all selections');
         
         // Show success notification
         const successToast = document.createElement('div');
