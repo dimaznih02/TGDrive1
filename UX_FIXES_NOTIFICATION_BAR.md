@@ -114,12 +114,31 @@ window.debugUpdateCounter();
    - ✅ **Counter reset ke "0 item dipilih"**
    - ✅ **Notification bar hilang**
 
-### **Test 4: Debug Console**
+### **Test 4: Debug Console - Enhanced**
 1. Buka Developer Tools Console (F12)
 2. Jalankan: `testNotificationBar()`
 3. **Expected**: Notification bar muncul paksa selama 3 detik
 4. Jalankan: `debugUpdateCounter()` 
 5. **Expected**: Detailed logging muncul di console
+
+### **🔧 Test 5: CRITICAL - Cancel Button Bug Debug**
+1. **Test Cancel Button Detection**:
+   ```javascript
+   testCancelButton()
+   ```
+   **Expected**: Should detect cancel button and simulate click
+
+2. **Compare ESC vs Cancel Button**:
+   ```javascript
+   compareClearMethods()
+   ```
+   **Expected**: Both methods should clear selections successfully
+
+3. **Manual CTRL+A + Cancel Test**:
+   - Press CTRL+A (all files selected)
+   - Open console, check: `directSelected.size` and `document.querySelectorAll('.direct-selected').length`
+   - Click Cancel button in UI
+   - Check again: Both should be 0
 
 ---
 
@@ -162,12 +181,45 @@ window.debugUpdateCounter();
 
 ---
 
+---
+
+## 🔧 **LATEST BUG FIX: CTRL+A + Cancel Button Issue**
+
+### **🔴 Problem Identified:**
+- CTRL+A selection works ✅
+- ESC clearing works ✅  
+- CTRL+Click + Cancel works ✅
+- **CTRL+A + Cancel Button FAILS** ❌
+
+### **🔍 Root Cause Analysis:**
+1. **Event Handler Conflict**: Possible interference with cancel button click
+2. **Element Detection Issue**: Cancel button might not be properly detected
+3. **Timing Issue**: directClear() might not be called correctly
+
+### **🔧 Enhanced Debugging Added:**
+```javascript
+// 🧪 NEW DEBUG FUNCTIONS
+testCancelButton()           // Test cancel button detection & click
+compareClearMethods()        // Compare ESC vs Cancel behavior  
+testNotificationBar()        // Test notification visibility
+debugUpdateCounter()         // Manual counter trigger
+```
+
+### **🎯 Enhanced Cancel Button Setup:**
+- ✅ Comprehensive element detection logging
+- ✅ Event listener cloning to prevent conflicts  
+- ✅ Enhanced click handler with timing & verification
+- ✅ Comprehensive before/after state logging
+
+---
+
 ## ✅ **STATUS FINAL**
 
 **🎯 Problem 1**: ✅ **RESOLVED** - Tombol "Batal" sekarang SELALU muncul  
 **🎯 Problem 2**: ✅ **RESOLVED** - Lokasi tombol 100% konsisten  
+**🎯 Problem 3**: 🔧 **DEBUGGING** - CTRL+A + Cancel issue enhanced debugging added  
 **🎯 Enhanced**: ✅ **BONUS** - Added comprehensive debugging & styling  
 
 **Server Ready**: **http://localhost:8000** 🚀
 
-**Ready for Production**: ✅ **YES** - All UX issues fixed!
+**Debug Status**: ✅ **READY FOR COMPREHENSIVE TESTING**

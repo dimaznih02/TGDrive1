@@ -296,19 +296,73 @@ function setupExistingNotificationBar() {
     const deleteBtn = document.getElementById('delete-selected-btn');
     const cancelBtn = document.getElementById('cancel-select-btn');
     
+    console.log('\n🔍 BUTTON DETECTION:');
+    console.log(`  - Move button (#move-selected-btn): ${!!moveBtn}`);
+    console.log(`  - Delete button (#delete-selected-btn): ${!!deleteBtn}`);
+    console.log(`  - ❌ CANCEL button (#cancel-select-btn): ${!!cancelBtn}`);
+    
     if (moveBtn) {
         moveBtn.addEventListener('click', directMove);
         console.log('✅ Move button wired up');
+    } else {
+        console.warn('⚠️ Move button not found!');
     }
     
     if (deleteBtn) {
         deleteBtn.addEventListener('click', directClear); // For now, use directClear for delete
         console.log('✅ Delete button wired up');
+    } else {
+        console.warn('⚠️ Delete button not found!');
     }
     
     if (cancelBtn) {
-        cancelBtn.addEventListener('click', directClear);
-        console.log('✅ Cancel button wired up');
+        // 🔧 ENHANCED CANCEL BUTTON SETUP with comprehensive debugging
+        console.log('\n🔧 SETTING UP CANCEL BUTTON...');
+        console.log(`Cancel button element:`, cancelBtn);
+        console.log(`Cancel button tagName:`, cancelBtn.tagName);
+        console.log(`Cancel button id:`, cancelBtn.id);
+        console.log(`Cancel button classes:`, cancelBtn.className);
+        
+        // Remove any existing event listeners by cloning
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        // Add enhanced event listener with debugging
+        newCancelBtn.addEventListener('click', function(e) {
+            console.log('\n🚨🚨🚨 CANCEL BUTTON CLICKED!');
+            console.log('Event object:', e);
+            console.log('Target element:', e.target);
+            console.log('Current directSelected.size before clear:', directSelected.size);
+            console.log('Current selected elements before clear:', document.querySelectorAll('.direct-selected').length);
+            
+            // Prevent any event bubbling or default behavior
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            console.log('🧹 About to call directClear()...');
+            
+            // Call directClear with timing
+            const startTime = Date.now();
+            directClear();
+            const endTime = Date.now();
+            
+            console.log(`🕐 directClear() completed in ${endTime - startTime}ms`);
+            console.log('🔍 Post-clear verification:');
+            console.log(`  - directSelected.size: ${directSelected.size}`);
+            console.log(`  - Elements with .direct-selected: ${document.querySelectorAll('.direct-selected').length}`);
+            
+            return false;
+        }, true);
+        
+        console.log('✅✅✅ ENHANCED Cancel button wired up with comprehensive debugging');
+    } else {
+        console.error('❌❌❌ CRITICAL: Cancel button (#cancel-select-btn) NOT FOUND!');
+        console.error('This explains why the cancel button doesn\'t work!');
+        
+        // Try to find similar buttons for debugging
+        const possibleCancelBtns = document.querySelectorAll('[id*="cancel"], [class*="cancel"], [data-action="cancel"]');
+        console.log(`🔍 Found ${possibleCancelBtns.length} possible cancel buttons:`, possibleCancelBtns);
     }
 }
 
@@ -867,6 +921,98 @@ window.debugUpdateCounter = function() {
     updateDirectCounter();
 };
 
+// 🧪 DEBUG: Function to manually test cancel button
+window.testCancelButton = function() {
+    console.log('\n🧪 TESTING CANCEL BUTTON...');
+    
+    const cancelBtn = document.getElementById('cancel-select-btn');
+    console.log('Cancel button found:', !!cancelBtn);
+    
+    if (cancelBtn) {
+        console.log('Cancel button element:', cancelBtn);
+        console.log('Cancel button click handler count:', getEventListeners ? getEventListeners(cancelBtn).click?.length || 0 : 'Cannot detect');
+        
+        console.log('🔄 Simulating cancel button click...');
+        cancelBtn.click();
+        console.log('✅ Cancel button click simulated');
+    } else {
+        console.error('❌ Cancel button not found! This is the problem.');
+    }
+};
+
+// 🧪 DEBUG: Compare ESC vs Cancel Button behavior
+window.compareClearMethods = function() {
+    console.log('\n🧪 COMPARING CLEAR METHODS...');
+    
+    // First, select some files via CTRL+A simulation
+    console.log('📋 Step 1: Simulating CTRL+A selection...');
+    const allElements = document.querySelectorAll('.file-item, [data-name]');
+    allElements.forEach(item => {
+        const path = normalizePath(item);
+        if (path) {
+            directSelected.add(path);
+            item.classList.add('direct-selected');
+        }
+    });
+    updateDirectCounter();
+    
+    console.log(`✅ Selected ${directSelected.size} files via simulation`);
+    console.log(`🎨 Visual elements with .direct-selected: ${document.querySelectorAll('.direct-selected').length}`);
+    
+    console.log('\n📋 Step 2: Testing ESC method...');
+    const beforeESC = {
+        setSize: directSelected.size,
+        visualElements: document.querySelectorAll('.direct-selected').length
+    };
+    
+    // Simulate ESC
+    const escEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+    document.dispatchEvent(escEvent);
+    
+    const afterESC = {
+        setSize: directSelected.size,
+        visualElements: document.querySelectorAll('.direct-selected').length
+    };
+    
+    console.log('📊 ESC Results:');
+    console.log(`  Before: Set=${beforeESC.setSize}, Visual=${beforeESC.visualElements}`);
+    console.log(`  After:  Set=${afterESC.setSize}, Visual=${afterESC.visualElements}`);
+    console.log(`  Success: ${afterESC.setSize === 0 && afterESC.visualElements === 0 ? '✅' : '❌'}`);
+    
+    // Re-select for cancel button test
+    console.log('\n📋 Step 3: Re-selecting for Cancel Button test...');
+    allElements.forEach(item => {
+        const path = normalizePath(item);
+        if (path) {
+            directSelected.add(path);
+            item.classList.add('direct-selected');
+        }
+    });
+    updateDirectCounter();
+    
+    const beforeCancel = {
+        setSize: directSelected.size,
+        visualElements: document.querySelectorAll('.direct-selected').length
+    };
+    
+    console.log('\n📋 Step 4: Testing Cancel Button method...');
+    testCancelButton();
+    
+    const afterCancel = {
+        setSize: directSelected.size,
+        visualElements: document.querySelectorAll('.direct-selected').length
+    };
+    
+    console.log('📊 Cancel Button Results:');
+    console.log(`  Before: Set=${beforeCancel.setSize}, Visual=${beforeCancel.visualElements}`);
+    console.log(`  After:  Set=${afterCancel.setSize}, Visual=${afterCancel.visualElements}`);
+    console.log(`  Success: ${afterCancel.setSize === 0 && afterCancel.visualElements === 0 ? '✅' : '❌'}`);
+    
+    console.log('\n🏁 COMPARISON SUMMARY:');
+    console.log(`  ESC Success: ${afterESC.setSize === 0 && afterESC.visualElements === 0 ? '✅' : '❌'}`);
+    console.log(`  Cancel Button Success: ${afterCancel.setSize === 0 && afterCancel.visualElements === 0 ? '✅' : '❌'}`);
+};
+
 // Function to reinitialize after directory refresh
 window.reinitializeDirectSelection = function() {
     console.log('🔄 Reinitializing direct selection system...');
@@ -904,6 +1050,11 @@ function initializeDirectSelectionSystem() {
         console.log('   ⌨️  CTRL+A → Select all files');
         console.log('   ⌨️  ESC → Clear all selections');
         console.log('   ❌  Click "Batal" button → Clear all selections');
+        console.log('\n🧪 Debug Functions:');
+        console.log('   testNotificationBar() → Test notification bar visibility');
+        console.log('   testCancelButton() → Test cancel button functionality');
+        console.log('   compareClearMethods() → Compare ESC vs Cancel button');
+        console.log('   debugUpdateCounter() → Manual trigger counter update');
         
         // Show success notification
         const successToast = document.createElement('div');
