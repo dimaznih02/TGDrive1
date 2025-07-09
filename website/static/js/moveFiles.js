@@ -70,67 +70,107 @@ function initializeMoveFiles() {
 // Start selection mode with a specific file (triggered from context menu)
 function startSelectionWithFile(fileElement) {
     console.log('🚀 startSelectionWithFile called with element:', fileElement);
+    
+    if (!fileElement) {
+        console.error('❌ No file element provided to startSelectionWithFile');
+        alert('Error: No file element provided for selection');
+        return;
+    }
+    
     console.log('📂 Current selection mode:', isSelectionMode);
-    
-    // CLEAR ANY EXISTING SELECTIONS first to prevent ghost selections
-    console.log('🧹 Clearing any existing selections to prevent ghosts...');
-    selectedFiles.clear();
-    
-    // Remove all existing selected classes
-    document.querySelectorAll('.file-item.selected').forEach(item => {
-        item.classList.remove('selected');
-        console.log('🗑️ Removed ghost selection from:', item.getAttribute('data-name'));
+    console.log('📂 Element attributes:', {
+        'data-path': fileElement.getAttribute('data-path'),
+        'data-id': fileElement.getAttribute('data-id'),
+        'data-name': fileElement.getAttribute('data-name'),
+        'data-type': fileElement.getAttribute('data-type')
     });
     
-    // Remove all existing checkboxes to start fresh
-    document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
-    
-    if (!isSelectionMode) {
-        console.log('⚡ Entering selection mode...');
-        enterSelectionMode();
-    } else {
-        // If already in selection mode, just re-add checkboxes
-        addCheckboxesToRows();
+    try {
+        // CLEAR ANY EXISTING SELECTIONS first to prevent ghost selections
+        console.log('🧹 Clearing any existing selections to prevent ghosts...');
+        selectedFiles.clear();
+        
+        // Remove all existing selected classes
+        document.querySelectorAll('.file-item.selected').forEach(item => {
+            item.classList.remove('selected');
+            console.log('🗑️ Removed ghost selection from:', item.getAttribute('data-name'));
+        });
+        
+        // Remove all existing checkboxes to start fresh
+        document.querySelectorAll('.file-item .checkbox-column').forEach(cb => cb.remove());
+        
+        if (!isSelectionMode) {
+            console.log('⚡ Entering selection mode...');
+            enterSelectionMode();
+        } else {
+            // If already in selection mode, just re-add checkboxes
+            console.log('🔄 Already in selection mode, re-adding checkboxes...');
+            addCheckboxesToRows();
+        }
+        
+        // Get file ID/path
+        const fileId = fileElement.getAttribute('data-id') || fileElement.getAttribute('data-path');
+        const fileName = fileElement.getAttribute('data-name') || 'Unknown File';
+        console.log('📋 File info - ID:', fileId, 'Name:', fileName);
+        
+        if (!fileId) {
+            console.error('❌ No file ID or path found on element');
+            alert('Error: Unable to identify file for selection');
+            return;
+        }
+        
+        // Add this specific file to selection
+        selectedFiles.add(fileId);
+        fileElement.classList.add('selected');
+        console.log('✅ Added to fresh selection, element classes:', fileElement.className);
+        
+        // Give a small delay for DOM to update, then find and check the checkbox
+        setTimeout(() => {
+            const checkbox = fileElement.querySelector('.file-checkbox');
+            if (checkbox) {
+                checkbox.checked = true;
+                console.log('☑️ Checked checkbox for selected file');
+            } else {
+                console.log('⚠️ Checkbox not found for selected file, searching again...');
+                // Try to find checkbox by searching all checkboxes
+                const allCheckboxes = document.querySelectorAll('.file-checkbox');
+                allCheckboxes.forEach((cb, index) => {
+                    const row = cb.closest('.file-item');
+                    const rowId = row?.getAttribute('data-id') || row?.getAttribute('data-path');
+                    if (rowId === fileId) {
+                        cb.checked = true;
+                        console.log('☑️ Found and checked checkbox at index:', index);
+                    }
+                });
+            }
+            
+            // Update UI
+            updateSelectedCount();
+            updateSelectAllCheckbox();
+        }, 50);
+        
+        // Force notification bar to show
+        const notificationBar = document.getElementById('selection-notification-bar');
+        if (notificationBar) {
+            notificationBar.style.display = 'flex';
+            console.log('📢 Notification bar displayed');
+        } else {
+            console.log('❌ Notification bar not found');
+        }
+        
+        // Show toast notification
+        if (window.googleDriveUI && window.googleDriveUI.showToast) {
+            window.googleDriveUI.showToast(`"${fileName}" dipilih`, 'success');
+        } else {
+            console.log('🔔 Toast: File dipilih -', fileName);
+        }
+        
+        console.log('🎯 Started selection with file:', fileName, 'Total selected:', selectedFiles.size);
+        
+    } catch (error) {
+        console.error('❌ Error in startSelectionWithFile:', error);
+        alert('Error starting selection: ' + error.message);
     }
-    
-    // Get file ID/path
-    const fileId = fileElement.getAttribute('data-id') || fileElement.getAttribute('data-path');
-    const fileName = fileElement.getAttribute('data-name');
-    console.log('📋 File info - ID:', fileId, 'Name:', fileName);
-    
-    // Add this specific file to selection
-    selectedFiles.add(fileId);
-    fileElement.classList.add('selected');
-    console.log('✅ Added to fresh selection, element classes:', fileElement.className);
-    
-    // Set the checkbox for this file to checked
-    const checkbox = fileElement.querySelector('.file-checkbox');
-    if (checkbox) {
-        checkbox.checked = true;
-        console.log('☑️ Checked checkbox for selected file');
-    }
-    
-    // Update UI
-    updateSelectedCount();
-    updateSelectAllCheckbox();
-    
-    // Force notification bar to show
-    const notificationBar = document.getElementById('selection-notification-bar');
-    if (notificationBar) {
-        notificationBar.style.display = 'flex';
-        console.log('📢 Notification bar displayed');
-    } else {
-        console.log('❌ Notification bar not found');
-    }
-    
-    // Show toast notification
-    if (window.googleDriveUI && window.googleDriveUI.showToast) {
-        window.googleDriveUI.showToast(`"${fileName}" dipilih`, 'success');
-    } else {
-        console.log('🔔 Toast: File dipilih -', fileName);
-    }
-    
-    console.log('🎯 Started selection with file:', fileName, 'Total selected:', selectedFiles.size);
 }
 
 // Expose to global scope
@@ -145,15 +185,27 @@ function toggleSelectionMode() {
 }
 
 function enterSelectionMode() {
+    console.log('⚡ Entering selection mode...');
     isSelectionMode = true;
     document.body.classList.add('selection-mode');
     
-    // Show/hide appropriate buttons
-    document.getElementById('select-mode-btn').classList.add('hidden');
-    document.getElementById('move-files-btn').classList.remove('hidden');
-    document.getElementById('cancel-select-btn').classList.remove('hidden');
+    // Show/hide appropriate buttons (with safety checks)
+    const selectModeBtn = document.getElementById('select-mode-btn');
+    if (selectModeBtn) {
+        selectModeBtn.classList.add('hidden');
+    }
     
-    // Show checkbox column
+    const moveFilesBtn = document.getElementById('move-files-btn');
+    if (moveFilesBtn) {
+        moveFilesBtn.classList.remove('hidden');
+    }
+    
+    const cancelSelectBtn = document.getElementById('cancel-select-btn');
+    if (cancelSelectBtn) {
+        cancelSelectBtn.classList.remove('hidden');
+    }
+    
+    // Show checkbox column (with safety checks)
     document.querySelectorAll('.checkbox-column').forEach(el => {
         el.classList.remove('hidden');
     });
@@ -161,7 +213,10 @@ function enterSelectionMode() {
     // Add checkboxes to all rows
     addCheckboxesToRows();
     
+    // Update selection count
     updateSelectedCount();
+    
+    console.log('✅ Selection mode entered successfully');
 }
 
 function exitSelectionMode() {
@@ -284,6 +339,8 @@ function updateSelectedCount() {
             notificationBar.style.display = 'none';
             console.log('📢 Notification bar hidden');
         }
+    } else {
+        console.log('⚠️ Notification bar element not found');
     }
     
     // Enable/disable action buttons
@@ -304,6 +361,8 @@ function updateSelectedCount() {
             deleteBtn.setAttribute('disabled', 'true');
             console.log('🔘 Action buttons disabled');
         }
+    } else {
+        console.log('⚠️ Action buttons not found - moveBtn:', !!moveBtn, 'deleteBtn:', !!deleteBtn);
     }
 }
 
@@ -311,6 +370,11 @@ function updateSelectAllCheckbox() {
     const allCheckboxes = document.querySelectorAll('.file-checkbox');
     const checkedCheckboxes = document.querySelectorAll('.file-checkbox:checked');
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    
+    if (!selectAllCheckbox) {
+        console.log('⚠️ Select all checkbox not found');
+        return;
+    }
     
     if (checkedCheckboxes.length === 0) {
         selectAllCheckbox.checked = false;
@@ -322,6 +386,13 @@ function updateSelectAllCheckbox() {
         selectAllCheckbox.checked = false;
         selectAllCheckbox.indeterminate = true;
     }
+    
+    console.log('📋 Updated select all checkbox:', {
+        total: allCheckboxes.length,
+        checked: checkedCheckboxes.length,
+        selectAllChecked: selectAllCheckbox.checked,
+        indeterminate: selectAllCheckbox.indeterminate
+    });
 }
 
 async function openMoveDialog() {

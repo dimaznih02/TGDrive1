@@ -351,16 +351,56 @@ function handleBasicContextAction(action, fileName, fileType, filePath) {
             console.log('📁 Found file element:', fileElement);
             
             if (fileElement) {
-                // Use the existing moveFiles.js system instead of our conflicting one
+                // First check if moveFiles.js system is loaded and ready
                 if (window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
                     console.log('✅ Using moveFiles.js selection system');
-                    window.startSelectionWithFile(fileElement);
+                    try {
+                        window.startSelectionWithFile(fileElement);
+                        console.log('✅ Selection started successfully for:', fileName);
+                    } catch (error) {
+                        console.error('❌ Error starting selection:', error);
+                        alert('Error starting selection: ' + error.message);
+                    }
                 } else {
-                    console.log('❌ moveFiles.js selection system not available');
-                    alert('Selection system not available. Please refresh the page.');
+                    console.log('❌ moveFiles.js selection system not available, checking if it needs time to load...');
+                    
+                    // Give it a moment for the system to load, then try again
+                    setTimeout(() => {
+                        if (window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
+                            console.log('✅ Selection system now available, retrying...');
+                            try {
+                                window.startSelectionWithFile(fileElement);
+                                console.log('✅ Selection started successfully for:', fileName);
+                            } catch (error) {
+                                console.error('❌ Error starting selection (retry):', error);
+                                alert('Error starting selection: ' + error.message);
+                            }
+                        } else {
+                            console.log('❌ Selection system still not available after retry');
+                            alert('Selection system not available. Please refresh the page and try again.');
+                        }
+                    }, 100);
                 }
             } else {
-                console.log('❌ File element not found:', filePath);
+                console.log('❌ File element not found for path:', filePath);
+                // Try to find by other attributes
+                const alternativeElement = document.querySelector(`[data-name="${fileName}"]`) || 
+                                         document.querySelector(`[data-id="${filePath}"]`);
+                if (alternativeElement) {
+                    console.log('✅ Found alternative file element:', alternativeElement);
+                    if (window.startSelectionWithFile && typeof window.startSelectionWithFile === 'function') {
+                        try {
+                            window.startSelectionWithFile(alternativeElement);
+                            console.log('✅ Selection started successfully with alternative element for:', fileName);
+                        } catch (error) {
+                            console.error('❌ Error starting selection with alternative element:', error);
+                            alert('Error starting selection: ' + error.message);
+                        }
+                    }
+                } else {
+                    console.log('❌ No file element found for:', fileName, 'path:', filePath);
+                    alert('File not found for selection. Please refresh the page and try again.');
+                }
             }
             break;
             
