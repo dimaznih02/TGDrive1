@@ -110,6 +110,109 @@ function injectDirectSelectionCSS() {
     .direct-selected {
         grid-template-columns: minmax(250px, 1fr) 150px 120px 100px 40px !important;
     }
+    
+    /* 🎯 CRITICAL: Ensure notification bar is ALWAYS visible when needed */
+    #selection-notification-bar {
+        position: relative !important;
+        z-index: 100 !important;
+        display: none !important; /* Default hidden, JS will control visibility */
+        width: 100% !important;
+        margin-bottom: 16px !important;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+        border: 2px solid #2196f3 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3) !important;
+        animation: slideDown 0.3s ease-out !important;
+    }
+    
+    /* 🎯 Ensure all action buttons are properly styled and visible */
+    #selection-notification-bar .action-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 8px 16px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        cursor: pointer !important;
+        border: none !important;
+        min-height: 36px !important;
+    }
+    
+    /* 🎯 BATAL button specific styling - make it clearly visible */
+    #cancel-select-btn {
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    #cancel-select-btn:hover:not(.disabled) {
+        background: #eeeeee !important;
+        border-color: #bbb !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+    }
+    
+    /* 🎯 Move and Delete button styling */
+    #move-selected-btn {
+        background: #1976d2 !important;
+        color: white !important;
+    }
+    
+    #move-selected-btn:hover:not(.disabled) {
+        background: #1565c0 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3) !important;
+    }
+    
+    #delete-selected-btn {
+        background: #d32f2f !important;
+        color: white !important;
+    }
+    
+    #delete-selected-btn:hover:not(.disabled) {
+        background: #c62828 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3) !important;
+    }
+    
+    /* 🎯 Disabled state for all buttons */
+    #selection-notification-bar .action-btn.disabled {
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+        transform: none !important;
+    }
+    
+    /* 🎯 Animation for notification bar appearance */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* 🎯 Force notification bar to show when JS sets display: block */
+    #selection-notification-bar[style*="display: block"],
+    #selection-notification-bar[style*="display:block"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* 🎯 Force notification bar to hide when JS sets display: none */
+    #selection-notification-bar[style*="display: none"],
+    #selection-notification-bar[style*="display:none"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
 
     .direct-selected::after {
         content: '✓';
@@ -386,7 +489,7 @@ window.directMove = function() {
 
 function updateDirectCounter() {
     const count = directSelected.size;
-    console.log(`\n🔄 updateDirectCounter() called`);
+    console.log(`\n🔄🔄🔄 updateDirectCounter() called`);
     console.log(`📊 directSelected.size: ${count}`);
     console.log(`📦 directSelected contents:`, Array.from(directSelected));
     
@@ -395,28 +498,89 @@ function updateDirectCounter() {
     const notificationBar = document.getElementById('selection-notification-bar');
     const moveBtn = document.getElementById('move-selected-btn');
     const deleteBtn = document.getElementById('delete-selected-btn');
+    const cancelBtn = document.getElementById('cancel-select-btn'); // ← TOMBOL BATAL!
     
-    console.log(`🎯 Header counter found:`, !!headerCounter);
-    console.log(`🎯 Notification bar found:`, !!notificationBar);
-    console.log(`🎯 Move button found:`, !!moveBtn);
-    console.log(`🎯 Delete button found:`, !!deleteBtn);
+    console.log(`\n🎯 ELEMENT DETECTION:`);
+    console.log(`  - Header counter found:`, !!headerCounter);
+    console.log(`  - Notification bar found:`, !!notificationBar);
+    console.log(`  - Move button found:`, !!moveBtn);
+    console.log(`  - Delete button found:`, !!deleteBtn);
+    console.log(`  - ❌ CANCEL button found:`, !!cancelBtn); // ← PENTING!
     
     // Update header counter
     if (headerCounter) {
         headerCounter.textContent = count;
         console.log(`📝 Header counter updated to: "${count}"`);
+    } else {
+        console.warn('⚠️ Header counter element not found!');
     }
     
+    // 🎯 CRITICAL: Show/Hide notification bar based on selection count
     if (notificationBar) {
         const shouldShow = count > 0;
-        notificationBar.style.display = shouldShow ? 'block' : 'none';
-        console.log(`👁️ Notification display set to: ${shouldShow ? 'visible' : 'hidden'}`);
-        console.log(`👁️ Notification actual display: ${notificationBar.style.display}`);
+        
+        console.log(`\n👁️ NOTIFICATION BAR UPDATE:`);
+        console.log(`  - Should show: ${shouldShow}`);
+        console.log(`  - Before display: "${notificationBar.style.display}"`);
+        
+        if (shouldShow) {
+            // ✅ SHOW the notification bar with all buttons
+            notificationBar.style.display = 'block';
+            notificationBar.style.visibility = 'visible';
+            notificationBar.style.opacity = '1';
+            
+            // Enable all buttons
+            if (moveBtn) {
+                moveBtn.disabled = false;
+                moveBtn.classList.remove('disabled');
+                console.log(`✅ Move button ENABLED`);
+            }
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                deleteBtn.classList.remove('disabled');
+                console.log(`✅ Delete button ENABLED`);
+            }
+            if (cancelBtn) {
+                cancelBtn.disabled = false;
+                cancelBtn.classList.remove('disabled');
+                console.log(`✅ ❌ CANCEL button ENABLED - READY TO USE!`);
+            }
+            
+            console.log(`✅ Notification bar VISIBLE with ${count} items selected`);
+        } else {
+            // ❌ HIDE the notification bar
+            notificationBar.style.display = 'none';
+            notificationBar.style.visibility = 'hidden';
+            notificationBar.style.opacity = '0';
+            
+            // Disable all buttons
+            if (moveBtn) {
+                moveBtn.disabled = true;
+                moveBtn.classList.add('disabled');
+            }
+            if (deleteBtn) {
+                deleteBtn.disabled = true;
+                deleteBtn.classList.add('disabled');
+            }
+            if (cancelBtn) {
+                cancelBtn.disabled = true;
+                cancelBtn.classList.add('disabled');
+            }
+            
+            console.log(`❌ Notification bar HIDDEN - no selection`);
+        }
+        
+        console.log(`  - After display: "${notificationBar.style.display}"`);
+        console.log(`  - After visibility: "${notificationBar.style.visibility}"`);
+        console.log(`  - After opacity: "${notificationBar.style.opacity}"`);
+        
     } else {
-        console.log('❌ Notification element not found!');
+        console.error('❌❌❌ CRITICAL: Notification bar element NOT FOUND!');
+        console.error('❌ Cannot show Batal button - #selection-notification-bar missing');
     }
     
-    console.log(`✅ updateDirectCounter() completed - using existing HTML notification bar`);
+    console.log(`\n✅✅✅ updateDirectCounter() completed`);
+    console.log(`📊 Final state: ${count > 0 ? 'BUTTONS SHOULD BE VISIBLE' : 'BUTTONS SHOULD BE HIDDEN'}`);
 }
 
 function hideDirectMenu() {
@@ -668,6 +832,40 @@ function setupKeyboardShortcuts() {
     
     console.log('✅ Keyboard shortcuts setup (CTRL+A, ESC)');
 }
+
+// 🧪 DEBUG: Function to manually test notification bar
+window.testNotificationBar = function() {
+    console.log('\n🧪 TESTING NOTIFICATION BAR...');
+    
+    const notificationBar = document.getElementById('selection-notification-bar');
+    const cancelBtn = document.getElementById('cancel-select-btn');
+    
+    console.log('Notification bar found:', !!notificationBar);
+    console.log('Cancel button found:', !!cancelBtn);
+    
+    if (notificationBar) {
+        console.log('Current display:', notificationBar.style.display);
+        console.log('Current visibility:', notificationBar.style.visibility);
+        
+        // Force show for 3 seconds
+        notificationBar.style.display = 'block';
+        notificationBar.style.visibility = 'visible';
+        notificationBar.style.opacity = '1';
+        
+        console.log('✅ Forced notification bar visible for 3 seconds');
+        
+        setTimeout(() => {
+            notificationBar.style.display = 'none';
+            console.log('❌ Hidden notification bar after test');
+        }, 3000);
+    }
+};
+
+// 🧪 DEBUG: Function to manually trigger updateDirectCounter
+window.debugUpdateCounter = function() {
+    console.log('\n🧪 MANUAL TRIGGER updateDirectCounter...');
+    updateDirectCounter();
+};
 
 // Function to reinitialize after directory refresh
 window.reinitializeDirectSelection = function() {
