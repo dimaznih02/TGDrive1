@@ -18,8 +18,16 @@ def get_pid_from_file(pid_file):
             with open(pid_file, 'r') as f:
                 pid = int(f.read().strip())
             # Check if process is still running
-            if psutil.pid_exists(pid):
-                return pid
+            try:
+                if psutil.pid_exists(pid):
+                    return pid
+            except:
+                # Fallback if psutil not available - check with os
+                try:
+                    os.kill(pid, 0)  # Signal 0 just checks if process exists
+                    return pid
+                except ProcessLookupError:
+                    pass
     except:
         pass
     return None
@@ -213,13 +221,20 @@ def main():
     
     command = sys.argv[1].lower()
     
-    # Install psutil if not available
+    # Try to import psutil, install if needed
     try:
         import psutil
     except ImportError:
-        print("📦 Installing required package...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "psutil"])
-        import psutil
+        print("📦 Installing required package psutil...")
+        try:
+            subprocess.run([sys.executable, "-m", "pip", "install", "psutil", "--break-system-packages"], check=True)
+            import psutil
+            print("✅ psutil installed successfully")
+        except subprocess.CalledProcessError:
+            print("⚠️  Warning: Could not install psutil automatically")
+            print("   Process status checking may be limited")
+            print("   Run manually: pip3 install psutil --break-system-packages")
+            # Continue without psutil - basic functionality will work
     
     if command == "start-bot":
         start_bot()
