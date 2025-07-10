@@ -58,9 +58,13 @@ def start_bot():
     print("🤖 Starting Bot Telegram...")
     
     # Start bot in background using nohup
+    # Add user local bin to PATH for pip-installed packages
+    env = os.environ.copy()
+    env['PATH'] = f"/home/ubuntu/.local/bin:{env.get('PATH', '')}"
+    
     process = subprocess.Popen([
         "nohup", "python3", "bot_main.py"
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid)
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid, env=env)
     
     save_pid(pid_file, process.pid)
     
@@ -85,9 +89,13 @@ def start_web():
     print("🌐 Starting Web Service...")
     
     # Start web service in background using nohup
+    # Add user local bin to PATH for pip-installed packages
+    env = os.environ.copy()
+    env['PATH'] = f"/home/ubuntu/.local/bin:{env.get('PATH', '')}"
+    
     process = subprocess.Popen([
-        "nohup", "uvicorn", "web_main:app", "--host", "0.0.0.0", "--port", "8000"
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid)
+        "nohup", "python3", "-m", "uvicorn", "web_main:app", "--host", "0.0.0.0", "--port", "8000"
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid, env=env)
     
     save_pid(pid_file, process.pid)
     
