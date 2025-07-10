@@ -1,8 +1,12 @@
 # ⚡ Quick Guide: Deployment Terpisah
 
+## ⚠️ PENTING untuk VPS!
+Jika deploy di VPS, jangan gunakan `python start_bot.py` langsung - akan mati saat SSH terputus!  
+Gunakan `python manage.py start-all` atau `python screen_manage.py start-all` untuk persistent background process.
+
 ## 🚀 Command Cepat
 
-### Development Mode (Recommended)
+### Development Mode (Local)
 ```bash
 # Terminal 1 - Bot (jalankan sekali)
 python start_bot.py
@@ -11,16 +15,23 @@ python start_bot.py
 python start_web.py
 ```
 
-### Production Mode
+### VPS Deployment (Background/Persistent)
 ```bash
-# Menggunakan PM2
-pm2 start bot_main.py --name "tgdrive-bot" --interpreter python
-pm2 start "uvicorn web_main:app --host 0.0.0.0 --port 8000" --name "tgdrive-web"
+# Service Manager (Recommended untuk VPS)
+python manage.py start-all        # Start persistent di background
+python manage.py restart-web      # Quick restart web untuk development
+python manage.py status           # Check status
+
+# Screen Sessions (Alternative)  
+python screen_manage.py start-all # Start di screen sessions
+python screen_manage.py restart-web
+python screen_manage.py attach-web  # Lihat logs real-time
 ```
 
-### All-in-One Mode
+### Production Mode (PM2)
 ```bash
-python start_all.py
+pm2 start bot_main.py --name "tgdrive-bot" --interpreter python
+pm2 start "uvicorn web_main:app --host 0.0.0.0 --port 8000" --name "tgdrive-web"
 ```
 
 ## 📁 File Structure Baru
@@ -28,9 +39,11 @@ python start_all.py
 ```
 ├── bot_main.py          # Bot Telegram (standalone)
 ├── web_main.py          # Web Service (standalone) 
-├── start_bot.py         # Script untuk jalankan bot
-├── start_web.py         # Script untuk jalankan web
-├── start_all.py         # Script untuk jalankan keduanya
+├── start_bot.py         # Script untuk jalankan bot (local)
+├── start_web.py         # Script untuk jalankan web (local)
+├── start_all.py         # Script untuk jalankan keduanya (local)
+├── manage.py            # Service Manager untuk VPS (background process)
+├── screen_manage.py     # Screen Manager untuk VPS (screen sessions)
 ├── main.py              # File lama (masih bisa dipakai)
 └── PANDUAN_DEPLOYMENT_TERPISAH.md  # Panduan lengkap
 ```
@@ -45,5 +58,6 @@ python start_all.py
 ## 🔗 Links
 
 - **Panduan Lengkap**: [PANDUAN_DEPLOYMENT_TERPISAH.md](PANDUAN_DEPLOYMENT_TERPISAH.md)
-- **Web Service**: http://localhost:8000
+- **VPS Deployment**: [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)
+- **Web Service**: http://localhost:8000 (local) atau http://your-vps-ip:8000 (VPS)
 - **Bot Telegram**: Otomatis terhubung ke chat

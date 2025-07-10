@@ -232,19 +232,75 @@ pm2 start bot_main.py --name "tgdrive-bot"
 ### **4. Backup Strategy:**
 Karena bot dan web terpisah, backup database tetap otomatis dari kedua service.
 
+## 🖥️ Deployment di VPS (Background Process)
+
+### ⚠️ **PENTING untuk VPS:**
+Jika Anda run `python start_bot.py` atau `python start_web.py` langsung di VPS, mereka akan **mati saat SSH connection terputus**!
+
+### **🚀 Solusi 1: Menggunakan Service Manager (Recommended)**
+
+```bash
+# Start services di background (persistent)
+python manage.py start-all
+
+# Check status
+python manage.py status
+
+# Quick restart web untuk development
+python manage.py restart-web
+
+# Stop services
+python manage.py stop-all
+
+# Lihat logs
+python manage.py logs
+```
+
+### **📺 Solusi 2: Menggunakan Screen Sessions**
+
+```bash
+# Install screen jika belum ada
+sudo apt-get install screen
+
+# Start services di screen sessions
+python screen_manage.py start-all
+
+# Check status
+python screen_manage.py status
+
+# Quick restart web
+python screen_manage.py restart-web
+
+# Attach ke web session untuk lihat logs real-time
+python screen_manage.py attach-web
+# (Ctrl+A, D untuk detach)
+```
+
 ## ⚡ Quick Start Commands
 
+### **Local Development:**
 ```bash
 # Development mode - untuk coding/testing
 python start_bot.py    # Terminal 1 (jalankan sekali)
 python start_web.py    # Terminal 2 (restart sesuka hati)
+```
 
+### **VPS Deployment:**
+```bash
+# Persistent background services
+python manage.py start-all        # Atau
+python screen_manage.py start-all
+
+# Quick restart web untuk development
+python manage.py restart-web      # Atau  
+python screen_manage.py restart-web
+```
+
+### **Production dengan PM2:**
+```bash
 # Production mode - menggunakan PM2
-pm2 start bot_main.py --name "tgdrive-bot"
+pm2 start bot_main.py --name "tgdrive-bot" --interpreter python
 pm2 start "uvicorn web_main:app --host 0.0.0.0 --port 8000" --name "tgdrive-web"
-
-# All-in-one mode - keduanya jalan tapi tetap terpisah
-python start_all.py
 ```
 
 ## 🎉 Hasil
