@@ -1,0 +1,11 @@
+nohup: ignoring input
+INFO:     Will watch for changes in these directories: ['/workspace']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [13598] using StatReload
+INFO:     Started server process [13600]
+INFO:     Waiting for application startup.
+INFO:     Stopping reloader process [13598]
+/usr/lib/python3.13/multiprocessing/resource_tracker.py:301: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-9ru72p20'}
+  warnings.warn(
+e objects to clean up at shutdown: {'/mp-yziafbuj'}
+  warnings.warn(
