@@ -207,27 +207,32 @@ Kedua service tetap **sinkron** karena:
 
 ### **1. Development Workflow:**
 ```bash
-# 1. Start bot once
-python start_bot.py
+# 1. Start bot once (untuk local development)
+python3 start_bot.py
 
-# 2. Develop web service dengan restart bebas
-python start_web.py
+# 2. Develop web service dengan restart bebas (untuk local)
+python3 start_web.py
 # Stop, modify code, restart - repeat!
+
+# ATAU untuk VPS development:
+python3 manage.py start-all        # Start sekali
+python3 manage.py restart-web      # Restart web sesuka hati
 ```
 
 ### **2. Production Workflow:**
 ```bash
 # 1. Deploy bot menggunakan PM2/systemd
-pm2 start bot_main.py --name "tgdrive-bot"
+pm2 start bot_main.py --name "tgdrive-bot" --interpreter python3
 
 # 2. Deploy web menggunakan reverse proxy (nginx)
 # dengan restart sesuka hati tanpa mengganggu bot
 ```
 
 ### **3. Monitoring:**
-- Monitor bot: `pm2 logs tgdrive-bot`
-- Monitor web: `pm2 logs tgdrive-web`
-- Check status: `pm2 status`
+- Monitor dengan PM2: `pm2 logs tgdrive-bot` dan `pm2 logs tgdrive-web`
+- Monitor dengan Service Manager: `python3 manage.py logs`
+- Monitor dengan Screen: `python3 screen_manage.py attach-web`
+- Check status: `python3 manage.py status` atau `pm2 status`
 
 ### **4. Backup Strategy:**
 Karena bot dan web terpisah, backup database tetap otomatis dari kedua service.
@@ -241,19 +246,19 @@ Jika Anda run `python start_bot.py` atau `python start_web.py` langsung di VPS, 
 
 ```bash
 # Start services di background (persistent)
-python manage.py start-all
+python3 manage.py start-all
 
 # Check status
-python manage.py status
+python3 manage.py status
 
 # Quick restart web untuk development
-python manage.py restart-web
+python3 manage.py restart-web
 
 # Stop services
-python manage.py stop-all
+python3 manage.py stop-all
 
 # Lihat logs
-python manage.py logs
+python3 manage.py logs
 ```
 
 ### **📺 Solusi 2: Menggunakan Screen Sessions**
@@ -263,16 +268,16 @@ python manage.py logs
 sudo apt-get install screen
 
 # Start services di screen sessions
-python screen_manage.py start-all
+python3 screen_manage.py start-all
 
 # Check status
-python screen_manage.py status
+python3 screen_manage.py status
 
 # Quick restart web
-python screen_manage.py restart-web
+python3 screen_manage.py restart-web
 
 # Attach ke web session untuk lihat logs real-time
-python screen_manage.py attach-web
+python3 screen_manage.py attach-web
 # (Ctrl+A, D untuk detach)
 ```
 

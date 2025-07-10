@@ -51,7 +51,7 @@ def start_bot():
     
     # Start bot in background using nohup
     process = subprocess.Popen([
-        "nohup", "python", "bot_main.py"
+        "nohup", "python3", "bot_main.py"
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid)
     
     save_pid(pid_file, process.pid)
@@ -172,7 +172,7 @@ def show_help():
     print("""
 🚀 TG Drive Service Manager
 
-Usage: python manage.py <command>
+Usage: python3 manage.py <command>
 
 Commands:
   start-bot        Start Bot Telegram di background
@@ -190,10 +190,10 @@ Commands:
   logs             Show logs
   
 Examples:
-  python manage.py start-all       # Start bot + web
-  python manage.py restart-web     # Quick restart web untuk development
-  python manage.py status          # Check status
-  python manage.py stop-all        # Stop semua
+  python3 manage.py start-all       # Start bot + web
+  python3 manage.py restart-web     # Quick restart web untuk development
+  python3 manage.py status          # Check status
+  python3 manage.py stop-all        # Stop semua
 """)
 
 def show_logs():

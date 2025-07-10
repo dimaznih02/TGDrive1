@@ -40,7 +40,7 @@ def main():
         # Start web service
         print("🌐 Starting Web Service...")
         web_proc = subprocess.Popen([
-            "python", "start_web.py"
+            "python3", "start_web.py"
         ])
         processes.append(web_proc)
         time.sleep(2)  # Give web service time to start
@@ -48,7 +48,7 @@ def main():
         # Start bot
         print("🤖 Starting Telegram Bot...")
         bot_proc = subprocess.Popen([
-            "python", "start_bot.py"
+            "python3", "start_bot.py"
         ])
         processes.append(bot_proc)
         

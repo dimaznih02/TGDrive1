@@ -1,8 +1,10 @@
 # ⚡ Quick Guide: Deployment Terpisah
 
 ## ⚠️ PENTING untuk VPS!
-Jika deploy di VPS, jangan gunakan `python start_bot.py` langsung - akan mati saat SSH terputus!  
-Gunakan `python manage.py start-all` atau `python screen_manage.py start-all` untuk persistent background process.
+Jika deploy di VPS, jangan gunakan `python3 start_bot.py` langsung - akan mati saat SSH terputus!  
+Gunakan `python3 manage.py start-all` atau `python3 screen_manage.py start-all` untuk persistent background process.  
+
+**Ubuntu Server**: Gunakan `python3` bukan `python`!
 
 ## 🚀 Command Cepat
 
@@ -18,14 +20,14 @@ python start_web.py
 ### VPS Deployment (Background/Persistent)
 ```bash
 # Service Manager (Recommended untuk VPS)
-python manage.py start-all        # Start persistent di background
-python manage.py restart-web      # Quick restart web untuk development
-python manage.py status           # Check status
+python3 manage.py start-all        # Start persistent di background
+python3 manage.py restart-web      # Quick restart web untuk development
+python3 manage.py status           # Check status
 
 # Screen Sessions (Alternative)  
-python screen_manage.py start-all # Start di screen sessions
-python screen_manage.py restart-web
-python screen_manage.py attach-web  # Lihat logs real-time
+python3 screen_manage.py start-all # Start di screen sessions
+python3 screen_manage.py restart-web
+python3 screen_manage.py attach-web  # Lihat logs real-time
 ```
 
 ### Production Mode (PM2)

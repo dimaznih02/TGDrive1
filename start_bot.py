@@ -14,7 +14,7 @@ def main():
     print("-" * 50)
     
     try:
-        os.system("python bot_main.py")
+        os.system("python3 bot_main.py")
     except KeyboardInterrupt:
         print("\n🛑 Bot stopped.")
     except Exception as e:

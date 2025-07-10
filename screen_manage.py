@@ -34,7 +34,7 @@ def start_bot():
     print("🤖 Starting Bot Telegram in screen session...")
     
     # Start bot in screen
-    command = f"screen -dmS {session_name} python bot_main.py"
+    command = f"screen -dmS {session_name} python3 bot_main.py"
     success, _, error = run_command(command)
     
     if success:
@@ -156,7 +156,7 @@ def show_help():
     print("""
 📺 TG Drive Screen Manager
 
-Usage: python screen_manage.py <command>
+Usage: python3 screen_manage.py <command>
 
 Commands:
   start-bot        Start Bot di screen session
@@ -182,10 +182,10 @@ Screen Commands:
   🛑 Kill session: Ctrl+A, K
 
 Examples:
-  python screen_manage.py start-all     # Start bot + web
-  python screen_manage.py restart-web   # Quick restart web
-  python screen_manage.py attach-web    # Lihat web logs real-time
-  python screen_manage.py status        # Check status
+  python3 screen_manage.py start-all     # Start bot + web
+  python3 screen_manage.py restart-web   # Quick restart web
+  python3 screen_manage.py attach-web    # Lihat web logs real-time
+  python3 screen_manage.py status        # Check status
 """)
 
 def check_screen_installed():
