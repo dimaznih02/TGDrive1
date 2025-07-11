@@ -1,0 +1,30 @@
+{
+  "name": "skybox-telegram-setup",
+  "version": "1.0.0",
+  "description": "Setup scripts for SkyBox Telegram Backend",
+  "scripts": {
+    "setup": "node get-channel-ids.js",
+    "test": "node test-telegram-setup.js",
+    "install-deps": "npm install node-telegram-bot-api",
+    "help": "echo 'Commands: npm run setup | npm run test | npm run install-deps'"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0"
+  },
+  "keywords": [
+    "telegram",
+    "skybox", 
+    "google-drive-clone",
+    "file-storage"
+  ],
+  "author": "SkyBox Team",
+  "license": "MIT",
+  "instructions": {
+    "step1": "npm install",
+    "step2": "Update BOT_TOKEN in get-channel-ids.js",
+    "step3": "Create 5 Telegram channels", 
+    "step4": "Add bot to channels as admin",
+    "step5": "npm run setup",
+    "step6": "npm run test"
+  }
+}
