@@ -58,10 +58,11 @@ export const authOptions = {
     }
   },
 
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error'
-  },
+  // Using default NextAuth pages for now
+  // pages: {
+  //   signIn: '/auth/signin',
+  //   error: '/auth/error'
+  // },
 
   session: {
     strategy: 'jwt'
