@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './api/auth/[...nextauth]'
 import Head from 'next/head'
 import { toast, Toaster } from 'react-hot-toast'
 
@@ -239,4 +241,15 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+// Prevent static generation
+export async function getServerSideProps(context) {
+  const session = await getServerSession(context.req, context.res, authOptions)
+  
+  return {
+    props: {
+      session
+    }
+  }
 }

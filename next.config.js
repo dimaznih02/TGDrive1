@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: false,
-  },
   images: {
     domains: [
       'api.telegram.org',
@@ -15,12 +12,8 @@ const nextConfig = {
     STORAGE_CHANNEL_ID: process.env.STORAGE_CHANNEL_ID,
     DATABASE_CHANNEL_ID: process.env.DATABASE_CHANNEL_ID,
   },
-  api: {
-    bodyParser: {
-      sizeLimit: '4gb',
-    },
-    responseLimit: false,
-  },
+  // API routes configuration moved to pages/api/_middleware.js or individual API routes
+  // bodyParser configuration should be done per API route, not globally
 }
 
 module.exports = nextConfig
