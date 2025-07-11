@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow cross-origin requests in development
+  allowedDevOrigins: ['209.74.81.235'],
+  
   images: {
     domains: [
       'api.telegram.org',

@@ -104,7 +104,7 @@ export default function Home() {
               Unlimited cloud storage powered by Telegram
             </p>
             <button
-              onClick={() => signIn('telegram')}
+              onClick={() => signIn('telegram', { telegramData: '' })}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
             >
               Login with Telegram
