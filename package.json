@@ -1,73 +1,46 @@
 {
-  "name": "skybox-telegram-drive",
-  "version": "2.0.0",
-  "description": "SkyBox - FREE Unlimited Google Drive Clone powered by Telegram",
-  "private": true,
+  "name": "skybox-drive",
+  "version": "1.0.0",
+  "description": "FREE Unlimited Cloud Storage powered by Telegram",
+  "main": "next.config.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "node scripts/setup-telegram.js",
-    "test-config": "node scripts/test-telegram-config.js",
-    "deploy": "npm run build && npm run start",
-    "deploy-vercel": "vercel --prod",
-    "deploy-netlify": "npm run build && netlify deploy --prod --dir=.next",
-    "check-env": "node scripts/check-environment.js"
+    "export": "next export"
   },
   "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "next-auth": "^4.24.0",
-    "node-telegram-bot-api": "^0.64.0",
     "formidable": "^3.5.0",
-    "crypto": "^1.0.1",
-    "@next/font": "^14.0.0",
-    "axios": "^1.6.0",
-    "jsonwebtoken": "^9.0.0",
-    "multer": "^1.4.5",
-    "@headlessui/react": "^1.7.0",
-    "@heroicons/react": "^2.0.0",
-    "clsx": "^2.0.0",
-    "date-fns": "^2.30.0",
-    "react-dropzone": "^14.2.0",
     "react-hot-toast": "^2.4.0",
-    "zustand": "^4.4.0"
+    "axios": "^1.6.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
     "eslint": "^8.0.0",
-    "eslint-config-next": "^14.0.0",
-    "postcss": "^8.4.0",
-    "tailwindcss": "^3.3.0",
+    "eslint-config-next": "^15.0.0",
     "autoprefixer": "^10.4.0",
-    "typescript": "^5.0.0"
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0"
+  },
+  "keywords": [
+    "cloud-storage",
+    "telegram",
+    "google-drive",
+    "unlimited-storage",
+    "free"
+  ],
+  "author": "SkyBox Drive",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/skybox-drive.git"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
-  },
-  "keywords": [
-    "google-drive-clone",
-    "telegram-storage",
-    "nextjs",
-    "react",
-    "file-storage",
-    "cloud-storage",
-    "free-storage",
-    "unlimited-storage"
-  ],
-  "author": "SkyBox Team",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/skybox-telegram-drive.git"
-  },
-  "bugs": {
-    "url": "https://github.com/your-username/skybox-telegram-drive/issues"
-  },
-  "homepage": "https://github.com/your-username/skybox-telegram-drive#readme"
+  }
 }
